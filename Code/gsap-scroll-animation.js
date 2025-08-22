@@ -10,8 +10,8 @@ console.log('GSAP Scroll animation system initialized');
 const animationConfig = {
   'slide-up': {
     from: { y: 30, opacity: 0 },
-    to: { y: 0, opacity: 1, duration: 0.3, ease: 'power2.out' }, // Much faster
-    exit: { y: -15, opacity: 0, duration: 0.15, ease: 'power2.in' } // Ultra-fast exit
+    to: { y: 0, opacity: 1, duration: 0.3, ease: 'power4.out' }, // Much faster
+    exit: { y: -15, opacity: 0, duration: 0.1, ease: 'power4.in' } // Ultra-fast exit
   },
   'slide-down': {
     from: { y: -30, opacity: 0 },
