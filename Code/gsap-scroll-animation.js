@@ -91,8 +91,8 @@ function setupSingleAnimation(element, animationType) {
         markers: true, // Uncomment for debugging
 
     trigger: element,
-    start: 'top 80%', // Balanced trigger point for reliable animations
-    end: 'bottom -10%', // Exit only when almost completely out of viewport
+    start: 'top 95%', // Early trigger point - animations start as soon as element enters viewport
+    end: 'bottom 5%', // Exit only when almost completely out of viewport
     onEnter: () => {
       // Kill any existing animations on this element
       gsap.killTweensOf(element);
@@ -172,7 +172,7 @@ function setupStaggerAnimation(container, containerIndex) {
   // Create ScrollTrigger for stagger animation - MUCH SIMPLER
   ScrollTrigger.create({
     trigger: container,
-    start: 'top 80%', // Balanced trigger point for reliable animations
+    start: 'top 95%', // Early trigger point - animations start as soon as element enters viewport
     end: 'bottom 5%', // Exit only when almost completely out of viewport
     onEnter: () => {
       gsap.killTweensOf(staggerChildren);
