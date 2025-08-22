@@ -23,19 +23,23 @@ const animationConfig = {
   // Basic animations
   'slide-up': {
     from: { y: 30, opacity: 0 },
-    to: { y: 0, opacity: 1, duration: 0.6, ease: 'power2.out' }
+    to: { y: 0, opacity: 1, duration: 0.5, ease: 'power3.out' },
+    exit: { y: -10, opacity: 0, duration: 0.3, ease: 'power2.out' }
   },
   'slide-down': {
     from: { y: -30, opacity: 0 },
-    to: { y: 0, opacity: 1, duration: 0.6, ease: 'power2.out' }
+    to: { y: 0, opacity: 1, duration: 0.5, ease: 'power3.out' },
+    exit: { y: 10, opacity: 0, duration: 0.3, ease: 'power2.out' }
   },
   'slide-left': {
     from: { x: 30, opacity: 0 },
-    to: { x: 0, opacity: 1, duration: 0.6, ease: 'power2.out' }
+    to: { x: 0, opacity: 1, duration: 0.5, ease: 'power3.out' },
+    exit: { x: -10, opacity: 0, duration: 0.3, ease: 'power2.out' }
   },
   'slide-right': {
     from: { x: -30, opacity: 0 },
-    to: { x: 0, opacity: 1, duration: 0.6, ease: 'power2.out' }
+    to: { x: 0, opacity: 1, duration: 0.5, ease: 'power3.out' },
+    exit: { x: 10, opacity: 0, duration: 0.3, ease: 'power2.out' }
   },
   'fade-in': {
     from: { opacity: 0 },
@@ -102,17 +106,24 @@ function setupSingleAnimation(element, animationType) {
   // Set initial state
   gsap.set(element, config.from);
   
-  // Create scroll-triggered animation
-  gsap.to(element, {
-    ...config.to,
+  // Create scroll-triggered animation with custom exit
+  const tl = gsap.timeline({
     scrollTrigger: {
       trigger: element,
       start: 'top 80%', // Start when element is 80% in viewport
       end: 'bottom 20%',
-      toggleActions: 'play none none reverse',
+      toggleActions: config.exit ? 'play none none none' : 'play none none reverse',
+      onLeave: config.exit ? () => {
+        gsap.to(element, config.exit);
+      } : undefined,
+      onEnterBack: () => {
+        gsap.to(element, config.to);
+      },
       // markers: true // Uncomment for debugging
     }
   });
+  
+  tl.to(element, config.to);
 }
 
 function setupStaggerAnimation(container, containerIndex) {
@@ -160,20 +171,43 @@ function setupStaggerAnimation(container, containerIndex) {
   // Set initial state for all children
   gsap.set(staggerChildren, config.from);
   
-  // Create staggered animation
-  gsap.to(staggerChildren, {
+  // Create staggered animation with custom exit
+  const tl = gsap.timeline({
+    scrollTrigger: {
+      trigger: container,
+      start: 'top 80%',
+      end: 'bottom 20%',
+      toggleActions: config.exit ? 'play none none none' : 'play none none reverse',
+      onLeave: config.exit ? () => {
+        gsap.to(staggerChildren, {
+          ...config.exit,
+          stagger: {
+            each: 0.03, // Faster exit stagger
+            from: 'start',
+            ease: 'power2.out'
+          }
+        });
+      } : undefined,
+      onEnterBack: () => {
+        gsap.to(staggerChildren, {
+          ...config.to,
+          stagger: {
+            each: 0.05,
+            from: 'start',
+            ease: 'power2.out'
+          }
+        });
+      },
+      // markers: true // Uncomment for debugging
+    }
+  });
+  
+  tl.to(staggerChildren, {
     ...config.to,
     stagger: {
       each: 0.05, // 0.05 seconds between each element (faster than CSS version)
       from: 'start',
       ease: 'power2.out'
-    },
-    scrollTrigger: {
-      trigger: container,
-      start: 'top 80%',
-      end: 'bottom 20%',
-      toggleActions: 'play none none reverse',
-      // markers: true // Uncomment for debugging
     }
   });
   
