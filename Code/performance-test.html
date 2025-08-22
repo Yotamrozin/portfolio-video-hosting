@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSS vs GSAP Performance Test</title>
+    
+    <!-- CSS Animation System -->
+    <link rel="stylesheet" href="css-animation-system.css">
+    
+    <!-- GSAP CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+        }
+        
+        .test-section {
+            padding: 100px 20px;
+            text-align: center;
+        }
+        
+        .css-section {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .gsap-section {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+        
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            margin: 50px auto;
+        }
+        
+        .test-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 30px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .stagger-container {
+            max-width: 800px;
+            margin: 50px auto;
+        }
+        
+        .stagger-item {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            margin: 10px 0;
+            border-radius: 8px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .performance-info {
+            background: rgba(0, 0, 0, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 30px auto;
+            max-width: 600px;
+        }
+        
+        .fps-counter {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-family: monospace;
+            z-index: 1000;
+        }
+        
+        .switch-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            z-index: 1000;
+        }
+        
+        .switch-button:hover {
+            background: #0056b3;
+        }
+        
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+        }
+        
+        h2 {
+            font-size: 2em;
+            margin-bottom: 30px;
+        }
+        
+        .spacer {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5em;
+            background: #f8f9fa;
+        }
+    </style>
+</head>
+<body>
+    <div class="fps-counter" id="fpsCounter">FPS: --</div>
+    <button class="switch-button" id="switchSystem">Switch to GSAP</button>
+    
+    <div class="spacer">
+        <p>Scroll down to see animations in action</p>
+    </div>
+    
+    <!-- CSS Animation System Test -->
+    <section class="test-section css-section" id="cssSection">
+        <h1 scroll-animate="fade-in">CSS Animation System</h1>
+        
+        <div class="performance-info" scroll-animate="slide-up">
+            <h3>Performance Characteristics</h3>
+            <p>• CSS Transitions and Transforms</p>
+            <p>• Fixed timing with CSS delays</p>
+            <p>• Browser-optimized but limited control</p>
+        </div>
+        
+        <h2 scroll-animate="slide-up">Single Animations</h2>
+        <div class="test-grid">
+            <div class="test-item" scroll-animate="slide-up">
+                <h3>Slide Up</h3>
+                <p>Basic slide animation</p>
+            </div>
+            <div class="test-item" scroll-animate="slide-right">
+                <h3>Slide Right</h3>
+                <p>Horizontal movement</p>
+            </div>
+            <div class="test-item" scroll-animate="scale-up">
+                <h3>Scale Up</h3>
+                <p>Scaling animation</p>
+            </div>
+            <div class="test-item" scroll-animate="slide-up-backout">
+                <h3>Slide Up Backout</h3>
+                <p>Bouncy animation</p>
+            </div>
+        </div>
+        
+        <h2 scroll-animate="slide-up">Stagger Animations</h2>
+        <div class="stagger-container" scroll-animate="slide-up-stagger">
+            <div class="stagger-item" stagger-item>Stagger Item 1</div>
+            <div class="stagger-item" stagger-item>Stagger Item 2</div>
+            <div class="stagger-item" stagger-item>Stagger Item 3</div>
+            <div class="stagger-item" stagger-item>Stagger Item 4</div>
+            <div class="stagger-item" stagger-item>Stagger Item 5</div>
+            <div class="stagger-item" stagger-item>Stagger Item 6</div>
+        </div>
+    </section>
+    
+    <!-- GSAP Animation System Test -->
+    <section class="test-section gsap-section" id="gsapSection" style="display: none;">
+        <h1 scroll-animate="fade-in">GSAP Animation System</h1>
+        
+        <div class="performance-info" scroll-animate="slide-up">
+            <h3>Performance Characteristics</h3>
+            <p>• Hardware-accelerated animations</p>
+            <p>• Dynamic timing and advanced easing</p>
+            <p>• 60fps optimized with better control</p>
+        </div>
+        
+        <h2 scroll-animate="slide-up">Single Animations</h2>
+        <div class="test-grid">
+            <div class="test-item" scroll-animate="slide-up">
+                <h3>Slide Up</h3>
+                <p>GSAP-powered slide</p>
+            </div>
+            <div class="test-item" scroll-animate="slide-right">
+                <h3>Slide Right</h3>
+                <p>Smooth horizontal movement</p>
+            </div>
+            <div class="test-item" scroll-animate="scale-up">
+                <h3>Scale Up</h3>
+                <p>Enhanced scaling</p>
+            </div>
+            <div class="test-item" scroll-animate="slide-up-backout">
+                <h3>Slide Up Backout</h3>
+                <p>Advanced bounce effect</p>
+            </div>
+        </div>
+        
+        <h2 scroll-animate="slide-up">Stagger Animations</h2>
+        <div class="stagger-container" scroll-animate="slide-up-stagger">
+            <div class="stagger-item" stagger-item>Stagger Item 1</div>
+            <div class="stagger-item" stagger-item>Stagger Item 2</div>
+            <div class="stagger-item" stagger-item>Stagger Item 3</div>
+            <div class="stagger-item" stagger-item>Stagger Item 4</div>
+            <div class="stagger-item" stagger-item>Stagger Item 5</div>
+            <div class="stagger-item" stagger-item>Stagger Item 6</div>
+        </div>
+    </section>
+    
+    <div class="spacer">
+        <p>End of test - scroll back up to see reverse animations</p>
+    </div>
+    
+    <!-- Animation Systems -->
+    <script src="scroll-animation.js" id="cssAnimationScript"></script>
+    <script src="gsap-scroll-animation.js" id="gsapAnimationScript" style="display: none;"></script>
+    
+    <script>
+        // FPS Counter
+        let fps = 0;
+        let lastTime = performance.now();
+        let frameCount = 0;
+        
+        function updateFPS() {
+            frameCount++;
+            const currentTime = performance.now();
+            
+            if (currentTime - lastTime >= 1000) {
+                fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+                document.getElementById('fpsCounter').textContent = `FPS: ${fps}`;
+                frameCount = 0;
+                lastTime = currentTime;
+            }
+            
+            requestAnimationFrame(updateFPS);
+        }
+        
+        updateFPS();
+        
+        // System Switcher
+        let currentSystem = 'css';
+        const switchButton = document.getElementById('switchSystem');
+        const cssSection = document.getElementById('cssSection');
+        const gsapSection = document.getElementById('gsapSection');
+        const cssScript = document.getElementById('cssAnimationScript');
+        const gsapScript = document.getElementById('gsapAnimationScript');
+        
+        switchButton.addEventListener('click', () => {
+            if (currentSystem === 'css') {
+                // Switch to GSAP
+                cssSection.style.display = 'none';
+                gsapSection.style.display = 'block';
+                cssScript.style.display = 'none';
+                gsapScript.style.display = 'block';
+                switchButton.textContent = 'Switch to CSS';
+                currentSystem = 'gsap';
+                
+                // Reinitialize GSAP animations
+                if (window.refreshScrollAnimations) {
+                    window.refreshScrollAnimations();
+                }
+            } else {
+                // Switch to CSS
+                cssSection.style.display = 'block';
+                gsapSection.style.display = 'none';
+                cssScript.style.display = 'block';
+                gsapScript.style.display = 'none';
+                switchButton.textContent = 'Switch to GSAP';
+                currentSystem = 'css';
+                
+                // Refresh page to reinitialize CSS animations
+                setTimeout(() => {
+                    window.location.reload();
+                }, 100);
+            }
+        });
+        
+        // Performance monitoring
+        let animationCount = 0;
+        let totalAnimationTime = 0;
+        
+        // Monitor animation performance
+        const observer = new PerformanceObserver((list) => {
+            for (const entry of list.getEntries()) {
+                if (entry.entryType === 'measure' && entry.name.includes('animation')) {
+                    animationCount++;
+                    totalAnimationTime += entry.duration;
+                }
+            }
+        });
+        
+        observer.observe({ entryTypes: ['measure'] });
+        
+        // Log performance data
+        setInterval(() => {
+            if (animationCount > 0) {
+                const avgAnimationTime = totalAnimationTime / animationCount;
+                console.log(`${currentSystem.toUpperCase()} System - Avg Animation Time: ${avgAnimationTime.toFixed(2)}ms, FPS: ${fps}`);
+            }
+        }, 5000);
+        
+        // Memory usage monitoring
+        if ('memory' in performance) {
+            setInterval(() => {
+                const memory = performance.memory;
+                console.log(`${currentSystem.toUpperCase()} Memory - Used: ${(memory.usedJSHeapSize / 1048576).toFixed(2)}MB, Total: ${(memory.totalJSHeapSize / 1048576).toFixed(2)}MB`);
+            }, 10000);
+        }
+    </script>
+</body>
+</html>
