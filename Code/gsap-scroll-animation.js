@@ -23,40 +23,40 @@ const animationConfig = {
   // Basic animations
   'slide-up': {
     from: { y: 30, opacity: 0 },
-    to: { y: 0, opacity: 1, duration: 0.5, ease: 'power3.out' },
-    exit: { y: -10, opacity: 0, duration: 0.3, ease: 'power2.out' }
+    to: { y: 0, opacity: 1, duration: 0.5, ease: 'power4.out' },
+    exit: { y: -10, opacity: 0, duration: 0.3, ease: 'power3.in' }
   },
   'slide-down': {
     from: { y: -30, opacity: 0 },
-    to: { y: 0, opacity: 1, duration: 0.5, ease: 'power3.out' },
-    exit: { y: 10, opacity: 0, duration: 0.3, ease: 'power2.out' }
+    to: { y: 0, opacity: 1, duration: 0.5, ease: 'power4.out' },
+    exit: { y: 10, opacity: 0, duration: 0.3, ease: 'power3.in' }
   },
   'slide-left': {
     from: { x: 30, opacity: 0 },
-    to: { x: 0, opacity: 1, duration: 0.5, ease: 'power3.out' },
-    exit: { x: -10, opacity: 0, duration: 0.3, ease: 'power2.out' }
+    to: { x: 0, opacity: 1, duration: 0.5, ease: 'power4.out' },
+  exit: { x: -10, opacity: 0, duration: 0.3, ease: 'power3.in' }
   },
   'slide-right': {
     from: { x: -30, opacity: 0 },
-    to: { x: 0, opacity: 1, duration: 0.5, ease: 'power3.out' },
-    exit: { x: 10, opacity: 0, duration: 0.3, ease: 'power2.out' }
+    to: { x: 0, opacity: 1, duration: 0.5, ease: 'power4.out' },
+    exit: { x: 10, opacity: 0, duration: 0.3, ease: 'power3.in' }
   },
   'fade-in': {
     from: { opacity: 0 },
-    to: { opacity: 1, duration: 0.6, ease: 'power2.out' }
+    to: { opacity: 1, duration: 0.6, ease: 'none' }
   },
   'scale-up': {
     from: { scale: 0.95, opacity: 0 },
-    to: { scale: 1, opacity: 1, duration: 0.6, ease: 'power2.out' }
+    to: { scale: 1, opacity: 1, duration: 0.6, ease: 'power3.out' }
   },
   // Backout animations with bounce easing
   'slide-up-backout': {
     from: { y: 40, opacity: 0 },
-    to: { y: 0, opacity: 1, duration: 0.8, ease: 'back.out(1.7)' }
+    to: { y: 0, opacity: 1, duration: 0.8, ease: 'back.out(2.2)' }
   },
   'scale-up-backout': {
     from: { scale: 0.92, opacity: 0 },
-    to: { scale: 1, opacity: 1, duration: 0.8, ease: 'back.out(1.7)' }
+    to: { scale: 1, opacity: 1, duration: 0.8, ease: 'back.out(2.2)' }
   }
 };
 
