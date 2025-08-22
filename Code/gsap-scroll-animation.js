@@ -24,9 +24,9 @@ const animationConfig = {
     exit: { x: -15, opacity: 0, duration: 0.25, ease: 'power2.in' }
   },
   'slide-right': {
-    from: { x: -30, opacity: 0 },
-    to: { x: 0, opacity: 1, duration: 0.4, ease: 'power2.out' },
-    exit: { x: 15, opacity: 0, duration: 0.25, ease: 'power2.in' }
+    from: { x: 30, opacity: 0 },
+    to: { x: 0, opacity: 1, duration: 0.6, ease: 'power2.out' },
+    exit: { x: -15, opacity: 0, duration: 0.25, ease: 'power2.in' }
   },
   'fade-in': {
     from: { opacity: 0 },
@@ -40,12 +40,12 @@ const animationConfig = {
   },
   'slide-up-backout': {
     from: { y: 40, opacity: 0 },
-    to: { y: 0, opacity: 1, duration: 0.6, ease: 'back.out(1.7)' }, // Less aggressive bounce
+    to: { y: 0, opacity: 1, duration: 0.8, ease: 'back.out(2)' }, // Less aggressive bounce
     exit: { y: -20, opacity: 0, duration: 0.3, ease: 'power2.in' }
   },
   'scale-up-backout': {
     from: { scale: 0.9, opacity: 0 },
-    to: { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(1.7)' },
+    to: { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(2)' },
     exit: { scale: 0.95, opacity: 0, duration: 0.3, ease: 'power2.in' }
   }
 };
