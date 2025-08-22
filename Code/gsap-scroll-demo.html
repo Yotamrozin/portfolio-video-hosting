@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GSAP Scroll Animation Demo</title>
+    
+    <!-- GSAP CDN Links -->
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            background: #1a1a1a;
+            color: #fff;
+        }
+        
+        .section {
+            min-height: 100vh;
+            padding: 50px 0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+        
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .demo-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 30px;
+            margin: 20px 0;
+            border-radius: 10px;
+            text-align: center;
+            color: white;
+        }
+        
+        .stagger-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 40px 0;
+        }
+        
+        .stagger-item {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            color: white;
+        }
+        
+        .list-container {
+            background: #2a2a2a;
+            padding: 30px;
+            border-radius: 10px;
+            margin: 40px 0;
+        }
+        
+        .list-item {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+            color: white;
+        }
+        
+        .info-box {
+            background: #333;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            border-left: 4px solid #667eea;
+        }
+        
+        code {
+            background: #444;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: 'Courier New', monospace;
+        }
+    </style>
+</head>
+<body>
+    <!-- Hero Section -->
+    <div class="section">
+        <div class="container">
+            <h1 scroll-animate="slide-up">GSAP Scroll Animation System</h1>
+            <div class="demo-box" scroll-animate="fade-in">
+                <h3>Welcome to the GSAP Demo</h3>
+                <p>This system maintains your existing custom attribute approach while leveraging GSAP's superior performance and built-in stagger functionality.</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Single Animations Section -->
+    <div class="section">
+        <div class="container">
+            <h2 scroll-animate="slide-right">Single Element Animations</h2>
+            
+            <div class="demo-box" scroll-animate="slide-up">
+                <h3>Slide Up Animation</h3>
+                <p>Uses <code>scroll-animate="slide-up"</code></p>
+            </div>
+            
+            <div class="demo-box" scroll-animate="slide-left">
+                <h3>Slide Left Animation</h3>
+                <p>Uses <code>scroll-animate="slide-left"</code></p>
+            </div>
+            
+            <div class="demo-box" scroll-animate="scale-up">
+                <h3>Scale Up Animation</h3>
+                <p>Uses <code>scroll-animate="scale-up"</code></p>
+            </div>
+            
+            <div class="demo-box" scroll-animate="slide-up-backout">
+                <h3>Slide Up with Bounce</h3>
+                <p>Uses <code>scroll-animate="slide-up-backout"</code></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Stagger Animations Section -->
+    <div class="section">
+        <div class="container">
+            <h2 scroll-animate="fade-in">Stagger Animations</h2>
+            
+            <div class="info-box">
+                <h3>Grid Stagger Example</h3>
+                <p>Container uses <code>scroll-animate="slide-up-stagger"</code></p>
+            </div>
+            
+            <div class="stagger-container" scroll-animate="slide-up-stagger">
+                <div class="stagger-item" stagger-item>
+                    <h4>Item 1</h4>
+                    <p>First to animate</p>
+                </div>
+                <div class="stagger-item" stagger-item>
+                    <h4>Item 2</h4>
+                    <p>Second to animate</p>
+                </div>
+                <div class="stagger-item" stagger-item>
+                    <h4>Item 3</h4>
+                    <p>Third to animate</p>
+                </div>
+                <div class="stagger-item" stagger-item>
+                    <h4>Item 4</h4>
+                    <p>Fourth to animate</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- List Stagger Section -->
+    <div class="section">
+        <div class="container">
+            <h2 scroll-animate="slide-left">List Stagger Example</h2>
+            
+            <div class="info-box">
+                <h3>Fade In Stagger</h3>
+                <p>Container uses <code>scroll-animate="fade-in-stagger"</code></p>
+                <p>Children are automatically detected and animated</p>
+            </div>
+            
+            <div class="list-container" scroll-animate="fade-in-stagger">
+                <div class="list-item">List Item 1 - Fades in first</div>
+                <div class="list-item">List Item 2 - Fades in second</div>
+                <div class="list-item">List Item 3 - Fades in third</div>
+                <div class="list-item">List Item 4 - Fades in fourth</div>
+                <div class="list-item">List Item 5 - Fades in fifth</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Backout Stagger Section -->
+    <div class="section">
+        <div class="container">
+            <h2 scroll-animate="scale-up">Backout Stagger Example</h2>
+            
+            <div class="info-box">
+                <h3>Bouncy Stagger Animation</h3>
+                <p>Container uses <code>scroll-animate="slide-up-backout-stagger"</code></p>
+                <p>Each item gets a bouncy entrance with stagger timing</p>
+            </div>
+            
+            <div class="stagger-container" scroll-animate="slide-up-backout-stagger">
+                <div class="stagger-item" stagger-item>
+                    <h4>Bouncy 1</h4>
+                    <p>Bounces in first</p>
+                </div>
+                <div class="stagger-item" stagger-item>
+                    <h4>Bouncy 2</h4>
+                    <p>Bounces in second</p>
+                </div>
+                <div class="stagger-item" stagger-item>
+                    <h4>Bouncy 3</h4>
+                    <p>Bounces in third</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Benefits Section -->
+    <div class="section">
+        <div class="container">
+            <h2 scroll-animate="slide-up">GSAP Benefits</h2>
+            
+            <div class="demo-box" scroll-animate="slide-right">
+                <h3>🚀 Superior Performance</h3>
+                <p>GSAP is optimized for 60fps animations and handles complex sequences efficiently</p>
+            </div>
+            
+            <div class="demo-box" scroll-animate="slide-left">
+                <h3>🎯 Precise Control</h3>
+                <p>Fine-tuned easing, timing, and sequencing capabilities</p>
+            </div>
+            
+            <div class="demo-box" scroll-animate="scale-up">
+                <h3>🔧 Built-in Stagger</h3>
+                <p>Native stagger functionality with advanced configuration options</p>
+            </div>
+            
+            <div class="demo-box" scroll-animate="fade-in">
+                <h3>🌐 Cross-browser Compatibility</h3>
+                <p>Consistent performance across all modern browsers</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Load the GSAP scroll animation system -->
+    <script src="gsap-scroll-animation.js"></script>
+</body>
+</html>
