@@ -79,10 +79,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // Set the animation attribute on the child
         child.setAttribute('scroll-animate', childAnimationType);
         
-        console.log(`Child ${childIndex}: Animation = ${childAnimationType}, Delay = ${delayClass}`);
-        console.log(`Child element classes:`, child.className);
-        console.log(`Child scroll-animate attribute:`, child.getAttribute('scroll-animate'));
-        
         // Observe the child element
         observer.observe(child);
       });
