@@ -80,6 +80,8 @@ document.addEventListener('DOMContentLoaded', function() {
         child.setAttribute('scroll-animate', childAnimationType);
         
         console.log(`Child ${childIndex}: Animation = ${childAnimationType}, Delay = ${delayClass}`);
+        console.log(`Child element classes:`, child.className);
+        console.log(`Child scroll-animate attribute:`, child.getAttribute('scroll-animate'));
         
         // Observe the child element
         observer.observe(child);
@@ -104,29 +106,32 @@ document.addEventListener('DOMContentLoaded', function() {
   });
   
   // Handle elements that should be visible immediately (above the fold)
-  setTimeout(() => {
-    const viewportHeight = window.innerHeight;
-    
-    // Check non-stagger elements
-    nonStaggerElements.forEach(el => {
-      const rect = el.getBoundingClientRect();
+  // Use requestAnimationFrame for better timing
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      const viewportHeight = window.innerHeight;
       
-      // If element is already in the initial viewport, animate it immediately
-      if (rect.top < viewportHeight && rect.bottom > 0) {
-        el.classList.add('is-inview');
-        console.log('Immediate animation for above-fold element:', el);
-      }
-    });
-    
-    // Also check stagger items that might be above the fold
-    document.querySelectorAll('[stagger-item], [scroll-animate*="stagger"] > *').forEach(el => {
-      if (el.hasAttribute('scroll-animate') && !el.getAttribute('scroll-animate').includes('stagger')) {
+      // Check non-stagger elements
+      nonStaggerElements.forEach(el => {
         const rect = el.getBoundingClientRect();
-        if (rect.top < viewportHeight && rect.bottom > 0) {
+        
+        // If element is already in the initial viewport, animate it immediately
+        if (rect.top < viewportHeight * 0.8 && rect.bottom > 0) {
           el.classList.add('is-inview');
-          console.log('Immediate stagger animation for above-fold element:', el);
+          console.log('Immediate animation for above-fold element:', el);
         }
-      }
-    });
-  }, 150); // Slightly longer delay to ensure everything is set up
+      });
+      
+      // Also check stagger items that might be above the fold
+      document.querySelectorAll('[stagger-item], [scroll-animate*="stagger"] > *').forEach(el => {
+        if (el.hasAttribute('scroll-animate') && !el.getAttribute('scroll-animate').includes('stagger')) {
+          const rect = el.getBoundingClientRect();
+          if (rect.top < viewportHeight * 0.8 && rect.bottom > 0) {
+            el.classList.add('is-inview');
+            console.log('Immediate stagger animation for above-fold element:', el);
+          }
+        }
+      });
+    }, 100);
+  });
 });
