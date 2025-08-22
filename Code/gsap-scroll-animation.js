@@ -35,7 +35,7 @@ const animationConfig = {
   },
   'scale-up': {
     from: { scale: 0.95, opacity: 0 },
-    to: { scale: 1, opacity: 1, duration: 0.5, ease: 'power2.out' },
+    to: { scale: 1, opacity: 1, duration: 0.3, ease: 'power3.out' },
     exit: { scale: 0.98, opacity: 0, duration: 0.25, ease: 'power2.in' }
   },
   'slide-up-backout': {
@@ -45,7 +45,7 @@ const animationConfig = {
   },
   'scale-up-backout': {
     from: { scale: 0.9, opacity: 0 },
-    to: { scale: 1, opacity: 1, duration: 0.6, ease: 'back.out(1.7)' },
+    to: { scale: 1, opacity: 1, duration: 0.3, ease: 'back.out(1.7)' },
     exit: { scale: 0.95, opacity: 0, duration: 0.3, ease: 'power2.in' }
   }
 };
