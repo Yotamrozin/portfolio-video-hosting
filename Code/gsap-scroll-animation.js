@@ -91,7 +91,7 @@ function setupSingleAnimation(element, animationType) {
         markers: true, // Uncomment for debugging
 
     trigger: element,
-    start: 'top 95%', // Early trigger point - animations start as soon as element enters viewport
+    start: 'top 99%', // Early trigger point - animations start as soon as element enters viewport
     end: 'bottom 5%', // Exit only when almost completely out of viewport
     onEnter: () => {
       // Kill any existing animations on this element
