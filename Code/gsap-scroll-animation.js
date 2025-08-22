@@ -1,70 +1,53 @@
-/**
- * GSAP-Based Scroll Animation System
- * Maintains compatibility with existing custom attributes while leveraging GSAP's superior performance
- * 
- * Supported animations:
- * - slide-up, slide-down, slide-left, slide-right
- * - fade-in
- * - scale-up
- * - slide-up-backout (with bounce easing)
- * - Stagger variants: slide-up-stagger, fade-in-stagger, etc.
- * 
- * Usage:
- * - Add scroll-animate="animation-name" to elements
- * - For stagger containers, use scroll-animate="animation-name-stagger"
- * - Children will automatically inherit the base animation
- */
 
+/**
+ * GSAP-Based Scroll Animation System - SIMPLIFIED & RELIABLE
+ * Maintains compatibility with existing custom attributes while leveraging GSAP's superior performance
+ */
 
 console.log('GSAP Scroll animation system initialized');
 
-// Animation configurations
+// Animation configurations - SIMPLIFIED with faster timings
 const animationConfig = {
-  // Basic animations
   'slide-up': {
     from: { y: 30, opacity: 0 },
-    to: { y: 0, opacity: 1, duration: 0.5, ease: 'power3.out' },
-    exit: { y: -10, opacity: 0, duration: 0.15, ease: 'power2.out' }
+    to: { y: 0, opacity: 1, duration: 0.4, ease: 'power2.out' }, // Faster
+    exit: { y: -15, opacity: 0, duration: 0.25, ease: 'power2.in' } // Snappier exit
   },
   'slide-down': {
     from: { y: -30, opacity: 0 },
-    to: { y: 0, opacity: 1, duration: 0.5, ease: 'power3.out' },
-    exit: { y: 10, opacity: 0, duration: 0.15, ease: 'power2.out' }
+    to: { y: 0, opacity: 1, duration: 0.4, ease: 'power2.out' },
+    exit: { y: 15, opacity: 0, duration: 0.25, ease: 'power2.in' }
   },
   'slide-left': {
     from: { x: 30, opacity: 0 },
-    to: { x: 0, opacity: 1, duration: 0.5, ease: 'power3.out' },
-    exit: { x: -10, opacity: 0, duration: 0.15, ease: 'power2.out' }
+    to: { x: 0, opacity: 1, duration: 0.4, ease: 'power2.out' },
+    exit: { x: -15, opacity: 0, duration: 0.25, ease: 'power2.in' }
   },
   'slide-right': {
     from: { x: -30, opacity: 0 },
-    to: { x: 0, opacity: 1, duration: 0.5, ease: 'power3.out' },
-    exit: { x: 10, opacity: 0, duration: 0.15, ease: 'power2.out' }
+    to: { x: 0, opacity: 1, duration: 0.4, ease: 'power2.out' },
+    exit: { x: 15, opacity: 0, duration: 0.25, ease: 'power2.in' }
   },
   'fade-in': {
     from: { opacity: 0 },
-    to: { opacity: 1, duration: 0.6, ease: 'none' }
+    to: { opacity: 1, duration: 0.5, ease: 'none' },
+    exit: { opacity: 0, duration: 0.2, ease: 'none' }
   },
   'scale-up': {
     from: { scale: 0.95, opacity: 0 },
-    to: { scale: 1, opacity: 1, duration: 0.6, ease: 'power3.out' }
+    to: { scale: 1, opacity: 1, duration: 0.5, ease: 'power2.out' },
+    exit: { scale: 0.98, opacity: 0, duration: 0.25, ease: 'power2.in' }
   },
-  // Backout animations with bounce easing
   'slide-up-backout': {
     from: { y: 40, opacity: 0 },
-    to: { y: 0, opacity: 1, duration: 0.8, ease: 'back.out(2.2)' }
+    to: { y: 0, opacity: 1, duration: 0.6, ease: 'back.out(1.7)' }, // Less aggressive bounce
+    exit: { y: -20, opacity: 0, duration: 0.3, ease: 'power2.in' }
   },
   'scale-up-backout': {
-    from: { scale: 0.92, opacity: 0 },
-    to: { scale: 1, opacity: 1, duration: 0.8, ease: 'back.out(2.2)' }
+    from: { scale: 0.9, opacity: 0 },
+    to: { scale: 1, opacity: 1, duration: 0.6, ease: 'back.out(1.7)' },
+    exit: { scale: 0.95, opacity: 0, duration: 0.3, ease: 'power2.in' }
   }
-};
-
-// Stagger configuration
-const staggerConfig = {
-  amount: 0.4, // Total time for all staggers
-  from: 'start', // Start from first element
-  ease: 'power2.out'
 };
 
 // Initialize animations when DOM is ready
@@ -73,14 +56,12 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeScrollAnimations() {
-  // Find all elements with scroll-animate attribute
   const animatedElements = document.querySelectorAll('[scroll-animate]');
   console.log(`Found ${animatedElements.length} elements with scroll animations`);
   
   animatedElements.forEach((element, index) => {
     const animationType = element.getAttribute('scroll-animate');
     
-    // Check if this is a stagger container
     if (animationType.includes('-stagger')) {
       setupStaggerAnimation(element, index);
     } else {
@@ -88,7 +69,6 @@ function initializeScrollAnimations() {
     }
   });
   
-  // Refresh ScrollTrigger to ensure proper calculations
   ScrollTrigger.refresh();
 }
 
@@ -100,36 +80,47 @@ function setupSingleAnimation(element, animationType) {
     return;
   }
   
-  // Clear any existing CSS transforms to prevent conflicts
-  gsap.set(element, { clearProps: 'transform' });
-  
-  // Set initial state
+  // Set initial state immediately
   gsap.set(element, config.from);
   
-  // Create scroll-triggered animation with custom exit
+  // Create a single timeline that ScrollTrigger controls directly
   const tl = gsap.timeline({
-    scrollTrigger: {
-      trigger: element,
-      start: 'top 90%', // Start earlier when element is 90% in viewport
-      end: 'bottom 10%',
-      toggleActions: config.exit ? 'play none none none' : 'play none none reverse',
-      onEnter: () => {
-        gsap.to(element, config.to);
-      },
-      onLeave: config.exit ? () => {
-        gsap.to(element, config.exit);
-      } : undefined,
-      onLeaveBack: config.exit ? () => {
-        gsap.to(element, config.exit);
-      } : undefined,
-      onEnterBack: () => {
-        gsap.to(element, config.to);
-      },
-      // markers: true // Uncomment for debugging
-    }
+    paused: true
   });
   
+  // Add the main animation to timeline
   tl.to(element, config.to);
+  
+  // Create ScrollTrigger - SIMPLIFIED approach
+  ScrollTrigger.create({
+    trigger: element,
+    start: 'top 85%',
+    end: 'bottom 15%',
+    animation: tl,
+    toggleActions: 'play none none reverse',
+    onEnter: () => {
+      // Kill any existing animations on this element
+      gsap.killTweensOf(element);
+      gsap.to(element, config.to);
+    },
+    onLeave: () => {
+      if (config.exit) {
+        gsap.killTweensOf(element);
+        gsap.to(element, config.exit);
+      }
+    },
+    onEnterBack: () => {
+      gsap.killTweensOf(element);
+      gsap.to(element, config.to);
+    },
+    onLeaveBack: () => {
+      if (config.exit) {
+        gsap.killTweensOf(element);
+        gsap.to(element, config.exit);
+      }
+    }
+    // markers: true // Uncomment for debugging
+  });
 }
 
 function setupStaggerAnimation(container, containerIndex) {
@@ -144,22 +135,17 @@ function setupStaggerAnimation(container, containerIndex) {
     return;
   }
   
-  // Find stagger children using the same logic as the original system
+  // Find stagger children
   let staggerChildren = [];
   
-  // Priority 1: Elements with stagger-item attribute
   const staggerItems = container.querySelectorAll('[stagger-item]');
   if (staggerItems.length > 0) {
     staggerChildren = Array.from(staggerItems);
-  }
-  // Priority 2: Elements with role="listitem"
-  else {
+  } else {
     const listItems = container.querySelectorAll('[role="listitem"]');
     if (listItems.length > 0) {
       staggerChildren = Array.from(listItems);
-    }
-    // Priority 3: Direct children
-    else {
+    } else {
       staggerChildren = Array.from(container.children);
     }
   }
@@ -171,70 +157,59 @@ function setupStaggerAnimation(container, containerIndex) {
     return;
   }
   
-  // Clear any existing CSS transforms to prevent conflicts
-  gsap.set(staggerChildren, { clearProps: 'transform' });
-  
-  // Set initial state for all children
+  // Set initial state for all children immediately
   gsap.set(staggerChildren, config.from);
   
-  // Create staggered animation with custom exit
-  const tl = gsap.timeline({
-    scrollTrigger: {
-      trigger: container,
-      start: 'top 90%', // Start earlier
-      end: 'bottom 10%',
-      toggleActions: config.exit ? 'play none none none' : 'play none none reverse',
-      onEnter: () => {
-        gsap.to(staggerChildren, {
-          ...config.to,
-          stagger: {
-            each: 0.05,
-            from: 'start',
-            ease: 'power2.out'
-          }
-        });
-      },
-      onLeave: config.exit ? () => {
-        gsap.to(staggerChildren, {
-          ...config.exit,
-          stagger: {
-            each: 0.015, // Even faster exit stagger
-            from: 'start',
-            ease: 'power2.out'
-          }
-        });
-      } : undefined,
-      onLeaveBack: config.exit ? () => {
+  // Create ScrollTrigger for stagger animation - MUCH SIMPLER
+  ScrollTrigger.create({
+    trigger: container,
+    start: 'top 85%',
+    end: 'bottom 15%',
+    onEnter: () => {
+      gsap.killTweensOf(staggerChildren);
+      gsap.to(staggerChildren, {
+        ...config.to,
+        stagger: {
+          each: 0.08, // Slightly faster than before
+          from: 'start'
+        }
+      });
+    },
+    onLeave: () => {
+      if (config.exit) {
+        gsap.killTweensOf(staggerChildren);
         gsap.to(staggerChildren, {
           ...config.exit,
           stagger: {
-            each: 0.015, // Fast exit when scrolling up
-            from: 'start',
-            ease: 'power2.out'
+            each: 0.03, // Very fast exit
+            from: 'start'
           }
         });
-      } : undefined,
-      onEnterBack: () => {
+      }
+    },
+    onEnterBack: () => {
+      gsap.killTweensOf(staggerChildren);
+      gsap.to(staggerChildren, {
+        ...config.to,
+        stagger: {
+          each: 0.08,
+          from: 'start'
+        }
+      });
+    },
+    onLeaveBack: () => {
+      if (config.exit) {
+        gsap.killTweensOf(staggerChildren);
         gsap.to(staggerChildren, {
-          ...config.to,
+          ...config.exit,
           stagger: {
-            each: 0.05,
-            from: 'start',
-            ease: 'power2.out'
+            each: 0.03,
+            from: 'start'
           }
         });
-      },
-      // markers: true // Uncomment for debugging
+      }
     }
-  });
-  
-  tl.to(staggerChildren, {
-    ...config.to,
-    stagger: {
-      each: 0.05, // 0.05 seconds between each element (faster than CSS version)
-      from: 'start',
-      ease: 'power2.out'
-    }
+    // markers: true // Uncomment for debugging
   });
   
   // Set animation attribute on children for consistency
@@ -243,16 +218,14 @@ function setupStaggerAnimation(container, containerIndex) {
   });
 }
 
-// Utility function to refresh animations (useful for dynamic content)
+// Utility functions
 function refreshScrollAnimations() {
   ScrollTrigger.refresh();
   console.log('ScrollTrigger refreshed');
 }
 
-// Export for global access
 window.refreshScrollAnimations = refreshScrollAnimations;
 
-// Handle window resize
 window.addEventListener('resize', () => {
   ScrollTrigger.refresh();
 });
