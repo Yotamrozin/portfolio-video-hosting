@@ -1,0 +1,220 @@
+   
+:root {
+	--nav-height: 8.5rem; /* This will be animated by Webflow */
+	--nav_1--height: var(--nav-height);
+	--nav_1--banner-height: 2.4rem;
+	--nav_1--height-total: var(--nav_1--height);
+	--nav_1--icon-thickness: var(--border-width--main);
+	--nav_1--hamburger-thickness: var(--nav_1--icon-thickness);
+	--nav_1--hamburger-gap: var(--_spacing---space--2);
+	--nav_1--hamburger-rotate: 45;
+	--nav_1--menu-open-duration: 400ms;
+	--nav_1--menu-close-duration: 400ms;
+	--nav_1--dropdown-duration: 400ms;
+	--nav_1--dropdown-open-duration: 400ms;
+	--nav_1--dropdown-delay: 0ms;
+}
+
+/* on smaller screens */
+@media (width < 60em) {
+	/* disable scroll when mobile menu is open */
+	body:has(.nav_1_component .w-nav-button.w--open) { overflow: hidden; }
+}
+
+/* on larger screens */
+@container (min-width: 60em) {
+	/* show desktop nav & dropdown backdrop */
+	.nav_1_wrap.is-desktop, .nav_1_dropdown_backdrop { display: block; }
+	/* hide mobile nav & mobile menu backdrop */
+	.nav_1_wrap.is-mobile, .nav_1_menu_backdrop { display: none; }
+}
+
+/* dropdown list: initial state */
+html:not(.wf-design-mode) .nav_1_dropdown_component > .w-dropdown-list {
+	/* removes display none to enable css transitions */
+	display: grid !important;
+	grid-template-columns: minmax(0, 1fr);
+	/* sets list to 0 height by default */
+	grid-template-rows: 0fr;
+	transition: grid-template-rows var(--nav_1--dropdown-duration);
+	/* makes list content not focusable when closed */
+	visibility: hidden;
+	opacity: 0;
+}
+
+/* makes list content focusable when opened */
+html:not(.wf-design-mode) .nav_1_dropdown_component > .w-dropdown-list.w--open {
+	visibility: visible;
+	opacity: 1;
+}
+
+/* sets list child to overflow hidden to enable css height transition */
+.nav_1_dropdown_component > .w-dropdown-list > * {
+	overflow: hidden;
+}
+
+/* set open state of dropdown list */
+.nav_1_dropdown_component:has(> .w-dropdown-toggle[aria-expanded="true"]) > .w-dropdown-list {
+	--nav_1--dropdown-duration: var(--nav_1--dropdown-open-duration);
+	grid-template-rows: 1fr;
+}
+
+/* on desktop, delay dropdown opening if another dropdown is open */
+.nav_1_wrap.is-desktop:has(.nav_1_dropdown_component > .w-dropdown-toggle.w--open[aria-expanded="false"]) .nav_1_dropdown_component:has(> .w--open[aria-expanded="true"]) > .w-dropdown-list {
+	transition-delay: var(--nav_1--dropdown-duration);
+}
+
+/* reveal dropdown backdrop when dropdown open */
+.nav_1_dropdown_backdrop {
+	transition: opacity var(--nav_1--dropdown-duration);
+}
+
+body:has(.nav_1_dropdown_component > [aria-expanded="true"]) .nav_1_dropdown_backdrop {
+	opacity: 1;
+}
+
+/* rotate arrow inside open dropdown */
+.w-dropdown-toggle[aria-expanded="true"] .nav_1_links_svg {
+	transform: rotate(-180deg);
+}
+
+/* fade out other dropdown links when link is hovered */
+@media (hover: hover) and (pointer: fine) {
+	body:has(.nav_1_dropdown_item:hover) .nav_1_dropdown_item:not(:hover) > * > * {
+		opacity: 0.5;
+	}
+}
+
+/* animate first hamburger line when opened */
+.nav_1_component .w-nav-button.w--open > * > :first-child {
+	transform: translateY(calc(var(--nav_1--hamburger-thickness) * 0.5 + var(--nav_1--hamburger-gap) * 0.5)) rotate(calc(var(--nav_1--hamburger-rotate) * -1deg));
+}
+
+/* animate second hamburger line when opened */
+.nav_1_component .w-nav-button.w--open > * > :last-child {
+	transform: translateY(calc(var(--nav_1--hamburger-thickness) * -0.5 + var(--nav_1--hamburger-gap) * -0.5)) rotate(calc(var(--nav_1--hamburger-rotate) * 1deg));
+}
+
+/* reveal mobile menu backdrop on menu open */
+.nav_1_menu_backdrop {
+	transition: opacity var(--nav_1--menu-close-duration);
+}
+
+.nav_1_component:has(.w-nav-button.w--open) .nav_1_menu_backdrop {
+	opacity: 1;
+}
+
+/* menu animations */
+@keyframes menuOpen {
+ from { clip-path: polygon(0 0, 100% 0, 100% 0, 0 0); }
+ to { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+}
+
+@keyframes menuClose {
+ from { clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%); }
+ to { clip-path: polygon(0 0, 100% 0, 100% 0, 0 0); }
+}
+
+/* menu open */
+.nav_1_component:has(.w-nav-button.w--open) .w-nav-menu {
+	animation: menuOpen var(--nav_1--menu-open-duration) ease-in-out forwards;
+}
+
+/* menu close */
+.nav_1_component:has(.w-nav-button:not(.w--open)) .w-nav-menu {
+	animation: menuClose var(--nav_1--menu-close-duration) ease-in-out forwards;
+}
+
+/* position overflow to top of screen */
+.nav_1_component .w-nav-overlay {
+ top: 0;
+ min-height: 100vh;
+}
+
+/* search focus underline */
+.nav_1_search_wrap:has(input:focus-visible) {
+	border-color: var(--_theme---text);
+}
+
+/* open dropdown on mobile */
+.nav_1_wrap.is-mobile [data-open-on-mobile] > .w-dropdown-toggle {
+	display: none;
+}
+
+.nav_1_wrap.is-mobile [data-open-on-mobile] > .w-dropdown-list {
+	visibility: visible;
+	opacity: 1;
+	display: block;
+	grid-template-rows: 1fr;
+}
+
+/* Rotate Nav Banner Arrow When External Link */
+a[target="_blank"] .nav_1_banner_svg {
+	transform: rotate(-45deg);
+}
+
+/* nav banner */
+html:has(.nav_1_banner_wrap:not(.w-condition-invisible)):not(.hide-nav-banner) {
+	--nav_1--height-total: calc(var(--nav_1--banner-height) + var(--nav_1--height));
+}
+
+.hide-nav-banner .nav_1_banner_wrap {
+	display: none;
+}
+
+/* ======================================== */
+/* NAVBAR SCROLL ANIMATION STYLES - ADDED */
+/* ======================================== */
+
+/* Smooth transitions for all animated properties */
+.nav_1_component {
+    transition: all 0.4s ease-in-out;
+}
+
+/* IMPORTANT: Make the navbar actually use the CSS variable */
+.nav_1_wrap {
+    height: var(--nav_1--height) !important;
+    transition: height 0.4s ease-in-out, background-color 0.4s ease-in-out;
+}
+
+/* Scrolled state styles - IMPORTANT: This affects ALL variants */
+.nav_1_component.is-scrolled {
+    --nav-height: 6rem !important; /* Reduced height when scrolled - force override */
+    --nav_1--height: 6rem !important; /* Also override the nav_1--height variable */
+}
+
+/* Logo scaling animation - IMPORTANT: This affects ALL variants */
+.nav_1_component .nav_1_logo_wrap {
+    transition: transform 0.3s cubic-bezier(0.85, 0, 0.15, 1);
+}
+
+.nav_1_component.is-scrolled .nav_1_logo_wrap {
+    transform: scale(0.8) !important; /* Adjust scale value as needed - force override */
+}
+
+/* Smooth variant transition */
+.nav_1_component[data-wf--nav--variant] {
+    transition: all 0.3s cubic-bezier(0.85, 0, 0.15, 1);
+}
+
+/* Color transitions - ONLY for Base variant elements */
+.nav_1_component[data-wf--nav--variant="base"] [project-font-color="true"],
+.nav_1_component[data-wf--nav--variant="base"] [project-bg-color="true"] {
+    transition: color 0.3s linear, 
+             
+}
+
+/* Border color elements - FIXED: Preserve CSS animations */
+[project-border-color="true"] {
+    transition: border-color 0.3s ease-in-out;
+}
+
+/* Ensure height transitions work for all variants */
+.nav_1_contain {
+    transition: height 0.3s cubic-bezier(0.85, 0, 0.15, 1);
+}
+
+/* Force height override for scrolled state */
+.nav_1_component.is-scrolled .nav_1_wrap {
+    height: var(--nav-height) !important;
+}

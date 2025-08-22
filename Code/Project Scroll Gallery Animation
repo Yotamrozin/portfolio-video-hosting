@@ -1,0 +1,325 @@
+
+document.addEventListener("DOMContentLoaded", function () {
+  // Check if required libraries are loaded
+  if (typeof gsap === "undefined" || typeof ScrollTrigger === "undefined") {
+    console.error("GSAP and ScrollTrigger are required. Please make sure they are properly loaded.");
+    return;
+  }
+  
+  // Check if imagesLoaded is available
+  if (typeof imagesLoaded === "undefined") {
+    console.error("imagesLoaded library is required. Please make sure it is properly loaded.");
+    return;
+  }
+  
+  console.log("Animation script initialized");
+  gsap.registerPlugin(ScrollTrigger);
+  
+  // Mouse movement tracking variables
+  let mouseX = 0;
+  let mouseY = 0;
+  let windowWidth = window.innerWidth;
+  let windowHeight = window.innerHeight;
+  let tiltEnabled = true;
+  
+  // Throttle function to limit how often a function can be called
+  function throttle(callback, limit) {
+    let waiting = false;
+    return function() {
+      if (!waiting) {
+        callback.apply(this, arguments);
+        waiting = true;
+        setTimeout(function() {
+          waiting = false;
+        }, limit);
+      }
+    };
+  }
+  
+  // Throttled version of updateTilt
+  const throttledUpdateTilt = throttle(updateTilt, 20); // ~50fps - good balance between smoothness and performance
+  
+  // Track mouse position
+  document.addEventListener("mousemove", function(e) {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    if (tiltEnabled) {
+      throttledUpdateTilt();
+    }
+  });
+  
+  // Update on window resize
+  window.addEventListener("resize", function() {
+    windowWidth = window.innerWidth;
+    windowHeight = window.innerHeight;
+    
+    // Reset cached images on resize as DOM might change
+    window.cachedTiltImages = null;
+    
+    // Debounced reset of tilt to prevent performance issues during resize
+    if (window.resizeTimeout) {
+      clearTimeout(window.resizeTimeout);
+    }
+    window.resizeTimeout = setTimeout(function() {
+      updateTilt();
+    }, 100);
+  });
+  
+  // Add event listener for when user leaves the page
+  document.addEventListener("mouseleave", function() {
+    // Reset all images to their base rotation when mouse leaves the page
+    resetTilt();
+  });
+  
+  // Function to reset all images to their base rotation and position
+  function resetTilt() {
+    const images = document.querySelectorAll('[data-tilt-ready="true"]');
+    
+    images.forEach((img) => {
+      const baseRotationX = parseFloat(img.getAttribute('data-base-rotationX') || '1');
+      const baseRotationY = parseFloat(img.getAttribute('data-base-rotationY') || '2');
+      
+      gsap.to(img, {
+        rotationX: baseRotationX,
+        rotationY: baseRotationY,
+        x: 0, // Reset position
+        y: 0, // Reset position
+        duration: 0.6, // Match the duration in updateTilt
+        ease: "power1.out",
+        overwrite: "auto"
+      });
+    });
+  }
+  
+  // Function to update tilt based on mouse position
+  function updateTilt() {
+    const gallerySection = document.querySelector(".gallery-section_wrap");
+    if (!gallerySection) return;
+    
+    // Cache selector results for performance
+    // Use a single cached selector result instead of trying multiple selectors each time
+    if (!window.cachedTiltImages) {
+      window.cachedTiltImages = document.querySelectorAll(".project-grid-image");
+      if (!window.cachedTiltImages.length) {
+        window.cachedTiltImages = document.querySelectorAll(".w-dyn-item img") || 
+                                document.querySelectorAll(".project-item img");
+      }
+    }
+    
+    const images = window.cachedTiltImages;
+    if (!images.length) return;
+    
+    // Calculate mouse position relative to center of screen (in percentage, -50 to 50)
+    const mouseXPercent = ((mouseX / windowWidth) - 0.5) * 2; // -1 to 1
+    const mouseYPercent = ((mouseY / windowHeight) - 0.5) * 2; // -1 to 1
+    
+    // Apply tilt to each image
+    images.forEach((img) => {
+      // Only apply tilt to images that have completed their entrance animation
+      // or are not currently being animated
+      if (gsap.isTweening(img) && !img.getAttribute('data-tilt-ready')) return;
+      
+      // Get image position
+      const rect = img.getBoundingClientRect();
+      
+      // Skip if image is not in viewport
+      if (rect.bottom < 0 || rect.top > windowHeight) return;
+      
+      const imgCenterX = rect.left + rect.width / 2;
+      const imgCenterY = rect.top + rect.height / 2;
+      
+      // Calculate distance from mouse to image center
+      const distX = mouseX - imgCenterX;
+      const distY = mouseY - imgCenterY;
+      
+      // Calculate distance as a percentage of the screen size
+      const distXPercent = distX / windowWidth;
+      const distYPercent = distY / windowHeight;
+      
+      // Get the base rotation from the current state (to maintain the slight rotation from playIn)
+      const baseRotationX = parseFloat(img.getAttribute('data-base-rotationX') || '1');
+      const baseRotationY = parseFloat(img.getAttribute('data-base-rotationY') || 
+                                      (img.getAttribute('data-is-left') === 'true' ? '-2' : '2'));
+      
+      // Calculate tilt amount (max 5 degrees, more pronounced)
+      // Use inverse for more natural feel
+      const tiltX = baseRotationX + (-distYPercent * 5);
+      const tiltY = baseRotationY + (distXPercent * 5);
+      
+      // Calculate subtle position shift based on mouse movement (max 5px)
+      const moveX = distXPercent * 5;
+      const moveY = distYPercent * 5;
+      
+      // Apply the tilt and position shift with GSAP
+      gsap.to(img, {
+        rotationX: tiltX,
+        rotationY: tiltY,
+        x: moveX,
+        y: moveY,
+        duration: 0.6, // Slightly faster for better responsiveness
+        ease: "power1.out",
+        overwrite: "auto"
+      });
+    });
+  }
+
+  // Try different possible selectors for the project grid images
+  let items = document.querySelectorAll(".project-grid-image");
+  
+  // If no elements found with the first selector, try alternative selectors
+  if (!items.length) {
+    console.log("No elements found with .project-grid-image selector, trying alternatives");
+    items = document.querySelectorAll(".w-dyn-item img"); // Try Webflow dynamic item images
+    
+    if (!items.length) {
+      items = document.querySelectorAll(".project-item img"); // Another possible selector
+    }
+    
+    if (!items.length) {
+      console.error("Could not find any project grid images with any selector");
+      return;
+    }
+  }
+
+  // helper
+  const offscreen = (el, isLeft) => {
+    gsap.killTweensOf(el); // prevent mid-flight conflicts
+    
+    // Remove tilt-ready attribute when going offscreen
+    el.removeAttribute('data-tilt-ready');
+    
+    // Store the isLeft value as a data attribute for the tilt function
+    el.setAttribute('data-is-left', isLeft);
+    
+    gsap.set(el, {
+      y: 100, // Increased y offset for stronger effect
+      x: isLeft ? -60 : 60, // Increased x offset for stronger effect
+      rotationY: isLeft ? -15 : 15, // Stronger rotation
+      rotationX: 8, // Stronger rotation
+      opacity: 0,
+      force3D: true
+    });
+  };
+
+  const playIn = (el, index) => {
+    gsap.killTweensOf(el);
+    const isLeft = index % 2 === 0;
+    const delay = isLeft ? 0 : 0.15; // Slight stagger for right column
+    
+    // Store the isLeft value as a data attribute for the tilt function
+    el.setAttribute('data-is-left', isLeft);
+    
+    // Define base rotation values
+    const baseRotationY = isLeft ? -2 : 2;
+    const baseRotationX = 1;
+    
+    // Store base rotation values as data attributes
+    el.setAttribute('data-base-rotationX', baseRotationX);
+    el.setAttribute('data-base-rotationY', baseRotationY);
+    
+    return gsap.to(el, {
+      y: 0,
+      x: 0,
+      // Maintain a slight rotation at the end state
+      rotationY: baseRotationY, // Slight rotation maintained
+      rotationX: baseRotationX, // Slight rotation maintained
+      opacity: 1,
+      duration: 1.2, // Slightly longer duration for more dramatic effect
+      delay: delay,
+      ease: "power3.out",
+      immediateRender: false, // don't render until it actually plays
+      onComplete: function() {
+        // Add a data attribute to mark this element as ready for mouse tilt
+        el.setAttribute('data-tilt-ready', 'true');
+        // Apply initial tilt if mouse is already over the gallery
+        updateTilt();
+      }
+    });
+  };
+
+  // Make sure images are visible by default before imagesLoaded runs
+  // But don't set opacity to 1 yet, as we want to animate them in
+  console.log(`Found ${items.length} project grid images`);
+
+  // First ensure all images are in the offscreen state
+  items.forEach((el, i) => {
+    const isLeft = i % 2 === 0;
+    offscreen(el, isLeft);
+  });
+  
+  // Wait for images to load before setting up scroll triggers
+  imagesLoaded(document.body, function () {
+    console.log("Images loaded, setting up animations");
+
+    // Create scroll triggers for each image
+    items.forEach((el, i) => {
+      const isLeft = i % 2 === 0;
+
+      // Create two separate triggers for better control
+      
+      // 1) Main trigger for animating in when scrolling down
+      ScrollTrigger.create({
+        trigger: el,
+        start: "top 110%",      // when element's top is 90% down the viewport
+        end: "bottom 20%",     // end when element's bottom is 20% down the viewport
+        onEnter: () => {
+          console.log(`Element ${i} entering viewport from bottom, playing animation`);
+          playIn(el, i);
+        },
+        onLeave: () => {
+          // Don't do anything when scrolling down past this point
+        },
+        onEnterBack: () => {
+          // Don't do anything when scrolling back up into this zone
+        },
+        onLeaveBack: () => {
+          console.log(`Element ${i} leaving viewport downward, setting to offscreen`);
+          offscreen(el, isLeft);
+        },
+        markers: false,
+        invalidateOnRefresh: true
+      });
+      
+      // 2) Second trigger for handling when element leaves viewport at the top
+      ScrollTrigger.create({
+        trigger: el,
+        start: "top 20%",      // when element's top is 20% down from the top of viewport
+        end: "bottom -10%",    // when element's bottom is 10% above the viewport
+        onEnter: () => {
+          // Don't do anything when scrolling down into this zone
+        },
+        onLeave: () => {
+          console.log(`Element ${i} leaving viewport upward, setting to offscreen`);
+          offscreen(el, isLeft);
+        },
+        onEnterBack: () => {
+          console.log(`Element ${i} entering viewport from above, playing animation`);
+          playIn(el, i);
+        },
+        onLeaveBack: () => {
+          // Don't do anything when scrolling up past this point
+        },
+        markers: false,
+        invalidateOnRefresh: true
+      });
+    });
+
+    ScrollTrigger.refresh();
+    
+    // Force a refresh after a short delay to ensure everything is properly initialized
+    setTimeout(() => {
+      ScrollTrigger.refresh();
+      console.log("ScrollTrigger refreshed");
+      
+      // Trigger animations for elements already in view on page load
+      items.forEach((el, i) => {
+        const rect = el.getBoundingClientRect();
+        const isInView = rect.top < window.innerHeight * 0.85 && rect.bottom > 0;
+        if (isInView) {
+          console.log(`Element ${i} is in view, playing animation`);
+          playIn(el, i);
+        }
+      });
+    }, 300); // Increased delay to ensure everything is ready
+  });
+});
