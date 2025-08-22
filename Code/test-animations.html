@@ -6,6 +6,7 @@
     <title>Animation Test</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <link rel="stylesheet" href="css-animation-system.css">
     <style>
         body {
             margin: 0;
@@ -29,24 +30,40 @@
             border-radius: 8px;
             font-size: 24px;
             font-weight: bold;
+            cursor: pointer;
+        }
+        .hover-test {
+            background: #28a745;
+            margin: 20px;
+            padding: 20px;
+            border-radius: 8px;
+            color: white;
+            cursor: pointer;
         }
     </style>
 </head>
 <body>
     <div class="test-section">
-        <div class="test-element" data-animation="slide-up">Slide Up Animation Test</div>
+        <div class="test-element" scroll-animate="slide-up">Slide Up Animation Test</div>
     </div>
     
     <div class="test-section">
-        <div class="test-element" data-animation="slide-up">Another Slide Up Test</div>
+        <div class="test-element" scroll-animate="slide-right">Slide Right Animation Test</div>
     </div>
     
     <div class="test-section">
-        <div class="test-element" data-animation="slide-up">Third Slide Up Test</div>
+        <div class="test-element" scroll-animate="slide-down">Slide Down Animation Test</div>
     </div>
     
     <div class="test-section">
-        <div class="test-element" data-animation="slide-up">Fourth Slide Up Test</div>
+        <div class="test-element" scroll-animate="slide-up-backout">Slide Up Backout Test</div>
+    </div>
+    
+    <div class="test-section">
+        <h2>Hover Transform Tests</h2>
+        <div class="hover-test" hover-transform="scale-up-backout">Hover to Scale Up (should work with scroll animation)</div>
+        <div class="hover-test" scroll-animate="fade-in" hover-transform="scale-up-backout">Fade In + Hover Scale (both should work)</div>
+        <div class="hover-test" scroll-animate="slide-up" hover-transform="slide-right-backout">Slide Up + Hover Slide Right</div>
     </div>
 
     <script src="gsap-scroll-animation.js"></script>
