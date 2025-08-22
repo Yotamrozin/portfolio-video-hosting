@@ -10,13 +10,13 @@ console.log('GSAP Scroll animation system initialized');
 const animationConfig = {
   'slide-up': {
     from: { y: 30, opacity: 0 },
-    to: { y: 0, opacity: 1, duration: 0.4, ease: 'power2.out' }, // Faster
-    exit: { y: -15, opacity: 0, duration: 0.25, ease: 'power2.in' } // Snappier exit
+    to: { y: 0, opacity: 1, duration: 0.3, ease: 'power2.out' }, // Much faster
+    exit: { y: -15, opacity: 0, duration: 0.15, ease: 'power2.in' } // Ultra-fast exit
   },
   'slide-down': {
     from: { y: -30, opacity: 0 },
-    to: { y: 0, opacity: 1, duration: 0.4, ease: 'power2.out' },
-    exit: { y: 15, opacity: 0, duration: 0.25, ease: 'power2.in' }
+    to: { y: 0, opacity: 1, duration: 0.3, ease: 'power2.out' },
+    exit: { y: 15, opacity: 0, duration: 0.15, ease: 'power2.in' }
   },
   'slide-left': {
     from: { x: 30, opacity: 0 },
@@ -94,8 +94,8 @@ function setupSingleAnimation(element, animationType) {
   // Create ScrollTrigger - SIMPLIFIED approach
   ScrollTrigger.create({
     trigger: element,
-    start: 'top 85%',
-    end: 'bottom 15%',
+    start: 'top 95%', // Start much earlier for immediate response
+    end: 'bottom 5%',
     animation: tl,
     toggleActions: 'play none none reverse',
     onEnter: () => {
@@ -163,14 +163,14 @@ function setupStaggerAnimation(container, containerIndex) {
   // Create ScrollTrigger for stagger animation - MUCH SIMPLER
   ScrollTrigger.create({
     trigger: container,
-    start: 'top 85%',
-    end: 'bottom 15%',
+    start: 'top 95%', // Start much earlier for immediate response
+    end: 'bottom 5%',
     onEnter: () => {
       gsap.killTweensOf(staggerChildren);
       gsap.to(staggerChildren, {
         ...config.to,
         stagger: {
-          each: 0.08, // Slightly faster than before
+          each: 0.05, // Much faster stagger for immediate response
           from: 'start'
         }
       });
@@ -181,7 +181,7 @@ function setupStaggerAnimation(container, containerIndex) {
         gsap.to(staggerChildren, {
           ...config.exit,
           stagger: {
-            each: 0.03, // Very fast exit
+            each: 0.02, // Ultra-fast exit
             from: 'start'
           }
         });
