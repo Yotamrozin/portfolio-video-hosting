@@ -96,6 +96,9 @@ function setupSingleAnimation(element, animationType) {
     return;
   }
   
+  // Clear any existing CSS transforms to prevent conflicts
+  gsap.set(element, { clearProps: 'transform' });
+  
   // Set initial state
   gsap.set(element, config.from);
   
@@ -150,6 +153,9 @@ function setupStaggerAnimation(container, containerIndex) {
     console.warn('Stagger container has no children to animate');
     return;
   }
+  
+  // Clear any existing CSS transforms to prevent conflicts
+  gsap.set(staggerChildren, { clearProps: 'transform' });
   
   // Set initial state for all children
   gsap.set(staggerChildren, config.from);

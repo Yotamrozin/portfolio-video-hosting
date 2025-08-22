@@ -289,111 +289,17 @@
   transform: translate(0) scale(1) !important;
 }
 
-/* Gentle slide up */
-[scroll-animate="slide-up"] {
-  transform: translateY(30px);
-}
+/* ================================
+   SCROLL ANIMATIONS REMOVED
+   ================================ */
 
-/* Gentle slide right */
-[scroll-animate="slide-right"] {
-  transform: translateX(-30px);
-}
-
-/* Gentle scale up */
-[scroll-animate="scale-up"] {
-  transform: scale(0.95);
-}
-
-/* Gentle fade in */
-[scroll-animate="fade-in"] {
-  transform: none;
-}
-
-/* Bouncy animations with back-out easing */
-[scroll-animate="slide-up-backout"] {
-  transform: translateY(40px);
-  transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
-  transition-duration: 0.8s;
-}
-
-[scroll-animate="scale-up-backout"] {
-  transform: scale(0.92);
-  transition-timing-function: cubic-bezier(0.404, 0.967, 0.076, 1.429);
-}
-
-/* Staggered animations - these styles apply to the CHILDREN, not the container */
-
-
-[scroll-animate="slide-up-stagger"] {
-  transform: translateY(30px);
-  transition-timing-function: cubic-bezier(0.25, 1, 0.5, 1);
-  transition-duration: 0.8s;
-}
-
-[scroll-animate="slide-right-stagger"] {
-  transform: translateX(-30px);
-}
-
-[scroll-animate="scale-up-stagger"] {
-  transform: scale(0.95);
-}
-
-[scroll-animate="slide-up-backout-stagger"] {
-  transform: translateY(40px);
-  transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
-  transition-duration: 1s;
-}
-
-[scroll-animate="scale-up-backout-stagger"] {
-  transform: scale(0.92);
-  transition-timing-function: cubic-bezier(0.34, 1.56, 0.64, 1);
-  transition-duration: 1s;
-}
-
-/* FIXED: Stagger delays - now with proper order (first element appears first) */
-.is-inview.stagger-delay-1 {
-  transition-delay: 0.05s;
-}
-
-.is-inview.stagger-delay-2 {
-  transition-delay: 0.1s;
-}
-
-.is-inview.stagger-delay-3 {
-  transition-delay: 0.15s;
-}
-
-.is-inview.stagger-delay-4 {
-  transition-delay: 0.2s;
-}
-
-.is-inview.stagger-delay-5 {
-  transition-delay: 0.25s;
-}
-
-.is-inview.stagger-delay-6 {
-  transition-delay: 0.3s;
-}
-
-.is-inview.stagger-delay-7 {
-  transition-delay: 0.35s;
-}
-
-.is-inview.stagger-delay-8 {
-  transition-delay: 0.4s;
-}
-
-/* DEBUG: Add these temporarily to see what's happening */
-/*
-[scroll-animate*="stagger"] {
-  border: 2px solid red !important;
-}
-
-[scroll-animate*="stagger"] > * {
-  border: 1px solid blue !important;
-}
-
-.stagger-delay-1, .stagger-delay-2, .stagger-delay-3, .stagger-delay-4 {
-  outline: 2px solid green !important;
-}
-*/
+/* 
+ * All scroll animations are now handled by GSAP for better performance.
+ * This includes:
+ * - slide-up, slide-down, slide-left, slide-right
+ * - fade-in, scale-up
+ * - slide-up-backout, scale-up-backout
+ * - All stagger variants and delay classes
+ * 
+ * See gsap-scroll-animation.js for the new implementation.
+ */
