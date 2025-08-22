@@ -15,8 +15,6 @@
  * - Children will automatically inherit the base animation
  */
 
-// Register GSAP plugins
-gsap.registerPlugin(ScrollTrigger);
 
 console.log('GSAP Scroll animation system initialized');
 
