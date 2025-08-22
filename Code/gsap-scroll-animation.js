@@ -88,7 +88,7 @@ function setupSingleAnimation(element, animationType) {
   
   // Create ScrollTrigger - SIMPLIFIED approach without timeline conflicts
   ScrollTrigger.create({
-        markers: true, // Uncomment for debugging
+      //  markers: true, // Uncomment for debugging
 
     trigger: element,
     start: 'top 99%', // Early trigger point - animations start as soon as element enters viewport
