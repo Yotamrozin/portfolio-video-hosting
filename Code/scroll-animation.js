@@ -1,5 +1,5 @@
 /**
- * Scroll Animation System
+ * Scroll Animation System - FIXED VERSION
  * This script handles the animation of elements as they scroll into view
  * Works with the CSS animation system to apply animations based on scroll-animate attributes
  */
@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', function() {
       // Add class when element is in view
       if (entry.isIntersecting) {
         entry.target.classList.add('is-inview');
+        console.log('Element now in view:', entry.target);
         // Optional: unobserve after animation is triggered to save resources
         // observer.unobserve(entry.target);
       }
@@ -27,14 +28,20 @@ document.addEventListener('DOMContentLoaded', function() {
   
   console.log(`Found ${animatedElements.length} elements with scroll animations`);
   
-  // First, handle stagger containers
-  const staggerContainers = document.querySelectorAll('[scroll-animate*="stagger"]');
+  // Remove is-inview class from all animated elements initially
+  animatedElements.forEach(el => {
+    el.classList.remove('is-inview');
+  });
+  
+  // Handle stagger containers - SCOPED to animatedElements for better performance
+  const staggerContainers = Array.from(animatedElements).filter(el => 
+    el.getAttribute('scroll-animate').includes('stagger')
+  );
   
   staggerContainers.forEach((container, index) => {
     console.log(`Setting up staggered animation for container ${index}`);
     
     // Get all children that should be staggered
-    // Try stagger-item first, then role="listitem", then all direct children
     let children = container.querySelectorAll('[stagger-item]');
     if (children.length === 0) {
       children = container.querySelectorAll(':scope > [role="listitem"]');
@@ -46,8 +53,13 @@ document.addEventListener('DOMContentLoaded', function() {
     if (children.length) {
       console.log(`Found ${children.length} stagger items`);
       
-      // Remove is-inview class from children if they already have it
+      // IMPORTANT: Make the container visible and remove its animation
+      container.style.opacity = '1';
+      container.style.transform = 'none';
+      
+      // Setup children for staggered animation - FIXED: Reverse the stagger order
       children.forEach((child, childIndex) => {
+        // Remove is-inview class from children
         child.classList.remove('is-inview');
         
         // Remove any existing stagger delay classes first
@@ -55,52 +67,66 @@ document.addEventListener('DOMContentLoaded', function() {
           child.classList.remove(`stagger-delay-${i}`);
         }
         
-        // Add the correct stagger delay class based on position
+        // FIXED: Reverse the stagger order so first element appears first
+        // Calculate delay: first element gets delay-1, second gets delay-2, etc.
         const delayClass = `stagger-delay-${Math.min(childIndex + 1, 8)}`;
         child.classList.add(delayClass);
         
-        // Ensure the child has the correct animation type
-        const animationType = container.getAttribute('scroll-animate');
-        child.setAttribute('scroll-animate', animationType.replace('-stagger', ''));
+        // Get the base animation type (remove -stagger suffix)
+        const containerAnimationType = container.getAttribute('scroll-animate');
+        const childAnimationType = containerAnimationType.replace('-stagger', '');
+        
+        // Set the animation attribute on the child
+        child.setAttribute('scroll-animate', childAnimationType);
+        
+        console.log(`Child ${childIndex}: Animation = ${childAnimationType}, Delay = ${delayClass}`);
         
         // Observe the child element
         observer.observe(child);
       });
+      
+      // Don't observe the container itself since children handle the animation
     } else {
-      console.warn('Stagger container has no stagger-item children');
+      console.warn('Stagger container has no children to animate');
       // Fall back to animating the container itself
       observer.observe(container);
     }
   });
   
-  // Then handle non-stagger elements
-  const nonStaggerElements = document.querySelectorAll('[scroll-animate]:not([scroll-animate*="stagger"]):not([stagger-item])');
+  // Handle non-stagger elements - SCOPED for better performance
+  const nonStaggerElements = Array.from(animatedElements).filter(el => 
+    !el.getAttribute('scroll-animate').includes('stagger') && 
+    !el.hasAttribute('stagger-item')
+  );
   
   nonStaggerElements.forEach(el => {
     observer.observe(el);
-  });
-  
-  // Remove is-inview class from all animated elements initially
-  // This ensures stagger animations work properly
-  animatedElements.forEach(el => {
-    el.classList.remove('is-inview');
   });
   
   // Handle elements that should be visible immediately (above the fold)
   setTimeout(() => {
     const viewportHeight = window.innerHeight;
     
-    animatedElements.forEach(el => {
+    // Check non-stagger elements
+    nonStaggerElements.forEach(el => {
       const rect = el.getBoundingClientRect();
       
       // If element is already in the initial viewport, animate it immediately
-      const isStaggerItem = el.classList.contains('stagger-delay-1') || el.classList.contains('stagger-delay-2') || el.classList.contains('stagger-delay-3') || el.classList.contains('stagger-delay-4') || el.classList.contains('stagger-delay-5') || el.classList.contains('stagger-delay-6') || el.classList.contains('stagger-delay-7') || el.classList.contains('stagger-delay-8');
-      const isStaggerContainer = el.getAttribute('scroll-animate') && el.getAttribute('scroll-animate').includes('stagger');
-      
-      // Animate non-stagger elements and stagger items (but not stagger containers)
-      if (rect.top < viewportHeight && !isStaggerContainer) {
+      if (rect.top < viewportHeight && rect.bottom > 0) {
         el.classList.add('is-inview');
+        console.log('Immediate animation for above-fold element:', el);
       }
     });
-  }, 100); // Small delay to ensure DOM is ready
+    
+    // Also check stagger items that might be above the fold
+    document.querySelectorAll('[stagger-item], [scroll-animate*="stagger"] > *').forEach(el => {
+      if (el.hasAttribute('scroll-animate') && !el.getAttribute('scroll-animate').includes('stagger')) {
+        const rect = el.getBoundingClientRect();
+        if (rect.top < viewportHeight && rect.bottom > 0) {
+          el.classList.add('is-inview');
+          console.log('Immediate stagger animation for above-fold element:', el);
+        }
+      }
+    });
+  }, 150); // Slightly longer delay to ensure everything is set up
 });
