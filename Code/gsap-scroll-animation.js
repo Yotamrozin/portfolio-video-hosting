@@ -92,7 +92,7 @@ function setupSingleAnimation(element, animationType) {
 
     trigger: element,
     start: 'top 80%', // Balanced trigger point for reliable animations
-    end: 'bottom 5%', // Exit only when almost completely out of viewport
+    end: 'bottom -10%', // Exit only when almost completely out of viewport
     onEnter: () => {
       // Kill any existing animations on this element
       gsap.killTweensOf(element);
