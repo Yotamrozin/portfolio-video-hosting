@@ -94,8 +94,8 @@ function setupSingleAnimation(element, animationType) {
   // Create ScrollTrigger - SIMPLIFIED approach
   ScrollTrigger.create({
     trigger: element,
-    start: 'top 95%', // Start much earlier for immediate response
-    end: 'bottom 5%',
+    start: 'top 80%', // Balanced trigger point for reliable animations
+    end: 'bottom 20%',
     animation: tl,
     toggleActions: 'play none none reverse',
     onEnter: () => {
@@ -163,8 +163,8 @@ function setupStaggerAnimation(container, containerIndex) {
   // Create ScrollTrigger for stagger animation - MUCH SIMPLER
   ScrollTrigger.create({
     trigger: container,
-    start: 'top 95%', // Start much earlier for immediate response
-    end: 'bottom 5%',
+    start: 'top 80%', // Balanced trigger point for reliable animations
+    end: 'bottom 20%',
     onEnter: () => {
       gsap.killTweensOf(staggerChildren);
       gsap.to(staggerChildren, {
