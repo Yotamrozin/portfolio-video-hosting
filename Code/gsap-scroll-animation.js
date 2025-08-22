@@ -23,23 +23,23 @@ const animationConfig = {
   // Basic animations
   'slide-up': {
     from: { y: 30, opacity: 0 },
-    to: { y: 0, opacity: 1, duration: 0.5, ease: 'power4.out' },
-    exit: { y: -10, opacity: 0, duration: 0.3, ease: 'power3.in' }
+    to: { y: 0, opacity: 1, duration: 0.5, ease: 'power3.out' },
+    exit: { y: -10, opacity: 0, duration: 0.15, ease: 'power2.out' }
   },
   'slide-down': {
     from: { y: -30, opacity: 0 },
-    to: { y: 0, opacity: 1, duration: 0.5, ease: 'power4.out' },
-    exit: { y: 10, opacity: 0, duration: 0.3, ease: 'power3.in' }
+    to: { y: 0, opacity: 1, duration: 0.5, ease: 'power3.out' },
+    exit: { y: 10, opacity: 0, duration: 0.15, ease: 'power2.out' }
   },
   'slide-left': {
     from: { x: 30, opacity: 0 },
-    to: { x: 0, opacity: 1, duration: 0.5, ease: 'power4.out' },
-  exit: { x: -10, opacity: 0, duration: 0.3, ease: 'power3.in' }
+    to: { x: 0, opacity: 1, duration: 0.5, ease: 'power3.out' },
+    exit: { x: -10, opacity: 0, duration: 0.15, ease: 'power2.out' }
   },
   'slide-right': {
     from: { x: -30, opacity: 0 },
-    to: { x: 0, opacity: 1, duration: 0.5, ease: 'power4.out' },
-    exit: { x: 10, opacity: 0, duration: 0.3, ease: 'power3.in' }
+    to: { x: 0, opacity: 1, duration: 0.5, ease: 'power3.out' },
+    exit: { x: 10, opacity: 0, duration: 0.15, ease: 'power2.out' }
   },
   'fade-in': {
     from: { opacity: 0 },
@@ -110,10 +110,16 @@ function setupSingleAnimation(element, animationType) {
   const tl = gsap.timeline({
     scrollTrigger: {
       trigger: element,
-      start: 'top 80%', // Start when element is 80% in viewport
-      end: 'bottom 20%',
+      start: 'top 90%', // Start earlier when element is 90% in viewport
+      end: 'bottom 10%',
       toggleActions: config.exit ? 'play none none none' : 'play none none reverse',
+      onEnter: () => {
+        gsap.to(element, config.to);
+      },
       onLeave: config.exit ? () => {
+        gsap.to(element, config.exit);
+      } : undefined,
+      onLeaveBack: config.exit ? () => {
         gsap.to(element, config.exit);
       } : undefined,
       onEnterBack: () => {
@@ -175,14 +181,34 @@ function setupStaggerAnimation(container, containerIndex) {
   const tl = gsap.timeline({
     scrollTrigger: {
       trigger: container,
-      start: 'top 80%',
-      end: 'bottom 20%',
+      start: 'top 90%', // Start earlier
+      end: 'bottom 10%',
       toggleActions: config.exit ? 'play none none none' : 'play none none reverse',
+      onEnter: () => {
+        gsap.to(staggerChildren, {
+          ...config.to,
+          stagger: {
+            each: 0.05,
+            from: 'start',
+            ease: 'power2.out'
+          }
+        });
+      },
       onLeave: config.exit ? () => {
         gsap.to(staggerChildren, {
           ...config.exit,
           stagger: {
-            each: 0.03, // Faster exit stagger
+            each: 0.015, // Even faster exit stagger
+            from: 'start',
+            ease: 'power2.out'
+          }
+        });
+      } : undefined,
+      onLeaveBack: config.exit ? () => {
+        gsap.to(staggerChildren, {
+          ...config.exit,
+          stagger: {
+            each: 0.015, // Fast exit when scrolling up
             from: 'start',
             ease: 'power2.out'
           }
