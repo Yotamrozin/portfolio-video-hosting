@@ -14,9 +14,9 @@ const animationConfig = {
     exit: { y: 15, opacity: 0, duration: 0.2, ease: 'power1.in' } // Smoother exit below
   },
   'slide-down': {
-    from: { y: -30, opacity: 0 },
+    from: { y: 30, opacity: 0 }, // Start below (positive y)
     to: { y: 0, opacity: 1, duration: 0.3, ease: 'power2.out' },
-    exit: { y: 15, opacity: 0, duration: 0.15, ease: 'power2.in' }
+    exit: { y: -15, opacity: 0, duration: 0.15, ease: 'power2.in' } // Exit above
   },
   'slide-left': {
     from: { x: 30, opacity: 0 },
@@ -24,9 +24,9 @@ const animationConfig = {
     exit: { x: -15, opacity: 0, duration: 0.25, ease: 'power2.in' }
   },
   'slide-right': {
-    from: { x: 30, opacity: 0 },
-    to: { x: 0, opacity: 1, duration: 0.6, ease: 'power2.out' },
-    exit: { x: -15, opacity: 0, duration: 0.25, ease: 'power2.in' }
+    from: { x: -30, opacity: 0 }, // Start from left (negative x)
+    to: { x: 0, opacity: 1, duration: 0.4, ease: 'power2.out' },
+    exit: { x: 15, opacity: 0, duration: 0.25, ease: 'power2.in' } // Exit to right
   },
   'fade-in': {
     from: { opacity: 0 },
@@ -83,7 +83,7 @@ function setupSingleAnimation(element, animationType) {
   // Set initial state immediately, but preserve existing transforms for hover effects
   gsap.set(element, {
     ...config.from,
-    clearProps: "none" // Don't clear existing CSS transforms
+    clearProps: "transform" // Clear only transform to allow CSS hover to work
   });
   
   // Create ScrollTrigger - SIMPLIFIED approach without timeline conflicts
@@ -98,7 +98,7 @@ function setupSingleAnimation(element, animationType) {
       gsap.killTweensOf(element);
       gsap.to(element, {
         ...config.to,
-        clearProps: "none" // Preserve CSS hover transforms
+        clearProps: "transform" // Clear transform after animation to allow CSS hover
       });
     },
     onLeave: () => {
@@ -106,7 +106,7 @@ function setupSingleAnimation(element, animationType) {
         gsap.killTweensOf(element);
         gsap.to(element, {
           ...config.exit,
-          clearProps: "none" // Preserve CSS hover transforms
+          clearProps: "transform" // Clear transform after animation to allow CSS hover
         });
       }
     },
@@ -114,7 +114,7 @@ function setupSingleAnimation(element, animationType) {
       gsap.killTweensOf(element);
       gsap.to(element, {
         ...config.to,
-        clearProps: "none" // Preserve CSS hover transforms
+        clearProps: "transform" // Clear transform after animation to allow CSS hover
       });
     },
     onLeaveBack: () => {
@@ -122,7 +122,7 @@ function setupSingleAnimation(element, animationType) {
         gsap.killTweensOf(element);
         gsap.to(element, {
           ...config.exit,
-          clearProps: "none" // Preserve CSS hover transforms
+          clearProps: "transform" // Clear transform after animation to allow CSS hover
         });
       }
     }
@@ -166,7 +166,7 @@ function setupStaggerAnimation(container, containerIndex) {
   // Set initial state for all children immediately, preserving CSS transforms
   gsap.set(staggerChildren, {
     ...config.from,
-    clearProps: "none" // Preserve CSS hover transforms
+    clearProps: "transform" // Clear transform to allow CSS hover to work
   });
   
   // Create ScrollTrigger for stagger animation - MUCH SIMPLER
@@ -178,7 +178,7 @@ function setupStaggerAnimation(container, containerIndex) {
       gsap.killTweensOf(staggerChildren);
       gsap.to(staggerChildren, {
         ...config.to,
-        clearProps: "none", // Preserve CSS hover transforms
+        clearProps: "transform", // Clear transform after animation to allow CSS hover
         stagger: {
           each: 0.05, // Much faster stagger for immediate response
           from: 'start'
@@ -190,7 +190,7 @@ function setupStaggerAnimation(container, containerIndex) {
         gsap.killTweensOf(staggerChildren);
         gsap.to(staggerChildren, {
           ...config.exit,
-          clearProps: "none", // Preserve CSS hover transforms
+          clearProps: "transform", // Clear transform after animation to allow CSS hover
           stagger: {
             each: 0.02, // Ultra-fast exit
             from: 'start'
@@ -202,7 +202,7 @@ function setupStaggerAnimation(container, containerIndex) {
       gsap.killTweensOf(staggerChildren);
       gsap.to(staggerChildren, {
         ...config.to,
-        clearProps: "none", // Preserve CSS hover transforms
+        clearProps: "transform", // Clear transform after animation to allow CSS hover
         stagger: {
           each: 0.08,
           from: 'start'
@@ -214,7 +214,7 @@ function setupStaggerAnimation(container, containerIndex) {
         gsap.killTweensOf(staggerChildren);
         gsap.to(staggerChildren, {
           ...config.exit,
-          clearProps: "none", // Preserve CSS hover transforms
+          clearProps: "transform", // Clear transform after animation to allow CSS hover
           stagger: {
             each: 0.03,
             from: 'start'
