@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Scroll Animation Demo</title>
+  <link rel="stylesheet" href="css animation system.css">
+  <style>
+    /* Demo styles */
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.6;
+      color: #333;
+      margin: 0;
+      padding: 0;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 2rem;
+    }
+    
+    .intro {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+    
+    h1 {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+    
+    p {
+      font-size: 1.2rem;
+      max-width: 600px;
+      margin: 0 auto 2rem;
+    }
+    
+    .section {
+      padding: 5rem 0;
+      border-top: 1px solid #eee;
+    }
+    
+    .section-title {
+      margin-bottom: 3rem;
+      text-align: center;
+    }
+    
+    .demo-box {
+      background-color: #f5f5f5;
+      border-radius: 8px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    
+    .demo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 2rem;
+      margin-bottom: 4rem;
+    }
+    
+    .stagger-container {
+      margin-bottom: 4rem;
+    }
+    
+    .stagger-item {
+      background-color: #f5f5f5;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    
+    .scroll-down {
+      position: absolute;
+      bottom: 2rem;
+      left: 50%;
+      transform: translateX(-50%);
+      animation: bounce 2s infinite;
+    }
+    
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0) translateX(-50%); }
+      40% { transform: translateY(-20px) translateX(-50%); }
+      60% { transform: translateY(-10px) translateX(-50%); }
+    }
+  </style>
+</head>
+<body>
+  <div class="intro">
+    <h1>Scroll Animation System</h1>
+    <p>Scroll down to see various animation effects as elements enter the viewport.</p>
+    <div class="scroll-down">↓ Scroll Down ↓</div>
+  </div>
+  
+  <div class="container">
+    <!-- Simple Animations -->
+    <section class="section">
+      <h2 class="section-title" scroll-animate="fade-in">Basic Animations</h2>
+      
+      <div class="demo-box" scroll-animate="slide-up">
+        <h3>Gentle Slide Up</h3>
+        <p>This element slides up as it enters the viewport.</p>
+      </div>
+      
+      <div class="demo-box" scroll-animate="slide-right">
+        <h3>Gentle Slide Right</h3>
+        <p>This element slides in from the left as it enters the viewport.</p>
+      </div>
+      
+      <div class="demo-box" scroll-animate="scale-up">
+        <h3>Gentle Scale Up</h3>
+        <p>This element scales up as it enters the viewport.</p>
+      </div>
+      
+      <div class="demo-box" scroll-animate="fade-in">
+        <h3>Fade In</h3>
+        <p>This element fades in as it enters the viewport.</p>
+      </div>
+    </section>
+    
+    <!-- Bouncy Animations -->
+    <section class="section">
+      <h2 class="section-title" scroll-animate="fade-in">Bouncy Animations</h2>
+      
+      <div class="demo-box" scroll-animate="slide-up-backout">
+        <h3>Bouncy Slide Up</h3>
+        <p>This element slides up with a bouncy back-out effect.</p>
+      </div>
+      
+      <div class="demo-box" scroll-animate="scale-up-backout">
+        <h3>Bouncy Scale Up</h3>
+        <p>This element scales up with a bouncy back-out effect.</p>
+      </div>
+    </section>
+    
+    <!-- Grid Layout -->
+    <section class="section">
+      <h2 class="section-title" scroll-animate="fade-in">Grid Layout</h2>
+      
+      <div class="demo-grid">
+        <div class="demo-box" scroll-animate="slide-up">
+          <h3>Grid Item 1</h3>
+          <p>Slide up animation</p>
+        </div>
+        
+        <div class="demo-box" scroll-animate="slide-up">
+          <h3>Grid Item 2</h3>
+          <p>Slide up animation</p>
+        </div>
+        
+        <div class="demo-box" scroll-animate="slide-up">
+          <h3>Grid Item 3</h3>
+          <p>Slide up animation</p>
+        </div>
+        
+        <div class="demo-box" scroll-animate="slide-up">
+          <h3>Grid Item 4</h3>
+          <p>Slide up animation</p>
+        </div>
+      </div>
+    </section>
+    
+    <!-- Staggered Animations -->
+    <section class="section">
+      <h2 class="section-title" scroll-animate="fade-in">Staggered Animations</h2>
+      
+      <h3>Staggered Slide Right</h3>
+      <div class="stagger-container" scroll-animate="slide-right-stagger">
+        <div class="stagger-item" stagger-item>
+          <h4>Item 1</h4>
+          <p>First item in the staggered animation</p>
+        </div>
+        
+        <div class="stagger-item" stagger-item>
+          <h4>Item 2</h4>
+          <p>Second item in the staggered animation</p>
+        </div>
+        
+        <div class="stagger-item" stagger-item>
+          <h4>Item 3</h4>
+          <p>Third item in the staggered animation</p>
+        </div>
+      </div>
+      
+      <h3>Staggered Bouncy Slide Up</h3>
+      <div class="stagger-container" scroll-animate="slide-up-backout-stagger">
+        <div class="stagger-item" stagger-item>
+          <h4>Item 1</h4>
+          <p>First item with bouncy effect</p>
+        </div>
+        
+        <div class="stagger-item" stagger-item>
+          <h4>Item 2</h4>
+          <p>Second item with bouncy effect</p>
+        </div>
+        
+        <div class="stagger-item" stagger-item>
+          <h4>Item 3</h4>
+          <p>Third item with bouncy effect</p>
+        </div>
+      </div>
+      
+      <h3>Staggered Scale Up</h3>
+      <div class="demo-grid" scroll-animate="scale-up-stagger">
+        <div class="demo-box" stagger-item>
+          <h4>Scale Item 1</h4>
+          <p>First scale item</p>
+        </div>
+        
+        <div class="demo-box" stagger-item>
+          <h4>Scale Item 2</h4>
+          <p>Second scale item</p>
+        </div>
+        
+        <div class="demo-box" stagger-item>
+          <h4>Scale Item 3</h4>
+          <p>Third scale item</p>
+        </div>
+        
+        <div class="demo-box" stagger-item>
+          <h4>Scale Item 4</h4>
+          <p>Fourth scale item</p>
+        </div>
+      </div>
+    </section>
+  </div>
+  
+  <script src="scroll-animation.js"></script>
+</body>
+</html>
