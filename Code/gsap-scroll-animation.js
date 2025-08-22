@@ -88,6 +88,8 @@ function setupSingleAnimation(element, animationType) {
   
   // Create ScrollTrigger - SIMPLIFIED approach without timeline conflicts
   ScrollTrigger.create({
+        markers: true, // Uncomment for debugging
+
     trigger: element,
     start: 'top 80%', // Balanced trigger point for reliable animations
     end: 'bottom 5%', // Exit only when almost completely out of viewport
@@ -124,7 +126,6 @@ function setupSingleAnimation(element, animationType) {
         });
       }
     }
-    // markers: true // Uncomment for debugging
   });
 }
 
