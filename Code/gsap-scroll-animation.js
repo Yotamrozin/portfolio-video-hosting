@@ -9,9 +9,9 @@ console.log('GSAP Scroll animation system initialized');
 // Animation configurations - SIMPLIFIED with faster timings
 const animationConfig = {
   'slide-up': {
-    from: { y: 30, opacity: 0 },
-    to: { y: 0, opacity: 1, duration: 0.3, ease: 'power4.inOut' }, // Much faster
-    exit: { y: -15, opacity: 0, duration: 0.05, ease: 'power4.inOut' } // Ultra-fast exit
+    from: { y: -30, opacity: 0 }, // Start above (negative y)
+    to: { y: 0, opacity: 1, duration: 0.4, ease: 'power1.out' }, // Smoother slide down to center
+    exit: { y: 15, opacity: 0, duration: 0.2, ease: 'power1.in' } // Smoother exit below
   },
   'slide-down': {
     from: { y: -30, opacity: 0 },
@@ -80,33 +80,48 @@ function setupSingleAnimation(element, animationType) {
     return;
   }
   
-  // Set initial state immediately
-  gsap.set(element, config.from);
+  // Set initial state immediately, but preserve existing transforms for hover effects
+  gsap.set(element, {
+    ...config.from,
+    clearProps: "none" // Don't clear existing CSS transforms
+  });
   
   // Create ScrollTrigger - SIMPLIFIED approach without timeline conflicts
   ScrollTrigger.create({
     trigger: element,
     start: 'top 80%', // Balanced trigger point for reliable animations
-    end: 'bottom 20%',
+    end: 'bottom 5%', // Exit only when almost completely out of viewport
     onEnter: () => {
       // Kill any existing animations on this element
       gsap.killTweensOf(element);
-      gsap.to(element, config.to);
+      gsap.to(element, {
+        ...config.to,
+        clearProps: "none" // Preserve CSS hover transforms
+      });
     },
     onLeave: () => {
       if (config.exit) {
         gsap.killTweensOf(element);
-        gsap.to(element, config.exit);
+        gsap.to(element, {
+          ...config.exit,
+          clearProps: "none" // Preserve CSS hover transforms
+        });
       }
     },
     onEnterBack: () => {
       gsap.killTweensOf(element);
-      gsap.to(element, config.to);
+      gsap.to(element, {
+        ...config.to,
+        clearProps: "none" // Preserve CSS hover transforms
+      });
     },
     onLeaveBack: () => {
       if (config.exit) {
         gsap.killTweensOf(element);
-        gsap.to(element, config.exit);
+        gsap.to(element, {
+          ...config.exit,
+          clearProps: "none" // Preserve CSS hover transforms
+        });
       }
     }
     // markers: true // Uncomment for debugging
@@ -147,18 +162,22 @@ function setupStaggerAnimation(container, containerIndex) {
     return;
   }
   
-  // Set initial state for all children immediately
-  gsap.set(staggerChildren, config.from);
+  // Set initial state for all children immediately, preserving CSS transforms
+  gsap.set(staggerChildren, {
+    ...config.from,
+    clearProps: "none" // Preserve CSS hover transforms
+  });
   
   // Create ScrollTrigger for stagger animation - MUCH SIMPLER
   ScrollTrigger.create({
     trigger: container,
     start: 'top 80%', // Balanced trigger point for reliable animations
-    end: 'bottom 20%',
+    end: 'bottom 5%', // Exit only when almost completely out of viewport
     onEnter: () => {
       gsap.killTweensOf(staggerChildren);
       gsap.to(staggerChildren, {
         ...config.to,
+        clearProps: "none", // Preserve CSS hover transforms
         stagger: {
           each: 0.05, // Much faster stagger for immediate response
           from: 'start'
@@ -170,6 +189,7 @@ function setupStaggerAnimation(container, containerIndex) {
         gsap.killTweensOf(staggerChildren);
         gsap.to(staggerChildren, {
           ...config.exit,
+          clearProps: "none", // Preserve CSS hover transforms
           stagger: {
             each: 0.02, // Ultra-fast exit
             from: 'start'
@@ -181,6 +201,7 @@ function setupStaggerAnimation(container, containerIndex) {
       gsap.killTweensOf(staggerChildren);
       gsap.to(staggerChildren, {
         ...config.to,
+        clearProps: "none", // Preserve CSS hover transforms
         stagger: {
           each: 0.08,
           from: 'start'
@@ -192,6 +213,7 @@ function setupStaggerAnimation(container, containerIndex) {
         gsap.killTweensOf(staggerChildren);
         gsap.to(staggerChildren, {
           ...config.exit,
+          clearProps: "none", // Preserve CSS hover transforms
           stagger: {
             each: 0.03,
             from: 'start'
