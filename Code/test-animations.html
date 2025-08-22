@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Animation Test</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+        }
+        .test-section {
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+        .test-element {
+            padding: 40px;
+            background: #007acc;
+            color: white;
+            border-radius: 8px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-section">
+        <div class="test-element" data-animation="slide-up">Slide Up Animation Test</div>
+    </div>
+    
+    <div class="test-section">
+        <div class="test-element" data-animation="slide-up">Another Slide Up Test</div>
+    </div>
+    
+    <div class="test-section">
+        <div class="test-element" data-animation="slide-up">Third Slide Up Test</div>
+    </div>
+    
+    <div class="test-section">
+        <div class="test-element" data-animation="slide-up">Fourth Slide Up Test</div>
+    </div>
+
+    <script src="gsap-scroll-animation.js"></script>
+</body>
+</html>

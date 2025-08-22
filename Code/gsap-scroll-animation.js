@@ -83,21 +83,11 @@ function setupSingleAnimation(element, animationType) {
   // Set initial state immediately
   gsap.set(element, config.from);
   
-  // Create a single timeline that ScrollTrigger controls directly
-  const tl = gsap.timeline({
-    paused: true
-  });
-  
-  // Add the main animation to timeline
-  tl.to(element, config.to);
-  
-  // Create ScrollTrigger - SIMPLIFIED approach
+  // Create ScrollTrigger - SIMPLIFIED approach without timeline conflicts
   ScrollTrigger.create({
     trigger: element,
     start: 'top 80%', // Balanced trigger point for reliable animations
     end: 'bottom 20%',
-    animation: tl,
-    toggleActions: 'play none none reverse',
     onEnter: () => {
       // Kill any existing animations on this element
       gsap.killTweensOf(element);
