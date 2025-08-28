@@ -9,8 +9,8 @@ document.addEventListener("DOMContentLoaded", function() {
   // Configuration object for easy customization
   const config = {
     maxRotation: 25,
-    resetSpeed: 0.4,
-    smoothingFactor: 0.4,
+    resetSpeed: 0.8,
+    smoothingFactor: 0.8,
     rotationDamping: 0.8,
     maxMoveLeftPercent: 0.25,
     maxMoveRightPercent: 0.8, // Increase this
