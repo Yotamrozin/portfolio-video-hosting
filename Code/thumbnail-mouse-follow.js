@@ -9,9 +9,9 @@ document.addEventListener("DOMContentLoaded", function() {
   // Configuration
   const config = {
     maxRotation: 25,       // Maximum rotation in degrees (increased for visibility)
-    rotationDamping: 0.4,  // How much rotation is applied (0-1)
+    rotationDamping: 0.5,  // How much rotation is applied (0-1)
     animationSpeed: 0.3,   // Animation speed for rotation changes
-    resetSpeed: 0.6        // Speed when returning to neutral rotation
+    resetSpeed: 0.4        // Speed when returning to neutral rotation
   };
 
   // Mouse tracking variables
@@ -124,6 +124,12 @@ document.addEventListener("DOMContentLoaded", function() {
       const deltaX = relativeX - centerX;
       const deltaY = relativeY - centerY;
       
+      // Limit movement range to prevent going too far left/right
+      const maxMoveX = listItemRect.width * 0.25; // Limit to 25% of container width
+      const maxMoveY = listItemRect.height * 0.2; // Limit to 20% of container height
+      const clampedDeltaX = Math.max(-maxMoveX, Math.min(maxMoveX, deltaX));
+      const clampedDeltaY = Math.max(-maxMoveY, Math.min(maxMoveY, deltaY));
+      
       // Calculate velocity for swaying effect
       velocityX = (deltaX - previousX) * 0.5;
       velocityY = (deltaY - previousY) * 0.5;
@@ -153,10 +159,10 @@ document.addEventListener("DOMContentLoaded", function() {
       swayRotation += swayVelocity;
       swayRotation *= 0.92; // Settle towards center
       
-      // Apply position following and rotation with improved range
+      // Apply position following and rotation with controlled range
       gsap.set(thumbnail, {
-        x: deltaX * 0.6, // Increased from 0.3 for better range coverage
-        y: deltaY * 0.4, // Slightly increased for better vertical range
+        x: clampedDeltaX * 0.3, // Reduced multiplier and use clamped values
+        y: clampedDeltaY * 0.25, // Reduced multiplier for more controlled movement
         rotationX: currentRotationX,
         rotationY: currentRotationY,
         rotationZ: swayRotation, // Add swaying rotation
@@ -188,6 +194,27 @@ document.addEventListener("DOMContentLoaded", function() {
       if (animationFrame) {
         cancelAnimationFrame(animationFrame);
       }
+      
+      // Set initial position to mouse entry point
+      const listItemRect = listItem.getBoundingClientRect();
+      const relativeX = e.clientX - listItemRect.left;
+      const relativeY = e.clientY - listItemRect.top;
+      const centerX = listItemRect.width * 0.5;
+      const centerY = listItemRect.height * 0.5;
+      const initialDeltaX = relativeX - centerX;
+      const initialDeltaY = relativeY - centerY;
+      
+      // Apply movement limits to initial position
+      const maxMoveX = listItemRect.width * 0.25;
+      const maxMoveY = listItemRect.height * 0.2;
+      const clampedInitialX = Math.max(-maxMoveX, Math.min(maxMoveX, initialDeltaX));
+      const clampedInitialY = Math.max(-maxMoveY, Math.min(maxMoveY, initialDeltaY));
+      
+      // Set initial position before showing
+      gsap.set(thumbnail, {
+        x: clampedInitialX * 0.3,
+        y: clampedInitialY * 0.25
+      });
       
       // Show thumbnail with scale and opacity animation
       gsap.to(thumbnail, {
