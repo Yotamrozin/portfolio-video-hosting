@@ -64,6 +64,14 @@ document.addEventListener("DOMContentLoaded", function() {
     let animationFrame = null;
     let currentRotationX = 0;
     let currentRotationY = 0;
+    
+    // Physics-based swaying variables
+    let previousX = 0;
+    let previousY = 0;
+    let velocityX = 0;
+    let velocityY = 0;
+    let swayRotation = 0;
+    let swayVelocity = 0;
 
     // Initialize thumbnail - clear any conflicting transforms
     gsap.set(thumbnail, {
@@ -116,6 +124,12 @@ document.addEventListener("DOMContentLoaded", function() {
       const deltaX = relativeX - centerX;
       const deltaY = relativeY - centerY;
       
+      // Calculate velocity for swaying effect
+      velocityX = (deltaX - previousX) * 0.5;
+      velocityY = (deltaY - previousY) * 0.5;
+      previousX = deltaX;
+      previousY = deltaY;
+      
       // Calculate rotation based on mouse position relative to container
       const maxDistance = Math.max(listItemRect.width, listItemRect.height) * 0.5;
       
@@ -132,13 +146,20 @@ document.addEventListener("DOMContentLoaded", function() {
       currentRotationX += (targetRotationX - currentRotationX) * smoothingFactor;
       currentRotationY += (targetRotationY - currentRotationY) * smoothingFactor;
       
-      // Apply position following and rotation
-      // Since CSS has transform: translate(-50%, -50%), we don't need to subtract center
+      // Physics-based swaying rotation
+      const swayForce = velocityX * 0.3; // Convert velocity to sway force
+      swayVelocity += swayForce * 0.1; // Apply force to sway velocity
+      swayVelocity *= 0.85; // Damping - gradually slow down
+      swayRotation += swayVelocity;
+      swayRotation *= 0.92; // Settle towards center
+      
+      // Apply position following and rotation with improved range
       gsap.set(thumbnail, {
-        x: deltaX * 0.3, // Follow mouse with damping for smoother movement
-        y: deltaY * 0.3, // Follow mouse with damping for smoother movement
+        x: deltaX * 0.6, // Increased from 0.3 for better range coverage
+        y: deltaY * 0.4, // Slightly increased for better vertical range
         rotationX: currentRotationX,
         rotationY: currentRotationY,
+        rotationZ: swayRotation, // Add swaying rotation
         force3D: true
       });
       
@@ -224,6 +245,14 @@ document.addEventListener("DOMContentLoaded", function() {
       // Reset rotation tracking variables
       currentRotationX = 0;
       currentRotationY = 0;
+      
+      // Reset physics variables
+      previousX = 0;
+      previousY = 0;
+      velocityX = 0;
+      velocityY = 0;
+      swayRotation = 0;
+      swayVelocity = 0;
     }, { passive: true });
 
     // Optimized: Debounced resize handler with cache invalidation
