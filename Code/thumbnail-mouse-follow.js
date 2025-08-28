@@ -8,7 +8,7 @@
 document.addEventListener("DOMContentLoaded", function() {
   // Configuration
   const config = {
-    maxRotation: 12,       // Maximum rotation in degrees
+    maxRotation: 25,       // Maximum rotation in degrees (increased for visibility)
     rotationDamping: 0.4,  // How much rotation is applied (0-1)
     animationSpeed: 0.3,   // Animation speed for rotation changes
     resetSpeed: 0.6        // Speed when returning to neutral rotation
@@ -70,16 +70,12 @@ document.addEventListener("DOMContentLoaded", function() {
       transformOrigin: 'center center',
       rotationX: 0,
       rotationY: 0,
+      x: 0,
+      y: 0,
+      scale: 0, // Start hidden
+      opacity: 0, // Also start transparent for smoother transitions
       clearProps: "transform", // Clear any existing CSS transforms
       force3D: true
-    });
-    
-    // Set initial position using GSAP to avoid conflicts
-    gsap.set(thumbnail, {
-      x: 0, // Start at center, will be updated by mouse movement
-      y: 0, // Start at center, will be updated by mouse movement
-      scale: 0, // Start hidden
-      opacity: 0 // Also start transparent for smoother transitions
     });
     
     console.log(`Initialized thumbnail ${index}:`, {
@@ -127,18 +123,20 @@ document.addEventListener("DOMContentLoaded", function() {
       const normalizedX = Math.max(-1, Math.min(1, deltaX / maxDistance));
       const normalizedY = Math.max(-1, Math.min(1, deltaY / maxDistance));
       
-      // Calculate rotation based on normalized position
-      const targetRotationY = normalizedX * config.maxRotation * config.rotationDamping;
-      const targetRotationX = -normalizedY * config.maxRotation * config.rotationDamping;
+      // Calculate rotation based on normalized position (increased for visibility)
+      const targetRotationY = normalizedX * config.maxRotation;
+      const targetRotationX = -normalizedY * config.maxRotation;
       
-      // Smooth interpolation for natural rotation
-      currentRotationX += (targetRotationX - currentRotationX) * 0.15;
-      currentRotationY += (targetRotationY - currentRotationY) * 0.15;
+      // Improved smoothing with better interpolation
+      const smoothingFactor = 0.08; // Slower, smoother movement
+      currentRotationX += (targetRotationX - currentRotationX) * smoothingFactor;
+      currentRotationY += (targetRotationY - currentRotationY) * smoothingFactor;
       
       // Apply position following and rotation
+      // Since CSS has transform: translate(-50%, -50%), we don't need to subtract center
       gsap.set(thumbnail, {
-        x: relativeX - centerX, // Follow mouse horizontally
-        y: relativeY - centerY, // Follow mouse vertically
+        x: deltaX * 0.3, // Follow mouse with damping for smoother movement
+        y: deltaY * 0.3, // Follow mouse with damping for smoother movement
         rotationX: currentRotationX,
         rotationY: currentRotationY,
         force3D: true
@@ -205,10 +203,12 @@ document.addEventListener("DOMContentLoaded", function() {
         animationFrame = null;
       }
       
-      // Hide thumbnail and reset rotation
+      // Hide thumbnail and reset rotation and position
       gsap.to(thumbnail, {
         scale: 0,
         opacity: 0,
+        x: 0, // Reset position
+        y: 0, // Reset position
         rotationX: 0,
         rotationY: 0,
         duration: config.resetSpeed,
@@ -262,7 +262,7 @@ document.addEventListener("DOMContentLoaded", function() {
     .project-item,
     .list-item {
       position: relative;
-      overflow: hidden;
+      overflow: visible; /* Allow thumbnails to extend outside */
     }
   `;
   document.head.appendChild(style);
