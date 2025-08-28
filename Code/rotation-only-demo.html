@@ -85,12 +85,11 @@
             opacity: 0.7;
         }
         
-        /* Thumbnail styles - Simulating Webflow Interactions */
+        /* Thumbnail styles - GSAP handles all transforms */
         .project-thumbnail {
             position: absolute;
             top: 50%;
             left: 50%;
-            transform: translate(-50%, -50%) scale(0);
             width: 200px;
             height: 120px;
             object-fit: cover;
@@ -98,12 +97,7 @@
             box-shadow: 0 10px 30px rgba(0,0,0,0.3);
             pointer-events: none;
             z-index: 1;
-            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-        
-        /* Webflow-style hover interactions */
-        .project-list-item:hover .project-thumbnail {
-            transform: translate(-50%, -50%) scale(1);
+            /* No CSS transitions - GSAP handles everything */
         }
         
         /* Performance optimizations */
@@ -214,10 +208,10 @@
             <div class="config-title">Rotation-Only Configuration:</div>
             <div>maxRotation: 12° | rotationDamping: 0.4 | resetSpeed: 0.6s</div>
             <br>
-            <div><strong>✅ JavaScript:</strong> Handles rotation (rotationX, rotationY)</div>
-            <div><strong>✅ CSS/Webflow:</strong> Handles position, scale, and other transforms</div>
+            <div><strong>✅ JavaScript/GSAP:</strong> Handles scale, rotation, and position</div>
+            <div><strong>✅ CSS:</strong> Handles static styling only</div>
             <br>
-            <div><strong>Result:</strong> <span class="highlight">Zero conflicts</span> between animation systems!</div>
+            <div><strong>Result:</strong> <span class="highlight">Smooth animations</span> with no flickering!</div>
         </div>
     </div>
     
