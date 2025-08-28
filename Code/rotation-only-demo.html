@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rotation-Only Demo - Works with Webflow Interactions</title>
+    
+    <!-- GSAP CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 40px;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: white;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 40px;
+            font-size: 2.5rem;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+        
+        .instructions {
+            background: rgba(255,255,255,0.1);
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 40px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .project-list {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+        }
+        
+        .project-list-item {
+            background: rgba(255,255,255,0.1);
+            padding: 30px;
+            border-radius: 15px;
+            position: relative;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.2);
+            overflow: hidden;
+        }
+        
+        .project-list-item:hover {
+            background: rgba(255,255,255,0.15);
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+        }
+        
+        .project-content {
+            position: relative;
+            z-index: 2;
+        }
+        
+        .project-title {
+            font-size: 1.8rem;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+        
+        .project-description {
+            font-size: 1.1rem;
+            opacity: 0.9;
+            line-height: 1.6;
+        }
+        
+        .project-meta {
+            margin-top: 15px;
+            font-size: 0.9rem;
+            opacity: 0.7;
+        }
+        
+        /* Thumbnail styles - Simulating Webflow Interactions */
+        .project-thumbnail {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 200px;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            pointer-events: none;
+            z-index: 1;
+            transition: all 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        
+        /* Webflow-style hover interactions */
+        .project-list-item:hover .project-thumbnail {
+            transform: translate(-50%, -50%) scale(1);
+        }
+        
+        /* Performance optimizations */
+        [hover-mouse-follow="thumbnail"] {
+            will-change: transform;
+            backface-visibility: hidden;
+            perspective: 1000px;
+        }
+        
+        .demo-config {
+            background: rgba(0,0,0,0.2);
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 40px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        
+        .config-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            font-family: 'Arial', sans-serif;
+        }
+        
+        .highlight {
+            background: rgba(255,255,0,0.2);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Rotation-Only Demo</h1>
+        
+        <div class="instructions">
+            <h3>Perfect for Webflow Integration:</h3>
+            <ol>
+                <li><strong>CSS handles</strong> position and scale (simulating Webflow Interactions)</li>
+                <li><strong>JavaScript handles</strong> <span class="highlight">rotation only</span></li>
+                <li><strong>Hover</strong> over any project item below</li>
+                <li><strong>Move your mouse</strong> around within the item</li>
+                <li><strong>Notice</strong> how only the rotation changes - no position or scale conflicts!</li>
+                <li><strong>Leave the item</strong> → Rotation resets smoothly</li>
+            </ol>
+        </div>
+        
+        <div class="project-list">
+            <div class="project-list-item">
+                <div class="project-content">
+                    <div class="project-title">E-Commerce Platform</div>
+                    <div class="project-description">
+                        CSS handles the scale and position animations, while JavaScript adds realistic rotation based on mouse movement.
+                    </div>
+                    <div class="project-meta">React • Node.js • MongoDB</div>
+                </div>
+                <img hover-mouse-follow="thumbnail" 
+                     src="https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?w=400&h=240&fit=crop" 
+                     alt="E-commerce project" 
+                     class="project-thumbnail" />
+            </div>
+            
+            <div class="project-list-item">
+                <div class="project-content">
+                    <div class="project-title">Mobile Banking App</div>
+                    <div class="project-description">
+                        The thumbnail scales up via CSS transitions, while the rotation effect is handled by the optimized JavaScript.
+                    </div>
+                    <div class="project-meta">React Native • Firebase • Stripe</div>
+                </div>
+                <img hover-mouse-follow="thumbnail" 
+                     src="https://images.unsplash.com/photo-1563013544-824ae1b704d3?w=400&h=240&fit=crop" 
+                     alt="Banking app project" 
+                     class="project-thumbnail" />
+            </div>
+            
+            <div class="project-list-item">
+                <div class="project-content">
+                    <div class="project-title">AI Dashboard</div>
+                    <div class="project-description">
+                        Perfect separation of concerns: Webflow Interactions for layout animations, JavaScript for rotation physics.
+                    </div>
+                    <div class="project-meta">Vue.js • Python • TensorFlow</div>
+                </div>
+                <img hover-mouse-follow="thumbnail" 
+                     src="https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=400&h=240&fit=crop" 
+                     alt="AI dashboard project" 
+                     class="project-thumbnail" />
+            </div>
+            
+            <div class="project-list-item">
+                <div class="project-content">
+                    <div class="project-title">Social Media Platform</div>
+                    <div class="project-description">
+                        No conflicts between CSS and JavaScript animations - each handles what it does best!
+                    </div>
+                    <div class="project-meta">Next.js • GraphQL • PostgreSQL</div>
+                </div>
+                <img hover-mouse-follow="thumbnail" 
+                     src="https://images.unsplash.com/photo-1611224923853-80b023f02d71?w=400&h=240&fit=crop" 
+                     alt="Social media project" 
+                     class="project-thumbnail" />
+            </div>
+        </div>
+        
+        <div class="demo-config">
+            <div class="config-title">Rotation-Only Configuration:</div>
+            <div>maxRotation: 12° | rotationDamping: 0.4 | resetSpeed: 0.6s</div>
+            <br>
+            <div><strong>✅ JavaScript:</strong> Handles rotation (rotationX, rotationY)</div>
+            <div><strong>✅ CSS/Webflow:</strong> Handles position, scale, and other transforms</div>
+            <br>
+            <div><strong>Result:</strong> <span class="highlight">Zero conflicts</span> between animation systems!</div>
+        </div>
+    </div>
+    
+    <!-- Include the rotation-only script -->
+    <script src="thumbnail-mouse-follow.js"></script>
+</body>
+</html>
