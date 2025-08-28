@@ -1,19 +1,17 @@
 /**
- * Thumbnail Mouse Follow with Rotation System
- * Adds realistic rotation effects to thumbnails that follow mouse movement
+ * Thumbnail Rotation System
+ * Adds realistic rotation effects to thumbnails based on mouse movement
+ * Works alongside Webflow Interactions for position and scale
  * Compatible with existing hover-mouse-follow="thumbnail" attributes
  */
 
 document.addEventListener("DOMContentLoaded", function() {
   // Configuration
   const config = {
-    maxRotation: 8,        // Maximum rotation in degrees
-    maxTranslation: 15,    // Maximum movement in pixels
-    rotationDamping: 0.3,  // How much rotation is applied (0-1)
-    followDamping: 0.15,   // How much the thumbnail follows mouse (0-1)
-    animationSpeed: 0.6,   // Animation duration in seconds
-    resetSpeed: 0.8,       // Speed when returning to center
-    boundaryPadding: 20    // Padding from container edges
+    maxRotation: 12,       // Maximum rotation in degrees
+    rotationDamping: 0.4,  // How much rotation is applied (0-1)
+    animationSpeed: 0.3,   // Animation speed for rotation changes
+    resetSpeed: 0.6        // Speed when returning to neutral rotation
   };
 
   // Mouse tracking variables
@@ -60,17 +58,12 @@ document.addEventListener("DOMContentLoaded", function() {
     let animationFrame = null;
     let currentRotationX = 0;
     let currentRotationY = 0;
-    let currentX = 0;
-    let currentY = 0;
 
-    // Initialize thumbnail styles
+    // Initialize thumbnail rotation only (let Webflow handle position/scale)
     gsap.set(thumbnail, {
       transformOrigin: 'center center',
-      scale: 0, // Start hidden
       rotationX: 0,
       rotationY: 0,
-      x: 0,
-      y: 0,
       force3D: true
     });
 
@@ -101,28 +94,23 @@ document.addEventListener("DOMContentLoaded", function() {
       const deltaX = mouseX - centerX;
       const deltaY = mouseY - centerY;
       
-      // Calculate boundaries (keep thumbnail within list item bounds)
-      const maxX = (listItemRect.width * 0.5) - config.boundaryPadding;
-      const maxY = (listItemRect.height * 0.5) - config.boundaryPadding;
+      // Calculate rotation based on mouse position relative to container
+      const maxDistance = Math.max(listItemRect.width, listItemRect.height) * 0.5;
       
-      // Constrain movement within boundaries
-      const constrainedX = Math.max(-maxX, Math.min(maxX, deltaX * config.followDamping));
-      const constrainedY = Math.max(-maxY, Math.min(maxY, deltaY * config.followDamping));
+      // Normalize mouse position (-1 to 1)
+      const normalizedX = Math.max(-1, Math.min(1, deltaX / maxDistance));
+      const normalizedY = Math.max(-1, Math.min(1, deltaY / maxDistance));
       
-      // Calculate rotation based on movement direction and speed
-      const rotationY = (constrainedX / maxX) * config.maxRotation * config.rotationDamping;
-      const rotationX = -(constrainedY / maxY) * config.maxRotation * config.rotationDamping;
+      // Calculate rotation based on normalized position
+      const targetRotationY = normalizedX * config.maxRotation * config.rotationDamping;
+      const targetRotationX = -normalizedY * config.maxRotation * config.rotationDamping;
       
-      // Smooth interpolation for natural movement
-      currentX += (constrainedX - currentX) * 0.1;
-      currentY += (constrainedY - currentY) * 0.1;
-      currentRotationX += (rotationX - currentRotationX) * 0.1;
-      currentRotationY += (rotationY - currentRotationY) * 0.1;
+      // Smooth interpolation for natural rotation
+      currentRotationX += (targetRotationX - currentRotationX) * 0.15;
+      currentRotationY += (targetRotationY - currentRotationY) * 0.15;
       
-      // Apply transforms
+      // Apply only rotation transforms (let Webflow handle position/scale)
       gsap.set(thumbnail, {
-        x: currentX,
-        y: currentY,
         rotationX: currentRotationX,
         rotationY: currentRotationY,
         force3D: true
@@ -137,7 +125,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // Optimized: Use passive listeners and track active instances
     const instanceId = `thumb_${index}`;
     
-    // Mouse enter - scale up and start following
+    // Mouse enter - start rotation tracking
     listItem.addEventListener('mouseenter', () => {
       isHovering = true;
       activeInstances.add(instanceId);
@@ -148,19 +136,11 @@ document.addEventListener("DOMContentLoaded", function() {
         cancelAnimationFrame(animationFrame);
       }
       
-      // Scale up thumbnail with bounce effect
-      gsap.to(thumbnail, {
-        scale: 1,
-        duration: config.animationSpeed,
-        ease: "back.out(1.7)",
-        onComplete: () => {
-          // Start mouse following after scale animation
-          updateThumbnailPosition();
-        }
-      });
+      // Start rotation tracking immediately (Webflow handles scale/position)
+      updateThumbnailPosition();
     }, { passive: true });
 
-    // Mouse leave - scale down and reset position
+    // Mouse leave - reset rotation only
     listItem.addEventListener('mouseleave', () => {
       isHovering = false;
       activeInstances.delete(instanceId);
@@ -171,20 +151,15 @@ document.addEventListener("DOMContentLoaded", function() {
         animationFrame = null;
       }
       
-      // Reset position and scale with smooth animation
+      // Reset only rotation (let Webflow handle scale/position)
       gsap.to(thumbnail, {
-        scale: 0,
-        x: 0,
-        y: 0,
         rotationX: 0,
         rotationY: 0,
         duration: config.resetSpeed,
-        ease: "power2.inOut"
+        ease: "power2.out"
       });
       
-      // Reset tracking variables
-      currentX = 0;
-      currentY = 0;
+      // Reset rotation tracking variables
       currentRotationX = 0;
       currentRotationY = 0;
     }, { passive: true });
