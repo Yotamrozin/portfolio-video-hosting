@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function() {
     rotationDamping: 0.8, // How much to dampen rotation (0-1, lower = more damping)
     // New configurable movement limits
     maxMoveLeftPercent: 0.1, // How far thumbnail can move left (as % of container width)
-    maxMoveRightPercent: 3, // How far thumbnail can move right (as % of container width)
+    maxMoveRightPercent: 10, // How far thumbnail can move right (as % of container width)
     maxMoveUpPercent: 0.2, // How far thumbnail can move up (as % of container height)
     maxMoveDownPercent: 0.2, // How far thumbnail can move down (as % of container height)
     leftMovementMultiplier: 0.3, // Movement sensitivity when going left
@@ -235,6 +235,9 @@ document.addEventListener("DOMContentLoaded", function() {
         cancelAnimationFrame(animationFrame);
       }
       
+      // IMPORTANT: Kill any existing animations on this thumbnail to prevent conflicts
+      gsap.killTweensOf(thumbnail);
+      
       // Set initial position to mouse entry point
       const listItemRect = listItem.getBoundingClientRect();
       const relativeX = e.clientX - listItemRect.left;
@@ -305,6 +308,9 @@ document.addEventListener("DOMContentLoaded", function() {
         animationFrame = null;
       }
       
+      // IMPORTANT: Kill any existing animations to prevent conflicts
+      gsap.killTweensOf(thumbnail);
+      
       // Hide thumbnail and reset rotation and position
       gsap.to(thumbnail, {
         scale: 0,
@@ -313,6 +319,7 @@ document.addEventListener("DOMContentLoaded", function() {
         y: 0, // Reset position
         rotationX: 0,
         rotationY: 0,
+        rotationZ: 0, // Also reset the sway rotation
         duration: config.resetSpeed,
         ease: "power2.out",
         onComplete: () => {
