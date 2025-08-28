@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", function() {
     rotationDamping: 0.8, // How much to dampen rotation (0-1, lower = more damping)
     // New configurable movement limits
     maxMoveLeftPercent: 0.1, // How far thumbnail can move left (as % of container width)
-    maxMoveRightPercent: 10, // How far thumbnail can move right (as % of container width)
+    maxMoveRightPercent: 400, // How far thumbnail can move right (as % of container width)
     maxMoveUpPercent: 0.2, // How far thumbnail can move up (as % of container height)
     maxMoveDownPercent: 0.2, // How far thumbnail can move down (as % of container height)
     leftMovementMultiplier: 0.3, // Movement sensitivity when going left
