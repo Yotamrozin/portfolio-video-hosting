@@ -59,12 +59,30 @@ document.addEventListener("DOMContentLoaded", function() {
     let currentRotationX = 0;
     let currentRotationY = 0;
 
-    // Initialize thumbnail rotation only (let Webflow handle position/scale)
+    // Initialize thumbnail - clear any conflicting transforms
     gsap.set(thumbnail, {
       transformOrigin: 'center center',
       rotationX: 0,
       rotationY: 0,
+      x: 0,
+      y: 0,
+      scale: 1,
+      clearProps: "transform", // Clear any existing CSS transforms
       force3D: true
+    });
+    
+    // Store initial CSS values for restoration
+    const initialX = thumbnail.style.left || '50%';
+    const initialY = thumbnail.style.top || '50%';
+    const initialTransform = 'translate(-50%, -50%)';
+    
+    // Set initial position using GSAP to avoid conflicts
+    gsap.set(thumbnail, {
+      left: initialX,
+      top: initialY,
+      x: '-50%',
+      y: '-50%',
+      scale: 0 // Start hidden like CSS
     });
 
     // Optimized: Cache rect calculations and reduce DOM queries
@@ -109,7 +127,7 @@ document.addEventListener("DOMContentLoaded", function() {
       currentRotationX += (targetRotationX - currentRotationX) * 0.15;
       currentRotationY += (targetRotationY - currentRotationY) * 0.15;
       
-      // Apply only rotation transforms (let Webflow handle position/scale)
+      // Apply only rotation - let hover state handle scale
       gsap.set(thumbnail, {
         rotationX: currentRotationX,
         rotationY: currentRotationY,
@@ -125,7 +143,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // Optimized: Use passive listeners and track active instances
     const instanceId = `thumb_${index}`;
     
-    // Mouse enter - start rotation tracking
+    // Mouse enter - start rotation tracking and show thumbnail
     listItem.addEventListener('mouseenter', () => {
       isHovering = true;
       activeInstances.add(instanceId);
@@ -136,7 +154,14 @@ document.addEventListener("DOMContentLoaded", function() {
         cancelAnimationFrame(animationFrame);
       }
       
-      // Start rotation tracking immediately (Webflow handles scale/position)
+      // Show thumbnail with scale animation (replacing CSS hover)
+      gsap.to(thumbnail, {
+        scale: 1,
+        duration: 0.6,
+        ease: "back.out(1.7)"
+      });
+      
+      // Start rotation tracking immediately
       updateThumbnailPosition();
     }, { passive: true });
 
@@ -151,8 +176,9 @@ document.addEventListener("DOMContentLoaded", function() {
         animationFrame = null;
       }
       
-      // Reset only rotation (let Webflow handle scale/position)
+      // Hide thumbnail and reset rotation
       gsap.to(thumbnail, {
+        scale: 0,
         rotationX: 0,
         rotationY: 0,
         duration: config.resetSpeed,
