@@ -6,12 +6,20 @@
  */
 
 document.addEventListener("DOMContentLoaded", function() {
-  // Configuration
+  // Configuration object for easy customization
   const config = {
-    maxRotation: 25,       // Maximum rotation in degrees (increased for visibility)
-    rotationDamping: 0.5,  // How much rotation is applied (0-1)
-    animationSpeed: 0.3,   // Animation speed for rotation changes
-    resetSpeed: 0.4        // Speed when returning to neutral rotation
+    maxRotation: 25, // Maximum rotation in degrees
+    resetSpeed: 0.4, // Speed of reset animation in seconds
+    smoothingFactor: 0.15, // How smooth the rotation follows (0-1, lower = smoother)
+    rotationDamping: 0.8, // How much to dampen rotation (0-1, lower = more damping)
+    // New configurable movement limits
+    maxMoveLeftPercent: 0.25, // How far thumbnail can move left (as % of container width)
+    maxMoveRightPercent: 0.25, // How far thumbnail can move right (as % of container width)
+    maxMoveUpPercent: 0.2, // How far thumbnail can move up (as % of container height)
+    maxMoveDownPercent: 0.2, // How far thumbnail can move down (as % of container height)
+    leftMovementMultiplier: 0.3, // Movement sensitivity when going left
+    rightMovementMultiplier: 0.3, // Movement sensitivity when going right
+    verticalMovementMultiplier: 0.25 // Movement sensitivity for vertical movement
   };
 
   // Mouse tracking variables
@@ -124,11 +132,30 @@ document.addEventListener("DOMContentLoaded", function() {
       const deltaX = relativeX - centerX;
       const deltaY = relativeY - centerY;
       
-      // Limit movement range to prevent going too far left/right
-      const maxMoveX = listItemRect.width * 0.25; // Limit to 25% of container width
-      const maxMoveY = listItemRect.height * 0.2; // Limit to 20% of container height
-      const clampedDeltaX = Math.max(-maxMoveX, Math.min(maxMoveX, deltaX));
-      const clampedDeltaY = Math.max(-maxMoveY, Math.min(maxMoveY, deltaY));
+      // Separate limits for left and right movement
+      const maxMoveLeft = listItemRect.width * config.maxMoveLeftPercent;
+      const maxMoveRight = listItemRect.width * config.maxMoveRightPercent;
+      const maxMoveUp = listItemRect.height * config.maxMoveUpPercent;
+      const maxMoveDown = listItemRect.height * config.maxMoveDownPercent;
+      
+      // Apply different limits based on direction
+      let clampedDeltaX, clampedDeltaY;
+      
+      if (deltaX < 0) {
+        // Moving left
+        clampedDeltaX = Math.max(-maxMoveLeft, deltaX);
+      } else {
+        // Moving right
+        clampedDeltaX = Math.min(maxMoveRight, deltaX);
+      }
+      
+      if (deltaY < 0) {
+        // Moving up
+        clampedDeltaY = Math.max(-maxMoveUp, deltaY);
+      } else {
+        // Moving down
+        clampedDeltaY = Math.min(maxMoveDown, deltaY);
+      }
       
       // Calculate velocity for swaying effect
       velocityX = (deltaX - previousX) * 0.5;
@@ -159,10 +186,23 @@ document.addEventListener("DOMContentLoaded", function() {
       swayRotation += swayVelocity;
       swayRotation *= 0.92; // Settle towards center
       
+      // Apply different movement multipliers based on direction
+      let finalX, finalY;
+      
+      if (clampedDeltaX < 0) {
+        // Moving left
+        finalX = clampedDeltaX * config.leftMovementMultiplier;
+      } else {
+        // Moving right
+        finalX = clampedDeltaX * config.rightMovementMultiplier;
+      }
+      
+      finalY = clampedDeltaY * config.verticalMovementMultiplier;
+      
       // Apply position following and rotation with controlled range
       gsap.set(thumbnail, {
-        x: clampedDeltaX * 0.3, // Reduced multiplier and use clamped values
-        y: clampedDeltaY * 0.25, // Reduced multiplier for more controlled movement
+        x: finalX,
+        y: finalY,
         rotationX: currentRotationX,
         rotationY: currentRotationY,
         rotationZ: swayRotation, // Add swaying rotation
@@ -204,16 +244,30 @@ document.addEventListener("DOMContentLoaded", function() {
       const initialDeltaX = relativeX - centerX;
       const initialDeltaY = relativeY - centerY;
       
-      // Apply movement limits to initial position
-      const maxMoveX = listItemRect.width * 0.25;
-      const maxMoveY = listItemRect.height * 0.2;
-      const clampedInitialX = Math.max(-maxMoveX, Math.min(maxMoveX, initialDeltaX));
-      const clampedInitialY = Math.max(-maxMoveY, Math.min(maxMoveY, initialDeltaY));
+      // Apply movement limits to initial position using new config
+      const maxMoveLeft = listItemRect.width * config.maxMoveLeftPercent;
+      const maxMoveRight = listItemRect.width * config.maxMoveRightPercent;
+      const maxMoveUp = listItemRect.height * config.maxMoveUpPercent;
+      const maxMoveDown = listItemRect.height * config.maxMoveDownPercent;
+      
+      let clampedInitialX, clampedInitialY;
+      
+      if (initialDeltaX < 0) {
+        clampedInitialX = Math.max(-maxMoveLeft, initialDeltaX) * config.leftMovementMultiplier;
+      } else {
+        clampedInitialX = Math.min(maxMoveRight, initialDeltaX) * config.rightMovementMultiplier;
+      }
+      
+      if (initialDeltaY < 0) {
+        clampedInitialY = Math.max(-maxMoveUp, initialDeltaY) * config.verticalMovementMultiplier;
+      } else {
+        clampedInitialY = Math.min(maxMoveDown, initialDeltaY) * config.verticalMovementMultiplier;
+      }
       
       // Set initial position before showing
       gsap.set(thumbnail, {
-        x: clampedInitialX * 0.3,
-        y: clampedInitialY * 0.25
+        x: clampedInitialX,
+        y: clampedInitialY
       });
       
       // Show thumbnail with scale and opacity animation
