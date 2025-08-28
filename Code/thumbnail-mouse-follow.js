@@ -38,7 +38,13 @@ document.addEventListener("DOMContentLoaded", function() {
   // Optimized: Cache selectors and use more specific query
   const thumbnails = document.querySelectorAll('[hover-mouse-follow="thumbnail"]');
   
-  console.log(`Found ${thumbnails.length} thumbnails with mouse-follow behavior`);
+  console.log(`🔍 Found ${thumbnails.length} thumbnails with mouse-follow behavior`);
+  console.log('📋 Thumbnail elements:', Array.from(thumbnails));
+  
+  if (thumbnails.length === 0) {
+    console.warn('⚠️ No thumbnails found! Make sure elements have hover-mouse-follow="thumbnail" attribute');
+    return;
+  }
 
   thumbnails.forEach((thumbnail, index) => {
     // Optimized: Cache parent lookup with more specific selectors
@@ -64,25 +70,23 @@ document.addEventListener("DOMContentLoaded", function() {
       transformOrigin: 'center center',
       rotationX: 0,
       rotationY: 0,
-      x: 0,
-      y: 0,
-      scale: 1,
       clearProps: "transform", // Clear any existing CSS transforms
       force3D: true
     });
     
-    // Store initial CSS values for restoration
-    const initialX = thumbnail.style.left || '50%';
-    const initialY = thumbnail.style.top || '50%';
-    const initialTransform = 'translate(-50%, -50%)';
-    
     // Set initial position using GSAP to avoid conflicts
     gsap.set(thumbnail, {
-      left: initialX,
-      top: initialY,
       x: '-50%',
       y: '-50%',
-      scale: 0 // Start hidden like CSS
+      scale: 0, // Start hidden
+      opacity: 0 // Also start transparent for smoother transitions
+    });
+    
+    console.log(`Initialized thumbnail ${index}:`, {
+      element: thumbnail,
+      parent: listItem,
+      initialScale: gsap.getProperty(thumbnail, "scale"),
+      initialOpacity: gsap.getProperty(thumbnail, "opacity")
     });
 
     // Optimized: Cache rect calculations and reduce DOM queries
@@ -144,7 +148,13 @@ document.addEventListener("DOMContentLoaded", function() {
     const instanceId = `thumb_${index}`;
     
     // Mouse enter - start rotation tracking and show thumbnail
-    listItem.addEventListener('mouseenter', () => {
+    listItem.addEventListener('mouseenter', (e) => {
+      console.log(`🐭 Mouse Enter on thumbnail ${index}`, {
+        target: e.target,
+        currentTarget: e.currentTarget,
+        isHovering: isHovering
+      });
+      
       isHovering = true;
       activeInstances.add(instanceId);
       cachedRect = null; // Invalidate cache on hover start
@@ -154,19 +164,32 @@ document.addEventListener("DOMContentLoaded", function() {
         cancelAnimationFrame(animationFrame);
       }
       
-      // Show thumbnail with scale animation (replacing CSS hover)
+      // Show thumbnail with scale and opacity animation
       gsap.to(thumbnail, {
         scale: 1,
+        opacity: 1,
         duration: 0.6,
-        ease: "back.out(1.7)"
+        ease: "back.out(1.7)",
+        onComplete: () => {
+          console.log(`✅ Thumbnail ${index} animation complete:`, {
+            scale: gsap.getProperty(thumbnail, "scale"),
+            opacity: gsap.getProperty(thumbnail, "opacity")
+          });
+        }
       });
       
       // Start rotation tracking immediately
       updateThumbnailPosition();
     }, { passive: true });
 
-    // Mouse leave - reset rotation only
-    listItem.addEventListener('mouseleave', () => {
+    // Mouse leave - reset rotation and hide thumbnail
+    listItem.addEventListener('mouseleave', (e) => {
+      console.log(`🐭 Mouse Leave on thumbnail ${index}`, {
+        target: e.target,
+        currentTarget: e.currentTarget,
+        isHovering: isHovering
+      });
+      
       isHovering = false;
       activeInstances.delete(instanceId);
       
@@ -179,10 +202,17 @@ document.addEventListener("DOMContentLoaded", function() {
       // Hide thumbnail and reset rotation
       gsap.to(thumbnail, {
         scale: 0,
+        opacity: 0,
         rotationX: 0,
         rotationY: 0,
         duration: config.resetSpeed,
-        ease: "power2.out"
+        ease: "power2.out",
+        onComplete: () => {
+          console.log(`❌ Thumbnail ${index} hidden:`, {
+            scale: gsap.getProperty(thumbnail, "scale"),
+            opacity: gsap.getProperty(thumbnail, "opacity")
+          });
+        }
       });
       
       // Reset rotation tracking variables
