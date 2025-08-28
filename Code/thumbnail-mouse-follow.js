@@ -76,8 +76,8 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Set initial position using GSAP to avoid conflicts
     gsap.set(thumbnail, {
-      x: '-50%',
-      y: '-50%',
+      x: 0, // Start at center, will be updated by mouse movement
+      y: 0, // Start at center, will be updated by mouse movement
       scale: 0, // Start hidden
       opacity: 0 // Also start transparent for smoother transitions
     });
@@ -109,12 +109,16 @@ document.addEventListener("DOMContentLoaded", function() {
 
       const listItemRect = getCachedRect();
       
-      // Calculate mouse position relative to list item center
-      const centerX = listItemRect.left + listItemRect.width * 0.5;
-      const centerY = listItemRect.top + listItemRect.height * 0.5;
+      // Calculate mouse position relative to list item
+      const relativeX = mouseX - listItemRect.left;
+      const relativeY = mouseY - listItemRect.top;
       
-      const deltaX = mouseX - centerX;
-      const deltaY = mouseY - centerY;
+      // Calculate mouse position relative to list item center for rotation
+      const centerX = listItemRect.width * 0.5;
+      const centerY = listItemRect.height * 0.5;
+      
+      const deltaX = relativeX - centerX;
+      const deltaY = relativeY - centerY;
       
       // Calculate rotation based on mouse position relative to container
       const maxDistance = Math.max(listItemRect.width, listItemRect.height) * 0.5;
@@ -131,8 +135,10 @@ document.addEventListener("DOMContentLoaded", function() {
       currentRotationX += (targetRotationX - currentRotationX) * 0.15;
       currentRotationY += (targetRotationY - currentRotationY) * 0.15;
       
-      // Apply only rotation - let hover state handle scale
+      // Apply position following and rotation
       gsap.set(thumbnail, {
+        x: relativeX - centerX, // Follow mouse horizontally
+        y: relativeY - centerY, // Follow mouse vertically
         rotationX: currentRotationX,
         rotationY: currentRotationY,
         force3D: true
