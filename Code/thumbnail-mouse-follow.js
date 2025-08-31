@@ -6,6 +6,20 @@
  */
 
 document.addEventListener("DOMContentLoaded", function() {
+  // Throttle function
+  function throttle(func, limit) {
+    let inThrottle;
+    return function() {
+      const args = arguments;
+      const context = this;
+      if (!inThrottle) {
+        func.apply(context, args);
+        inThrottle = true;
+        setTimeout(() => inThrottle = false, limit);
+      }
+    }
+  }
+
   // Configuration object for easy customization
   const config = {
     maxRotation: 25,
@@ -13,24 +27,64 @@ document.addEventListener("DOMContentLoaded", function() {
     smoothingFactor: 0.8,
     rotationDamping: 0.8,
     maxMoveLeftPercent: 0.25,
-    maxMoveRightPercent: 0.8, // Increase this
+    maxMoveRightPercent: 0.8,
     maxMoveUpPercent: 0.2,
     maxMoveDownPercent: 0.2,
     leftMovementMultiplier: 0.3,
-    rightMovementMultiplier: 0.8, // AND increase this too!
-    verticalMovementMultiplier: 0.4
+    rightMovementMultiplier: 0.8,
+    verticalMovementMultiplier: 0.4,
+    followStrength: 50,
+    rotationStrength: 15,
+    // New Fiddle Digital inspired settings
+    velocity: {
+      enabled: true,
+      skewMultiplier: 0.3,
+      scaleMultiplier: 0.05,
+      maxSkew: 15,
+      maxScale: 0.2
+    },
+    parallax: {
+      enabled: true,
+      strength: 0.1
+    },
+    lerp: {
+      position: 0.1,
+      velocity: 0.08
+    }
   };
 
   // Mouse tracking variables
   let mouseX = 0;
   let mouseY = 0;
-  let activeInstances = new Set(); // Track active hover instances
+  let prevMouseX = 0;
+  let prevMouseY = 0;
+  let velocityX = 0;
+  let velocityY = 0;
+  let lerpedVelocityX = 0;
+  let lerpedVelocityY = 0;
+  let activeInstances = new Set();
+
+  // Throttled mouse move handler
+  const throttledMouseMove = throttle((e) => {
+    prevMouseX = mouseX;
+    prevMouseY = mouseY;
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    
+    // Calculate velocity
+    velocityX = mouseX - prevMouseX;
+    velocityY = mouseY - prevMouseY;
+    
+    // Update CSS custom properties for global cursor
+    document.documentElement.style.setProperty('--mouse-x', mouseX + 'px');
+    document.documentElement.style.setProperty('--mouse-y', mouseY + 'px');
+  }, 16);
 
   // Optimized: Use passive listener and throttle mouse tracking
   let mouseMoveThrottle = null;
   document.addEventListener('mousemove', (e) => {
-    mouseX = e.clientX;
-    mouseY = e.clientY;
+    // Update basic mouse tracking
+    throttledMouseMove(e);
     
     // Only process if there are active instances
     if (activeInstances.size === 0) return;
@@ -41,6 +95,56 @@ document.addEventListener("DOMContentLoaded", function() {
       mouseMoveThrottle = null;
     });
   }, { passive: true });
+
+  // Enhanced thumbnail update function
+  function updateThumbnailPositionEnhanced(thumbnail, parentRect) {
+    const centerX = parentRect.left + parentRect.width / 2;
+    const centerY = parentRect.top + parentRect.height / 2;
+    
+    // Calculate relative position
+    const relativeX = (mouseX - centerX) / parentRect.width;
+    const relativeY = (mouseY - centerY) / parentRect.height;
+    
+    // Lerp velocity for smooth effects
+    lerpedVelocityX += (velocityX - lerpedVelocityX) * config.lerp.velocity;
+    lerpedVelocityY += (velocityY - lerpedVelocityY) * config.lerp.velocity;
+    
+    // Calculate effects
+    const skewX = config.velocity.enabled ? 
+      Math.max(-config.velocity.maxSkew, Math.min(config.velocity.maxSkew, lerpedVelocityX * config.velocity.skewMultiplier)) : 0;
+    const skewY = config.velocity.enabled ? 
+      Math.max(-config.velocity.maxSkew, Math.min(config.velocity.maxSkew, lerpedVelocityY * config.velocity.skewMultiplier)) : 0;
+    
+    const scaleBoost = config.velocity.enabled ? 
+      1 + Math.min(config.velocity.maxScale, Math.abs(lerpedVelocityX + lerpedVelocityY) * config.velocity.scaleMultiplier) : 1;
+    
+    // Apply transforms using GSAP
+    gsap.set(thumbnail, {
+      x: relativeX * config.followStrength,
+      y: relativeY * config.followStrength,
+      rotationY: relativeX * config.rotationStrength,
+      rotationX: -relativeY * config.rotationStrength,
+      skewX: skewX,
+      skewY: skewY,
+      scale: scaleBoost,
+      transformOrigin: "center center"
+    });
+    
+    // Apply parallax to child images if enabled
+    if (config.parallax.enabled) {
+      const images = thumbnail.querySelectorAll('img, video');
+      images.forEach(img => {
+        gsap.set(img, {
+          x: relativeX * config.parallax.strength * 20,
+          y: relativeY * config.parallax.strength * 20
+        });
+      });
+    }
+    
+    // Update CSS custom properties for this thumbnail
+    thumbnail.style.setProperty('--velocity-x', lerpedVelocityX);
+    thumbnail.style.setProperty('--velocity-y', lerpedVelocityY);
+  }
 
   // Optimized: Cache selectors and use more specific query
   const thumbnails = document.querySelectorAll('[hover-mouse-follow="thumbnail"]');
@@ -75,8 +179,8 @@ document.addEventListener("DOMContentLoaded", function() {
     // Physics-based swaying variables
     let previousX = 0;
     let previousY = 0;
-    let velocityX = 0;
-    let velocityY = 0;
+    let localVelocityX = 0;
+    let localVelocityY = 0;
     let swayRotation = 0;
     let swayVelocity = 0;
 
@@ -87,9 +191,9 @@ document.addEventListener("DOMContentLoaded", function() {
       rotationY: 0,
       x: 0,
       y: 0,
-      scale: 0, // Start hidden
-      opacity: 0, // Also start transparent for smoother transitions
-      clearProps: "transform", // Clear any existing CSS transforms
+      scale: 0,
+      opacity: 0,
+      clearProps: "transform",
       force3D: true
     });
     
@@ -103,7 +207,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // Optimized: Cache rect calculations and reduce DOM queries
     let cachedRect = null;
     let rectCacheTime = 0;
-    const RECT_CACHE_DURATION = 100; // Cache for 100ms
+    const RECT_CACHE_DURATION = 100;
     
     function getCachedRect() {
       const now = Date.now();
@@ -141,24 +245,20 @@ document.addEventListener("DOMContentLoaded", function() {
       let clampedDeltaX, clampedDeltaY;
       
       if (deltaX < 0) {
-        // Moving left
         clampedDeltaX = Math.max(-maxMoveLeft, deltaX);
       } else {
-        // Moving right
         clampedDeltaX = Math.min(maxMoveRight, deltaX);
       }
       
       if (deltaY < 0) {
-        // Moving up
         clampedDeltaY = Math.max(-maxMoveUp, deltaY);
       } else {
-        // Moving down
         clampedDeltaY = Math.min(maxMoveDown, deltaY);
       }
       
       // Calculate velocity for swaying effect
-      velocityX = (deltaX - previousX) * 0.5;
-      velocityY = (deltaY - previousY) * 0.5;
+      localVelocityX = (deltaX - previousX) * 0.5;
+      localVelocityY = (deltaY - previousY) * 0.5;
       previousX = deltaX;
       previousY = deltaY;
       
@@ -169,30 +269,28 @@ document.addEventListener("DOMContentLoaded", function() {
       const normalizedX = Math.max(-1, Math.min(1, deltaX / maxDistance));
       const normalizedY = Math.max(-1, Math.min(1, deltaY / maxDistance));
       
-      // Calculate rotation based on normalized position (increased for visibility)
+      // Calculate rotation based on normalized position
       const targetRotationY = normalizedX * config.maxRotation;
       const targetRotationX = -normalizedY * config.maxRotation;
       
       // Improved smoothing with better interpolation
-      const smoothingFactor = 0.08; // Slower, smoother movement
+      const smoothingFactor = 0.08;
       currentRotationX += (targetRotationX - currentRotationX) * smoothingFactor;
       currentRotationY += (targetRotationY - currentRotationY) * smoothingFactor;
       
       // Physics-based swaying rotation
-      const swayForce = velocityX * 0.3; // Convert velocity to sway force
-      swayVelocity += swayForce * 0.1; // Apply force to sway velocity
-      swayVelocity *= 0.85; // Damping - gradually slow down
+      const swayForce = localVelocityX * 0.3;
+      swayVelocity += swayForce * 0.1;
+      swayVelocity *= 0.85;
       swayRotation += swayVelocity;
-      swayRotation *= 0.92; // Settle towards center
+      swayRotation *= 0.92;
       
       // Apply different movement multipliers based on direction
       let finalX, finalY;
       
       if (clampedDeltaX < 0) {
-        // Moving left
         finalX = clampedDeltaX * config.leftMovementMultiplier;
       } else {
-        // Moving right
         finalX = clampedDeltaX * config.rightMovementMultiplier;
       }
       
@@ -204,7 +302,7 @@ document.addEventListener("DOMContentLoaded", function() {
         y: finalY,
         rotationX: currentRotationX,
         rotationY: currentRotationY,
-        rotationZ: swayRotation, // Add swaying rotation
+        rotationZ: swayRotation,
         force3D: true
       });
       
@@ -227,14 +325,12 @@ document.addEventListener("DOMContentLoaded", function() {
       
       isHovering = true;
       activeInstances.add(instanceId);
-      cachedRect = null; // Invalidate cache on hover start
+      cachedRect = null;
       
-      // Cancel any existing animation frame
       if (animationFrame) {
         cancelAnimationFrame(animationFrame);
       }
       
-      // IMPORTANT: Kill any existing animations on this thumbnail to prevent conflicts
       gsap.killTweensOf(thumbnail);
       
       // Set initial position to mouse entry point
@@ -246,7 +342,7 @@ document.addEventListener("DOMContentLoaded", function() {
       const initialDeltaX = relativeX - centerX;
       const initialDeltaY = relativeY - centerY;
       
-      // Apply movement limits to initial position using new config
+      // Apply movement limits to initial position
       const maxMoveLeft = listItemRect.width * config.maxMoveLeftPercent;
       const maxMoveRight = listItemRect.width * config.maxMoveRightPercent;
       const maxMoveUp = listItemRect.height * config.maxMoveUpPercent;
@@ -266,13 +362,11 @@ document.addEventListener("DOMContentLoaded", function() {
         clampedInitialY = Math.min(maxMoveDown, initialDeltaY) * config.verticalMovementMultiplier;
       }
       
-      // Set initial position before showing
       gsap.set(thumbnail, {
         x: clampedInitialX,
         y: clampedInitialY
       });
       
-      // Show thumbnail with scale and opacity animation
       gsap.to(thumbnail, {
         scale: 1,
         opacity: 1,
@@ -286,7 +380,6 @@ document.addEventListener("DOMContentLoaded", function() {
         }
       });
       
-      // Start rotation tracking immediately
       updateThumbnailPosition();
     }, { passive: true });
 
@@ -301,24 +394,21 @@ document.addEventListener("DOMContentLoaded", function() {
       isHovering = false;
       activeInstances.delete(instanceId);
       
-      // Cancel animation frame
       if (animationFrame) {
         cancelAnimationFrame(animationFrame);
         animationFrame = null;
       }
       
-      // IMPORTANT: Kill any existing animations to prevent conflicts
       gsap.killTweensOf(thumbnail);
       
-      // Hide thumbnail and reset rotation and position
       gsap.to(thumbnail, {
         scale: 0,
         opacity: 0,
-        x: 0, // Reset position
-        y: 0, // Reset position
+        x: 0,
+        y: 0,
         rotationX: 0,
         rotationY: 0,
-        rotationZ: 0, // Also reset the sway rotation
+        rotationZ: 0,
         duration: config.resetSpeed,
         ease: "power2.out",
         onComplete: () => {
@@ -329,28 +419,25 @@ document.addEventListener("DOMContentLoaded", function() {
         }
       });
       
-      // Reset rotation tracking variables
+      // Reset variables
       currentRotationX = 0;
       currentRotationY = 0;
-      
-      // Reset physics variables
       previousX = 0;
       previousY = 0;
-      velocityX = 0;
-      velocityY = 0;
+      localVelocityX = 0;
+      localVelocityY = 0;
       swayRotation = 0;
       swayVelocity = 0;
     }, { passive: true });
 
-    // Optimized: Debounced resize handler with cache invalidation
+    // Optimized: Debounced resize handler
     let resizeTimeout = null;
     window.addEventListener('resize', () => {
-      cachedRect = null; // Invalidate cache immediately
+      cachedRect = null;
       
       if (resizeTimeout) clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
         if (isHovering) {
-          // Briefly pause and restart animation to recalculate boundaries
           if (animationFrame) {
             cancelAnimationFrame(animationFrame);
           }
@@ -358,13 +445,13 @@ document.addEventListener("DOMContentLoaded", function() {
             if (isHovering) {
               updateThumbnailPosition();
             }
-          }, 50); // Reduced delay
+          }, 50);
         }
-      }, 150); // Debounce resize events
+      }, 150);
     }, { passive: true });
   });
 
-  // Optional: Add CSS for better performance (can be added via Webflow custom code)
+  // Optional: Add CSS for better performance
   const style = document.createElement('style');
   style.textContent = `
     [hover-mouse-follow="thumbnail"] {
@@ -373,12 +460,11 @@ document.addEventListener("DOMContentLoaded", function() {
       perspective: 1000px;
     }
     
-    /* Ensure parent containers have proper positioning */
     .project-list-item,
     .project-item,
     .list-item {
       position: relative;
-      overflow: visible; /* Allow thumbnails to extend outside */
+      overflow: visible;
     }
   `;
   document.head.appendChild(style);

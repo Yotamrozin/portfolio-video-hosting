@@ -32,10 +32,79 @@
   );
 }
 
+/* Enhanced Thumbnail Wrapper */
+.thumbnail-wrapper {
+    position: relative;
+    overflow: hidden;
+    transform-style: preserve-3d;
+    will-change: transform;
+}
+
+/* Thumbnail with hardware acceleration */
 [hover-mouse-follow="thumbnail"] {
-  /* Image inside gets subtle parallax */
-  transition: transform 0.15s ease-out;
-  transform-origin: center center;
+    transform: 
+        translate3d(var(--x, 0), var(--y, 0), 0)
+        rotateY(var(--rotation-y, 0deg))
+        rotateX(var(--rotation-x, 0deg))
+        skew(var(--skew-x, 0deg), var(--skew-y, 0deg))
+        scale(var(--scale, 1));
+    transition: 
+        transform 0.6s cubic-bezier(0.23, 1, 0.32, 1),
+        opacity 0.3s ease;
+    transform-origin: center center;
+    will-change: transform;
+}
+
+/* Velocity-based effects */
+[hover-mouse-follow="thumbnail"]::before {
+    content: '';
+    position: absolute;
+    top: -10%;
+    left: -10%;
+    right: -10%;
+    bottom: -10%;
+    background: linear-gradient(
+        calc(90deg + var(--velocity-x, 0) * 0.5deg),
+        rgba(255, 255, 255, 0.1),
+        transparent
+    );
+    opacity: calc(abs(var(--velocity-x, 0)) * 0.01);
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+
+/* Multi-layer parallax */
+.thumbnail-wrapper img,
+.thumbnail-wrapper video {
+    transform: translate3d(
+        calc(var(--mouse-x, 0px) * var(--parallax-strength, 0.1)),
+        calc(var(--mouse-y, 0px) * var(--parallax-strength, 0.1)),
+        0
+    );
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+    will-change: transform;
+}
+
+/* Entry/Exit animations */
+.thumbnail-wrapper:hover [hover-mouse-follow="thumbnail"] {
+    --scale: 1.05;
+}
+
+.thumbnail-wrapper:not(:hover) [hover-mouse-follow="thumbnail"] {
+    transform: 
+        translate3d(0, 0, 0)
+        rotateY(0deg)
+        rotateX(0deg)
+        skew(0deg, 0deg)
+        scale(1);
+}
+
+/* Performance optimizations */
+@media (prefers-reduced-motion: reduce) {
+    [hover-mouse-follow="thumbnail"] {
+        transform: none !important;
+        transition: none !important;
+    }
 }
 
 /* Smooth entry/exit animations */
