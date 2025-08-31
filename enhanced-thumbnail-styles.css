@@ -1,0 +1,51 @@
+/* Fiddle Digital inspired thumbnail system */
+.thumbnail-wrapper {
+  position: fixed;
+  pointer-events: none;
+  z-index: 100;
+  will-change: transform;
+  
+  /* Use CSS custom properties for smooth hardware acceleration */
+  transform: translate3d(
+    calc(1px * var(--x, 0) - 50%),
+    calc(1px * var(--y, 0) - 50%),
+    0
+  ) skew(
+    calc(var(--x-lerp, 0) * -0.5deg),
+    calc(var(--y-lerp, 0) * -0.3deg)
+  );
+  
+  transition: transform 0.1s ease-out;
+}
+
+.thumbnail-wrapper.active {
+  /* Enhanced effects when active */
+  transform: translate3d(
+    calc(1px * var(--x, 0) - 50%),
+    calc(1px * var(--y, 0) - 50%),
+    0
+  ) skew(
+    calc(var(--x-lerp, 0) * -1deg),
+    calc(var(--y-lerp, 0) * -0.6deg)
+  ) scale(
+    calc(1 + var(--x-lerp, 0) * var(--x-lerp, 0) * 0.0001)
+  );
+}
+
+[hover-mouse-follow="thumbnail"] {
+  /* Image inside gets subtle parallax */
+  transition: transform 0.15s ease-out;
+  transform-origin: center center;
+}
+
+/* Smooth entry/exit animations */
+.thumbnail-wrapper {
+  opacity: 0;
+  scale: 0;
+  transition: opacity 0.3s ease, scale 0.3s cubic-bezier(0.22, 0.31, 0, 1);
+}
+
+.thumbnail-wrapper.visible {
+  opacity: 1;
+  scale: 1;
+}
