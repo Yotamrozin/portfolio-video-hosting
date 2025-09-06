@@ -15,8 +15,12 @@ class CraftCategoryMenu {
     this.storyInterface = document.querySelector('.story-interface');
     
     // Debug: Check what elements exist
-    console.log('Story interface found:', document.querySelector('.story-interface'));
-    console.log('Available story elements:', document.querySelectorAll('[class*="story"]'));
+    // Remove lines 18-19:
+    // console.log('Story interface found:', document.querySelector('.story-interface'));
+    // console.log('Available story elements:', document.querySelectorAll('[class*="story"]'));
+    
+    // Remove line 206:
+    // console.log('Category changed to:', e.detail.category);
     
     this.init();
   }

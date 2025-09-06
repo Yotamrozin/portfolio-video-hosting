@@ -4,7 +4,32 @@
  * Maintains compatibility with existing custom attributes while leveraging GSAP's superior performance
  */
 
-console.log('GSAP Scroll animation system initialized');
+// Remove line 7:
+// console.log('GSAP Scroll animation system initialized');
+
+// Remove line 60:
+// console.log(`Found ${animatedElements.length} elements with scroll animations`);
+
+// Remove line 137:
+// console.log(`Setting up staggered animation for container ${containerIndex}`);
+
+// Remove line 159:
+// console.log(`Found ${staggerChildren.length} stagger items`);
+
+// Remove line 237:
+// console.log('ScrollTrigger refreshed');
+
+// Remove lines 272-281 (the entire debug block):
+// console.log('Checking element visibility on load:');
+// document.querySelectorAll('[scroll-animate]').forEach((el, i) => {
+//   const rect = el.getBoundingClientRect();
+//   console.log(`Element ${i}:`, {
+//     visible: rect.top < window.innerHeight && rect.bottom > 0,
+//     top: rect.top,
+//     bottom: rect.bottom,
+//     windowHeight: window.innerHeight
+//   });
+// });
 
 // Animation configurations - SIMPLIFIED with faster timings
 const animationConfig = {

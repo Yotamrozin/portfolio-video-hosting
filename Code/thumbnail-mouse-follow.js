@@ -149,9 +149,24 @@ document.addEventListener("DOMContentLoaded", function() {
   // Optimized: Cache selectors and use more specific query
   const thumbnails = document.querySelectorAll('[hover-mouse-follow="thumbnail"]');
   
-  console.log(`🔍 Found ${thumbnails.length} thumbnails with mouse-follow behavior`);
-  console.log('📋 Thumbnail elements:', Array.from(thumbnails));
+  // Remove lines 152-153:
+  // console.log(`🔍 Found ${thumbnails.length} thumbnails with mouse-follow behavior`);
+  // console.log('📋 Thumbnail elements:', Array.from(thumbnails));
   
+  // Remove line 200:
+  // console.log(`Initialized thumbnail ${index}:`, {
+  
+  // Remove line 320:
+  // console.log(`🐭 Mouse Enter on thumbnail ${index}`, {
+  
+  // Remove line 376:
+  // console.log(`✅ Thumbnail ${index} animation complete:`, {
+  
+  // Remove line 388:
+  // console.log(`🐭 Mouse Leave on thumbnail ${index}`, {
+  
+  // Remove line 415:
+  // console.log(`❌ Thumbnail ${index} hidden:`, {
   if (thumbnails.length === 0) {
     console.warn('⚠️ No thumbnails found! Make sure elements have hover-mouse-follow="thumbnail" attribute');
     return;
