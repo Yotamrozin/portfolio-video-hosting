@@ -14,6 +14,10 @@ class CraftCategoryMenu {
     this.categoryItems = document.querySelectorAll('.category-item');
     this.storyInterface = document.querySelector('.story-interface');
     
+    // Debug: Check what elements exist
+    console.log('Story interface found:', document.querySelector('.story-interface'));
+    console.log('Available story elements:', document.querySelectorAll('[class*="story"]'));
+    
     this.init();
   }
   
@@ -120,6 +124,12 @@ class CraftCategoryMenu {
   }
   
   setupStorySwipe() {
+    // Add null check to prevent error
+    if (!this.storyInterface) {
+      console.warn('Story interface element not found - skipping story swipe setup');
+      return;
+    }
+    
     let startX = 0;
     let currentX = 0;
     let isDragging = false;
