@@ -12,7 +12,32 @@ class CraftCategoryMenu {
     this.init();
   }
   
+  // Add this method to debug the HTML structure
+  debugHTMLStructure() {
+    console.log('=== HTML Structure Debug ===');
+    
+    const categoryRows = document.querySelectorAll('[data-category-row]');
+    console.log('Category rows found:', categoryRows.length);
+    categoryRows.forEach((row, i) => {
+      console.log(`Row ${i}:`, row.getAttribute('data-category-row'));
+    });
+    
+    const categoryExamples = document.querySelectorAll('[data-category-example]');
+    console.log('Category examples found:', categoryExamples.length);
+    categoryExamples.forEach((example, i) => {
+      console.log(`Example ${i}:`, example.getAttribute('data-category-example'));
+    });
+    
+    const categoryLogos = document.querySelectorAll('[data-category-logo]');
+    console.log('Category logos found:', categoryLogos.length);
+    
+    const oldDataCategory = document.querySelectorAll('[data-category]');
+    console.log('Old data-category elements found:', oldDataCategory.length);
+  }
+  
+  // Call this in the init method
   async init() {
+    this.debugHTMLStructure(); // Add this line
     await this.loadCategoriesFromDOM();
     this.setupEventListeners();
     this.updateSliderPosition();
