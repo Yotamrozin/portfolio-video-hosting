@@ -1,243 +1,254 @@
-//craft menu system
 class CraftCategoryMenu {
   constructor() {
-    // Remove hard-coded categories
     this.categories = [];
     this.currentIndex = 0;
     this.slider = document.querySelector('.category-slider');
     this.categoryItems = document.querySelectorAll('.category-item');
     this.storyInterface = document.querySelector('.story-interface');
     this.categoryChangeTimeout = null;
+    this.finsweetInstance = null;
     
     this.init();
   }
   
-  // Add these debugging methods to the CraftCategoryMenu class
-  
-  // Enhanced debugging method
-  debugCategoryStructure() {
-    console.log('\n=== CATEGORY STRUCTURE DEBUG ===');
+  async init() {
+    console.log('🚀 Initializing CraftCategoryMenu...');
     
-    // Debug all available categories
-    console.log('Available categories:', this.categories);
-    console.log('Current category index:', this.currentIndex);
-    console.log('Current active category:', this.categories[this.currentIndex]);
-    
-    // Debug different data attribute types
-    const categoryRows = document.querySelectorAll('[data-category-row]');
-    const categoryExamples = document.querySelectorAll('[data-category-example]');
-    const categoryLogos = document.querySelectorAll('[data-category-logo]');
-    const oldDataCategory = document.querySelectorAll('[data-category]');
-    const storyTabs = document.querySelectorAll('.tab-button-demo');
-    const progressBars = document.querySelectorAll('.story-progress, .progress-bar, [class*="progress"]');
-    
-    console.log('\n--- ELEMENT COUNTS ---');
-    console.log('Category rows [data-category-row]:', categoryRows.length);
-    console.log('Category examples [data-category-example]:', categoryExamples.length);
-    console.log('Category logos [data-category-logo]:', categoryLogos.length);
-    console.log('Old data-category elements:', oldDataCategory.length);
-    console.log('Story tabs (.tab-button-demo):', storyTabs.length);
-    console.log('Progress bars found:', progressBars.length);
-    
-    // Debug each category's subcategories
-    console.log('\n--- CATEGORY BREAKDOWN ---');
-    this.categories.forEach((category, index) => {
-      console.log(`\n📁 Category ${index}: "${category.name}"`);
+    try {
+      await this.loadCategoriesFromCMS();
+      await this.initializeFinsweet();
+      this.setupEventListeners();
+      this.debugCategoryStructure();
       
-      // Count subcategories for this category
-      const subcategoriesInRows = Array.from(categoryRows).filter(row => 
-        row.getAttribute('data-category-row') === category.id
-      );
-      const subcategoriesInExamples = Array.from(categoryExamples).filter(example => 
-        example.getAttribute('data-category-example') === category.id
-      );
-      const subcategoriesInLogos = Array.from(categoryLogos).filter(logo => 
-        logo.getAttribute('data-category-logo') === category.id || 
-        logo.getAttribute('data-category-logo-2') === category.id
-      );
+      // Initialize with first category
+      if (this.categories.length > 0) {
+        this.selectCategory(0);
+      }
       
-      console.log(`  📄 Rows: ${subcategoriesInRows.length}`);
-      console.log(`  🎯 Examples: ${subcategoriesInExamples.length}`);
-      console.log(`  🏢 Logos: ${subcategoriesInLogos.length}`);
-      console.log(`  📊 Total subcategories: ${subcategoriesInRows.length + subcategoriesInExamples.length + subcategoriesInLogos.length}`);
-    });
+      // Make debug method available globally
+      window.debugCraftMenu = () => this.debugCurrentState();
+      console.log('\n💡 TIP: Use debugCraftMenu() in console for manual debugging');
+      
+      console.log('✅ CraftCategoryMenu initialized successfully');
+    } catch (error) {
+      console.error('❌ Error initializing CraftCategoryMenu:', error);
+    }
   }
   
-  // Enhanced filtering with detailed logging
-  filterStoryIndicators() {
-    const activeCategory = this.categories[this.currentIndex]?.id;
-    if (!activeCategory) {
-      console.warn('No active category found!');
-      return;
+  // Load categories from CMS (Crafts collection)
+  async loadCategoriesFromCMS() {
+    console.log('📚 Loading categories from CMS...');
+    
+    // Method 1: Extract from category menu items (if they match CMS)
+    const categorySet = new Set();
+    
+    this.categoryItems.forEach(item => {
+      const categoryName = item.textContent.trim();
+      if (categoryName) {
+        categorySet.add(categoryName);
+      }
+    });
+    
+    // Method 2: If Finsweet is available, get categories from CMS
+    if (window.FsLibrary) {
+      try {
+        // Wait for Finsweet to load CMS data
+        await this.waitForCMSData();
+        
+        // Get all subcategory items to extract their linked categories
+        const subcategoryItems = document.querySelectorAll('.fs-tab-content');
+        
+        subcategoryItems.forEach(item => {
+          // Look for category reference field data
+          const categoryRef = item.querySelector('[data-category-ref]') || 
+                            item.querySelector('[data-craft-category]') ||
+                            item.querySelector('[data-category]');
+          
+          if (categoryRef) {
+            const categoryName = categoryRef.textContent.trim() || 
+                               categoryRef.getAttribute('data-category-ref') ||
+                               categoryRef.getAttribute('data-craft-category') ||
+                               categoryRef.getAttribute('data-category');
+            
+            if (categoryName) {
+              categorySet.add(categoryName);
+            }
+          }
+        });
+      } catch (error) {
+        console.warn('Could not load from CMS, using menu items:', error);
+      }
     }
     
-    console.log(`\n🔍 FILTERING FOR CATEGORY: "${activeCategory}"`);
+    // Convert to array and create category objects
+    this.categories = Array.from(categorySet).map(name => ({
+      id: name,
+      name: name
+    }));
     
-    let totalVisibleSections = 0;
-    let visibleRows = 0;
-    let visibleExamples = 0;
-    let visibleLogos = 0;
-    let visibleStoryTabs = 0;
-    
-    // Filter category rows
-    const categoryRows = document.querySelectorAll('[data-category-row]');
-    console.log(`\n📄 Processing ${categoryRows.length} category rows...`);
-    
-    categoryRows.forEach((row, index) => {
-      const rowCategory = row.getAttribute('data-category-row');
-      const isVisible = rowCategory === activeCategory;
-      
-      if (isVisible) {
-        row.style.display = 'block';
-        row.classList.add('active-category');
-        visibleRows++;
-        console.log(`  ✅ Row ${index}: "${rowCategory}" - VISIBLE`);
-        
-        // Check for subcategories within this row
-        const subcategories = row.querySelectorAll('[data-subcategory-label], .subcategory-group > *');
-        if (subcategories.length > 0) {
-          console.log(`    📋 Found ${subcategories.length} subcategories in this row`);
-        }
-      } else {
-        row.style.display = 'none';
-        row.classList.remove('active-category');
-        console.log(`  ❌ Row ${index}: "${rowCategory}" - HIDDEN`);
-      }
-    });
-    
-    // Filter category examples
-    const categoryExamples = document.querySelectorAll('[data-category-example]');
-    console.log(`\n🎯 Processing ${categoryExamples.length} category examples...`);
-    
-    categoryExamples.forEach((example, index) => {
-      const exampleCategory = example.getAttribute('data-category-example');
-      const isVisible = exampleCategory === activeCategory;
-      
-      if (isVisible) {
-        example.style.display = 'block';
-        example.classList.add('fade-in');
-        visibleExamples++;
-        console.log(`  ✅ Example ${index}: "${exampleCategory}" - VISIBLE`);
-      } else {
-        example.style.display = 'none';
-        example.classList.remove('fade-in');
-        console.log(`  ❌ Example ${index}: "${exampleCategory}" - HIDDEN`);
-      }
-    });
-    
-    // Filter category logos
-    const categoryLogos = document.querySelectorAll('[data-category-logo]');
-    console.log(`\n🏢 Processing ${categoryLogos.length} category logos...`);
-    
-    categoryLogos.forEach((logo, index) => {
-      const logoCategory = logo.getAttribute('data-category-logo');
-      const logoCategory2 = logo.getAttribute('data-category-logo-2');
-      const isVisible = logoCategory === activeCategory || logoCategory2 === activeCategory;
-      
-      if (isVisible) {
-        logo.style.display = 'block';
-        visibleLogos++;
-        console.log(`  ✅ Logo ${index}: "${logoCategory}${logoCategory2 ? '/' + logoCategory2 : ''}" - VISIBLE`);
-      } else {
-        logo.style.display = 'none';
-        console.log(`  ❌ Logo ${index}: "${logoCategory}${logoCategory2 ? '/' + logoCategory2 : ''}" - HIDDEN`);
-      }
-    });
-    
-    // Check story tabs (for Instagram story system)
-    const storyTabs = document.querySelectorAll('.tab-button-demo');
-    console.log(`\n📱 Processing ${storyTabs.length} story tabs...`);
-    
-    storyTabs.forEach((tab, index) => {
-      const tabParent = tab.closest('[data-category], [data-category-row], [data-category-example]');
-      if (tabParent) {
-        const tabCategory = tabParent.getAttribute('data-category') || 
-                         tabParent.getAttribute('data-category-row') || 
-                         tabParent.getAttribute('data-category-example');
-        const isVisible = tabCategory === activeCategory;
-        
-        if (isVisible) {
-          tab.style.display = 'block';
-          visibleStoryTabs++;
-          console.log(`  ✅ Story tab ${index}: "${tabCategory}" - VISIBLE`);
+    console.log('📚 Loaded categories from CMS:', this.categories);
+  }
+  
+  // Wait for CMS data to be loaded by Finsweet
+  waitForCMSData() {
+    return new Promise((resolve) => {
+      const checkCMSData = () => {
+        const cmsItems = document.querySelectorAll('.fs-tab-content');
+        if (cmsItems.length > 0) {
+          console.log('✅ CMS data loaded');
+          resolve();
         } else {
-          tab.style.display = 'none';
-          console.log(`  ❌ Story tab ${index}: "${tabCategory}" - HIDDEN`);
+          console.log('⏳ Waiting for CMS data...');
+          setTimeout(checkCMSData, 100);
+        }
+      };
+      checkCMSData();
+    });
+  }
+  
+  // Initialize Finsweet and get instance
+  async initializeFinsweet() {
+    if (typeof FsLibrary !== 'undefined') {
+      try {
+        // Create Finsweet instance
+        this.finsweetInstance = new FsLibrary('.fs-dynamic-feed');
+        
+        // Initialize tabs
+        this.finsweetInstance.tabs({
+          tabComponent: '.fs-tabs',
+          tabContent: '.fs-tab-content'
+        });
+        
+        console.log('✅ Finsweet initialized successfully');
+        
+        // Wait a bit for tabs to be created
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+      } catch (error) {
+        console.warn('❌ Finsweet initialization failed:', error);
+      }
+    } else {
+      console.warn('❌ FsLibrary not found');
+    }
+  }
+  
+  // Filter subcategory tabs based on selected category
+  filterSubcategoryTabs(activeCategory) {
+    console.log(`\n🎯 Filtering subcategory tabs for: "${activeCategory}"`);
+    
+    // Get all tab content items (subcategories)
+    const allTabContents = document.querySelectorAll('.fs-tab-content');
+    const allTabButtons = document.querySelectorAll('.tab-button-demo, .w-tab-link');
+    
+    let visibleCount = 0;
+    const visibleTabs = [];
+    
+    allTabContents.forEach((tabContent, index) => {
+      // Find the category reference in this subcategory
+      const categoryRef = tabContent.querySelector('[data-category-ref]') || 
+                        tabContent.querySelector('[data-craft-category]') ||
+                        tabContent.querySelector('[data-category]') ||
+                        tabContent;
+      
+      let tabCategory = null;
+      
+      if (categoryRef) {
+        // Try different ways to get the category name
+        tabCategory = categoryRef.textContent.trim() || 
+                     categoryRef.getAttribute('data-category-ref') ||
+                     categoryRef.getAttribute('data-craft-category') ||
+                     categoryRef.getAttribute('data-category');
+        
+        // If still no category, look for it in child elements
+        if (!tabCategory) {
+          const categoryElement = categoryRef.querySelector('[class*="category"], [class*="craft"]');
+          if (categoryElement) {
+            tabCategory = categoryElement.textContent.trim();
+          }
+        }
+      }
+      
+      const shouldShow = tabCategory === activeCategory;
+      
+      // Show/hide tab content
+      if (shouldShow) {
+        tabContent.style.display = 'block';
+        tabContent.style.opacity = '1';
+        visibleCount++;
+        visibleTabs.push(index);
+        console.log(`  ✅ Tab ${index}: "${tabCategory}" - VISIBLE`);
+      } else {
+        tabContent.style.display = 'none';
+        tabContent.style.opacity = '0';
+        console.log(`  ❌ Tab ${index}: "${tabCategory}" - HIDDEN`);
+      }
+      
+      // Show/hide corresponding tab button
+      if (allTabButtons[index]) {
+        if (shouldShow) {
+          allTabButtons[index].style.display = 'block';
+          allTabButtons[index].style.opacity = '1';
+          allTabButtons[index].style.pointerEvents = 'auto';
+        } else {
+          allTabButtons[index].style.display = 'none';
+          allTabButtons[index].style.opacity = '0';
+          allTabButtons[index].style.pointerEvents = 'none';
         }
       }
     });
     
-    // Count progress bars
-    const progressBars = document.querySelectorAll('.story-progress, .progress-bar, [class*="progress"]');
-    const visibleProgressBars = Array.from(progressBars).filter(bar => {
-      const style = window.getComputedStyle(bar);
-      return style.display !== 'none' && style.visibility !== 'hidden';
-    });
+    console.log(`📊 Result: ${visibleCount} subcategory tabs visible for "${activeCategory}"`);
     
-    totalVisibleSections = visibleRows + visibleExamples + visibleLogos;
+    // Update Instagram Stories progress bars
+    this.updateStoryProgress(visibleCount);
     
-    console.log(`\n📊 FILTERING RESULTS:`);
-    console.log(`  📄 Visible rows: ${visibleRows}`);
-    console.log(`  🎯 Visible examples: ${visibleExamples}`);
-    console.log(`  🏢 Visible logos: ${visibleLogos}`);
-    console.log(`  📱 Visible story tabs: ${visibleStoryTabs}`);
-    console.log(`  📊 Total visible sections: ${totalVisibleSections}`);
-    console.log(`  🎚️ Progress bars found: ${progressBars.length}`);
-    console.log(`  🎚️ Visible progress bars: ${visibleProgressBars.length}`);
-    
-    // Check if numbers match
-    if (totalVisibleSections !== visibleProgressBars.length) {
-      console.warn(`⚠️  MISMATCH: ${totalVisibleSections} visible sections but ${visibleProgressBars.length} progress bars!`);
-    } else {
-      console.log(`✅ MATCH: ${totalVisibleSections} sections = ${visibleProgressBars.length} progress bars`);
+    // Activate first visible tab
+    if (visibleTabs.length > 0) {
+      const firstVisibleButton = allTabButtons[visibleTabs[0]];
+      if (firstVisibleButton && firstVisibleButton.click) {
+        setTimeout(() => {
+          firstVisibleButton.click();
+          console.log(`🎯 Activated first visible tab: ${visibleTabs[0]}`);
+        }, 100);
+      }
     }
     
-    this.updateStoryProgress(totalVisibleSections);
-    
-    // Return debug info
-    return {
-      activeCategory,
-      visibleRows,
-      visibleExamples,
-      visibleLogos,
-      visibleStoryTabs,
-      totalVisibleSections,
-      progressBarsFound: progressBars.length,
-      visibleProgressBars: visibleProgressBars.length,
-      match: totalVisibleSections === visibleProgressBars.length
-    };
+    return visibleCount;
   }
   
-  // Enhanced story progress update with debugging
+  // Update story progress bars to match visible tabs
   updateStoryProgress(visibleTabCount) {
-    console.log(`\n🎚️ UPDATING STORY PROGRESS: ${visibleTabCount} visible sections`);
+    console.log(`📈 Updating Instagram Stories for ${visibleTabCount} subcategories`);
     
-    // Update any story progress indicators or counters
-    const progressContainer = document.querySelector('.story-progress');
-    if (progressContainer) {
-      progressContainer.setAttribute('data-total-stories', visibleTabCount);
-      console.log(`  ✅ Updated .story-progress container with ${visibleTabCount} stories`);
-    } else {
-      console.log(`  ❌ No .story-progress container found`);
-    }
+    // Find all story progress elements
+    const progressBars = document.querySelectorAll('.story-progress, .progress-bar, [class*="progress"]');
+    const storyCounters = document.querySelectorAll('.story-counter, [class*="counter"]');
     
-    // Look for other progress indicators
-    const progressBars = document.querySelectorAll('.progress-bar, [class*="progress"]');
+    // Update progress bar count
     progressBars.forEach((bar, index) => {
-      console.log(`  📊 Progress bar ${index}:`, bar.className);
-      // You can add specific updates here based on your progress bar structure
+      if (index < visibleTabCount) {
+        bar.style.display = 'block';
+        bar.style.opacity = '1';
+        // Reset progress
+        const fill = bar.querySelector('.progress-fill, [class*="fill"]');
+        if (fill) {
+          fill.style.width = '0%';
+        }
+      } else {
+        bar.style.display = 'none';
+        bar.style.opacity = '0';
+      }
     });
+    
+    // Update story counters
+    storyCounters.forEach(counter => {
+      counter.textContent = `1 / ${visibleTabCount}`;
+    });
+    
+    console.log(`✅ Updated ${progressBars.length} progress bars and ${storyCounters.length} counters`);
   }
   
-  // Add method to manually trigger debug from console
-  debugCurrentState() {
-    console.log('\n🔍 MANUAL DEBUG TRIGGER');
-    this.debugCategoryStructure();
-    const filterResults = this.filterStoryIndicators();
-    return filterResults;
-  }
-  
-  // Update the selectCategory method to include debugging
+  // Select category and filter content
   selectCategory(index) {
     if (index === this.currentIndex) return;
     
@@ -245,66 +256,81 @@ class CraftCategoryMenu {
     console.log(`Previous: ${this.currentIndex} ("${this.categories[this.currentIndex]?.name}")`);
     console.log(`New: ${index} ("${this.categories[index]?.name}")`);
     
-    // Update active states immediately
+    // Update active states
     this.updateActiveStates(index);
     this.currentIndex = index;
     this.updateSliderPosition();
-    this.filterCMSContent();
-  }
-  
-  // Update the init method to include initial debugging
-  async init() {
-    console.log('🚀 Initializing CraftCategoryMenu...');
     
-    await this.loadCategoriesFromDOM();
-    this.debugCategoryStructure(); // Add initial debug
-    this.setupEventListeners();
-    this.updateSliderPosition();
-    this.initializeFinsweet();
-    
-    // Trigger initial filtering debug
-    console.log('\n🔍 Initial filtering...');
-    this.filterStoryIndicators();
-    
-    // Make debug method available globally
-    window.debugCraftMenu = () => this.debugCurrentState();
-    console.log('\n💡 TIP: Use debugCraftMenu() in console for manual debugging');
-  }
-  
-  // Load categories from existing DOM elements
-  loadCategoriesFromDOM() {
-    // Method 1: Extract from story sections data-category attributes
-    const storyTabs = document.querySelectorAll('[data-category]');
-    const categorySet = new Set();
-    
-    storyTabs.forEach(tab => {
-      const category = tab.getAttribute('data-category');
-      if (category && category.trim()) {
-        categorySet.add(category.trim());
-      }
-    });
-    
-    // Method 2: If no data-category found, extract from category menu items
-    if (categorySet.size === 0) {
-      this.categoryItems.forEach(item => {
-        const categoryName = item.textContent.trim();
-        if (categoryName) {
-          categorySet.add(categoryName);
-        }
-      });
+    // Filter subcategory tabs
+    const activeCategory = this.categories[index]?.name;
+    if (activeCategory) {
+      this.filterSubcategoryTabs(activeCategory);
     }
     
-    // Convert to array and create category objects
-    this.categories = Array.from(categorySet).map(name => ({
-      id: name, // Use actual CMS name as ID
-      name: name
+    // Trigger custom event
+    document.dispatchEvent(new CustomEvent('categoryChanged', {
+      detail: { 
+        category: activeCategory,
+        index: this.currentIndex
+      }
     }));
-    
-    console.log('Loaded categories:', this.categories);
   }
   
+  // Debug current state
+  debugCurrentState() {
+    console.log('\n🔍 === CMS-DRIVEN DEBUG ===');
+    
+    // Show categories
+    console.log('\n📚 Categories from CMS:');
+    this.categories.forEach((cat, index) => {
+      console.log(`  ${index}: "${cat.name}"`);
+    });
+    
+    // Show subcategories and their categories
+    console.log('\n📄 Subcategories and their linked categories:');
+    const allTabContents = document.querySelectorAll('.fs-tab-content');
+    
+    allTabContents.forEach((tabContent, index) => {
+      const categoryRef = tabContent.querySelector('[data-category-ref]') || 
+                        tabContent.querySelector('[data-craft-category]') ||
+                        tabContent.querySelector('[data-category]');
+      
+      let linkedCategory = 'Unknown';
+      if (categoryRef) {
+        linkedCategory = categoryRef.textContent.trim() || 
+                        categoryRef.getAttribute('data-category-ref') ||
+                        categoryRef.getAttribute('data-craft-category') ||
+                        categoryRef.getAttribute('data-category') || 'Unknown';
+      }
+      
+      const isVisible = tabContent.style.display !== 'none';
+      console.log(`  Tab ${index}: Linked to "${linkedCategory}" - ${isVisible ? 'VISIBLE' : 'HIDDEN'}`);
+    });
+    
+    // Current active category
+    const activeCategory = this.categories[this.currentIndex];
+    console.log(`\n🎯 Active Category: "${activeCategory?.name}" (index: ${this.currentIndex})`);
+    
+    // Count visible elements
+    const visibleTabs = document.querySelectorAll('.fs-tab-content:not([style*="display: none"])');
+    const visibleButtons = document.querySelectorAll('.tab-button-demo:not([style*="display: none"]), .w-tab-link:not([style*="display: none"])');
+    const progressBars = document.querySelectorAll('.story-progress:not([style*="display: none"])');
+    
+    console.log(`\n📊 Current Counts:`);
+    console.log(`  Visible tab contents: ${visibleTabs.length}`);
+    console.log(`  Visible tab buttons: ${visibleButtons.length}`);
+    console.log(`  Visible progress bars: ${progressBars.length}`);
+    
+    if (visibleTabs.length === visibleButtons.length && visibleButtons.length === progressBars.length) {
+      console.log(`✅ PERFECT MATCH: All counts align!`);
+    } else {
+      console.warn(`⚠️ MISMATCH: Counts don't align`);
+    }
+  }
+  
+  // ... (keep existing methods: setupEventListeners, updateActiveStates, updateSliderPosition, setupTouchEvents, etc.)
+  
   setupEventListeners() {
-    // Category item clicks - use direct event listeners for reliability
     this.categoryItems.forEach((item, index) => {
       item.addEventListener('click', (e) => {
         e.preventDefault();
@@ -313,32 +339,14 @@ class CraftCategoryMenu {
       });
     });
     
-    // Touch/swipe support for category menu
     this.setupTouchEvents();
-    
-    // Story swipe support
-    this.setupStorySwipe();
-  }
-  
-  selectCategory(index) {
-    if (index === this.currentIndex) return;
-    
-    console.log(`Selecting category ${index}`);
-    
-    // Update active states immediately
-    this.updateActiveStates(index);
-    this.currentIndex = index;
-    this.updateSliderPosition();
-    this.filterCMSContent();
   }
   
   updateActiveStates(index) {
-    // Remove active class from all items
     this.categoryItems.forEach(item => {
       item.classList.remove('active');
     });
     
-    // Add active class to selected item
     if (this.categoryItems[index]) {
       this.categoryItems[index].classList.add('active');
     }
@@ -348,52 +356,18 @@ class CraftCategoryMenu {
     if (!this.slider || !this.slider.parentElement) return;
     
     const containerWidth = this.slider.parentElement.offsetWidth;
-    const activeWidth = containerWidth - 160; // Active item width
-    const inactiveWidth = 80; // Inactive item width
+    const activeWidth = containerWidth - 160;
+    const inactiveWidth = 80;
     
-    // Calculate offset to center active item
     let offset = 0;
     for (let i = 0; i < this.currentIndex; i++) {
       offset += inactiveWidth;
     }
     
-    // Center the active item
     const centerOffset = (containerWidth - activeWidth) / 2;
     const finalOffset = centerOffset - offset;
     
     this.slider.style.transform = `translateX(${finalOffset}px)`;
-    console.log(`Slider moved to position: ${finalOffset}px`);
-  }
-  
-  filterCMSContent() {
-    const activeCategory = this.categories[this.currentIndex]?.id;
-    if (!activeCategory) return;
-    
-    console.log(`Filtering content for category: ${activeCategory}`);
-    
-    // Filter Finsweet CMS content
-    if (window.FsLibrary) {
-      try {
-        const fsInstance = new FsLibrary('.fs-dynamic-feed');
-        fsInstance.filter({
-          filterBy: 'category',
-          filterValue: activeCategory
-        });
-      } catch (error) {
-        console.warn('Finsweet filtering failed:', error);
-      }
-    }
-    
-    // Filter story indicators
-    this.filterStoryIndicators();
-    
-    // Trigger custom event for other components
-    document.dispatchEvent(new CustomEvent('categoryChanged', {
-      detail: { 
-        category: activeCategory,
-        index: this.currentIndex
-      }
-    }));
   }
   
   setupTouchEvents() {
@@ -405,7 +379,7 @@ class CraftCategoryMenu {
       this.slider.addEventListener('touchstart', (e) => {
         startX = e.touches[0].clientX;
         isDragging = true;
-      });
+      }, { passive: true });
       
       this.slider.addEventListener('touchmove', (e) => {
         if (!isDragging) return;
@@ -420,61 +394,11 @@ class CraftCategoryMenu {
           }
           isDragging = false;
         }
-      });
+      }, { passive: false });
       
       this.slider.addEventListener('touchend', () => {
         isDragging = false;
-      });
-    }
-  }
-  
-  setupStorySwipe() {
-    // Story swipe functionality
-    const storyContainer = document.querySelector('.story-interface');
-    if (storyContainer) {
-      let startX = 0;
-      let isDragging = false;
-      
-      storyContainer.addEventListener('touchstart', (e) => {
-        startX = e.touches[0].clientX;
-        isDragging = true;
-      });
-      
-      storyContainer.addEventListener('touchmove', (e) => {
-        if (!isDragging) return;
-        const currentX = e.touches[0].clientX;
-        const diffX = startX - currentX;
-        
-        if (Math.abs(diffX) > 100) {
-          if (diffX > 0) {
-            // Swipe left - next story/category
-            this.nextCategory();
-          } else {
-            // Swipe right - previous story/category
-            this.previousCategory();
-          }
-          isDragging = false;
-        }
-      });
-      
-      storyContainer.addEventListener('touchend', () => {
-        isDragging = false;
-      });
-    }
-  }
-  
-  initializeFinsweet() {
-    // Initialize Finsweet CMS filtering
-    if (typeof FsLibrary !== 'undefined') {
-      try {
-        const fsInstance = new FsLibrary('.fs-dynamic-feed');
-        fsInstance.init();
-        console.log('Finsweet initialized successfully');
-      } catch (error) {
-        console.warn('Finsweet initialization failed:', error);
-      }
-    } else {
-      console.warn('FsLibrary not found');
+      }, { passive: true });
     }
   }
   
@@ -493,61 +417,6 @@ class CraftCategoryMenu {
   getCurrentCategory() {
     return this.categories[this.currentIndex];
   }
-  
-  filterStoryIndicators() {
-    const activeCategory = this.categories[this.currentIndex]?.id;
-    if (!activeCategory) return;
-    
-    // Get all story tabs with data-category attributes
-    const storyTabs = document.querySelectorAll('[data-category]');
-    let visibleCount = 0;
-    
-    storyTabs.forEach(tab => {
-      const tabCategory = tab.getAttribute('data-category');
-      
-      if (tabCategory === activeCategory) {
-        // Show this story section
-        tab.style.display = 'block';
-        
-        // Also show corresponding tab button if it exists
-        const tabButton = tab.querySelector('.tab-button-demo') || 
-                         document.querySelector(`[data-tab-target="${tab.id}"]`);
-        if (tabButton) {
-          tabButton.style.display = 'block';
-        }
-        
-        visibleCount++;
-      } else {
-        // Hide this story section
-        tab.style.display = 'none';
-        
-        // Also hide corresponding tab button
-        const tabButton = tab.querySelector('.tab-button-demo') || 
-                         document.querySelector(`[data-tab-target="${tab.id}"]`);
-        if (tabButton) {
-          tabButton.style.display = 'none';
-        }
-      }
-    });
-    
-    this.updateStoryProgress(visibleCount);
-    
-    // Debug: Log filtering results
-    console.log(`Filtered for category "${activeCategory}": ${visibleCount} stories visible`);
-  }
-  
-  getTabCategory(tabPane) {
-    // Simply return the data-category attribute
-    return tabPane.getAttribute('data-category');
-  }
-  
-  updateStoryProgress(visibleTabCount) {
-    // Update any story progress indicators or counters
-    const progressContainer = document.querySelector('.story-progress');
-    if (progressContainer) {
-      progressContainer.setAttribute('data-total-stories', visibleTabCount);
-    }
-  }
 }
 
 // Initialize when DOM is ready
@@ -556,41 +425,8 @@ document.addEventListener('DOMContentLoaded', () => {
   window.craftMenu = new CraftCategoryMenu();
 });
 
-// Integration with existing Instagram story system
+// Integration with Instagram story system
 document.addEventListener('categoryChanged', (e) => {
   console.log('Category changed event:', e.detail);
-  // Reset story to first subcategory when category changes
-  const firstTab = document.querySelector('.fs-tabs .w-tab-link');
-  if (firstTab) {
-    firstTab.click();
-  }
+  // The filtering is now handled in selectCategory method
 });
-
-// Updated Finsweet integration
-(function() {
-  // Wait for category menu to initialize
-  document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-      if (typeof FsLibrary !== 'undefined') {
-        try {
-          var fsTabs = new FsLibrary('.fs-dynamic-feed');
-          
-          fsTabs.tabs({
-            tabComponent: '.fs-tabs',
-            tabContent: '.fs-tab-content'
-          });
-          
-          // Listen for category changes
-          document.addEventListener('categoryChanged', (e) => {
-            fsTabs.filter({
-              filterBy: 'category',
-              filterValue: e.detail.category
-            });
-          });
-        } catch (error) {
-          console.warn('Finsweet tabs initialization failed:', error);
-        }
-      }
-    }, 100);
-  });
-})();
