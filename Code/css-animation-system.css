@@ -269,10 +269,12 @@
   ================================ */
 
 /* Base styles for all scroll animations */
-[scroll-animate] {
-  opacity: 0;
-  will-change: transform, opacity;
-  transition-property: transform, opacity;
+/* Remove or comment out this line: */
+/* [scroll-animate] { opacity: 0; } */
+
+/* Keep the stagger container rule: */
+[scroll-animate="stagger"] {
+  opacity: 1 !important;
 }
 
 /* IMPORTANT FIX: Stagger containers should be visible immediately */
