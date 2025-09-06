@@ -242,3 +242,42 @@ window.refreshScrollAnimations = refreshScrollAnimations;
 window.addEventListener('resize', () => {
   ScrollTrigger.refresh();
 });
+
+// Add this at the end of the file, after the resize listener
+
+// Force check visibility for elements already in viewport on load
+function checkInitialVisibility() {
+  const animatedElements = document.querySelectorAll('[scroll-animate]');
+  
+  animatedElements.forEach(element => {
+    const rect = element.getBoundingClientRect();
+    const isVisible = rect.top < window.innerHeight && rect.bottom > 0;
+    
+    if (isVisible) {
+      const animationType = element.getAttribute('scroll-animate');
+      const config = animationConfig[animationType];
+      
+      if (config) {
+        gsap.set(element, {
+          ...config.to,
+          duration: 0
+        });
+      }
+    }
+  });
+}
+
+// Debug mode - remove after testing
+// Remove these lines after testing:
+console.log('Checking element visibility on load:');
+document.querySelectorAll('[scroll-animate]').forEach((el, i) => {
+  const rect = el.getBoundingClientRect();
+  console.log(`Element ${i}:`, {
+    visible: rect.top < window.innerHeight && rect.bottom > 0,
+    top: rect.top,
+    bottom: rect.bottom,
+    windowHeight: window.innerHeight
+  });
+});
+
+setTimeout(checkInitialVisibility, 100);

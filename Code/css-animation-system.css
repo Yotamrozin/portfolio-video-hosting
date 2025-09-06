@@ -269,11 +269,20 @@
   ================================ */
 
 /* Base styles for all scroll animations */
-/* Remove or comment out this line: */
-/* [scroll-animate] { opacity: 0; } */
+/* Replace the existing [scroll-animate] rule with: */
+[scroll-animate] {
+  opacity: 0;
+  transition: opacity 0.3s ease; /* Fallback transition */
+}
 
-/* Keep the stagger container rule: */
-[scroll-animate="stagger"] {
+/* Add a fallback for when GSAP doesn't load */
+.no-js [scroll-animate],
+html:not(.gsap-loaded) [scroll-animate] {
+  opacity: 1 !important;
+}
+
+/* Ensure stagger containers are always visible */
+[scroll-animate*="stagger"] {
   opacity: 1 !important;
 }
 
@@ -297,3 +306,26 @@
  * 
  * See gsap-scroll-animation.js for the new implementation.
  */
+[scroll-animate*="stagger"] > * {
+  opacity: 0;
+}
+
+/* Potential Conflicts
+1. Double Animation Triggers: Solution 1's `checkInitialVisibility()` function might conflict with Solution 2's CSS transitions, causing elements to animate twice or have competing opacity values.
+2. CSS Override Issues: The `!important` rules in Solution 2 might prevent Solution 1's GSAP animations from working properly.
+3. Debug Console Spam: The debug mode will log continuously, making it hard to see actual errors.
+
+Recommended Fix
+Remove Solution 2 CSS changes** and keep only Solution 1 + debug mode. Here's what to do:
+
+### 1. Revert CSS Changes
+In <mcfile name="css-animation-system.css" path="d:\Dropbox\Yotam\Work Projects\Portfolio\Website 2025\Code\portfolio-video-hosting\Code\css-animation-system.css"></mcfile>, change back to:
+```css
+[scroll-animate] {
+  opacity: 0;
+}
+
+[scroll-animate*="stagger"] > * {
+  opacity: 0;
+}
+```
