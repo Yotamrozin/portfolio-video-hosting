@@ -3,6 +3,8 @@ class CraftCategoryMenu {
     this.categories = [];
     this.currentIndex = 0;
     this.currentCategory = null;
+    this.slider = document.querySelector('.category-slider');
+    this.categoryItems = document.querySelectorAll('.category-item');
     this.tabWrapper = document.querySelector('.tab-wrapper');
     this.finsweetTabs = document.querySelector('.fs-tabs');
     this.tabMenu = document.querySelector('.tabs-menu-demo');
@@ -37,14 +39,23 @@ class CraftCategoryMenu {
   }
   
   // Load categories from existing tab content
+  // Load categories from category menu items
   async loadCategoriesFromTabs() {
-    console.log('📚 Loading categories from tab content...');
+    console.log('📚 Loading categories from category menu...');
     
     const categorySet = new Set();
     
-    // Extract categories from fs-tab-content elements
-    const tabContents = document.querySelectorAll('.fs-tab-content[data-category]');
+    // Method 1: Extract from category menu items
+    this.categoryItems.forEach(item => {
+      const categoryName = item.getAttribute('data-category') || 
+                          item.querySelector('.category-title')?.textContent.trim();
+      if (categoryName) {
+        categorySet.add(categoryName);
+      }
+    });
     
+    // Method 2: Also check tab content for consistency
+    const tabContents = document.querySelectorAll('.fs-tab-content[data-category]');
     tabContents.forEach(content => {
       const category = content.getAttribute('data-category');
       if (category) {
@@ -205,8 +216,13 @@ class CraftCategoryMenu {
     console.log(`Previous: ${this.currentIndex} ("${this.categories[this.currentIndex]?.name}")`);
     console.log(`New: ${index} ("${this.categories[index]?.name}")`);
     
+    // Update active states
+    this.updateActiveStates(index);
     this.currentIndex = index;
     this.currentCategory = this.categories[index]?.name;
+    
+    // Update slider position if needed
+    this.updateSliderPosition();
     
     // Filter subcategory tabs
     if (this.currentCategory) {
@@ -276,9 +292,19 @@ class CraftCategoryMenu {
   }
   
   setupEventListeners() {
-    // Since there's no category menu in the HTML, we'll create a programmatic way to change categories
-    // This can be triggered externally or through keyboard shortcuts
+    // Add click listeners to category items
+    this.categoryItems.forEach((item, index) => {
+      item.addEventListener('click', (e) => {
+        e.preventDefault();
+        console.log(`Category ${index} clicked:`, this.categories[index]);
+        this.selectCategory(index);
+      });
+      
+      // Add visual feedback
+      item.style.cursor = 'pointer';
+    });
     
+    // Also add keyboard navigation
     document.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowLeft') {
         this.previousCategory();
@@ -286,6 +312,40 @@ class CraftCategoryMenu {
         this.nextCategory();
       }
     });
+    
+    console.log(`🔘 Added click listeners to ${this.categoryItems.length} category items`);
+  }
+  
+  // Method to handle visual active states
+  updateActiveStates(index) {
+    // Remove active class from all items
+    this.categoryItems.forEach(item => {
+      item.classList.remove('active');
+      item.style.display = 'none';
+    });
+    
+    // Add active class to selected item
+    if (this.categoryItems[index]) {
+      this.categoryItems[index].classList.add('active');
+      this.categoryItems[index].style.display = 'block';
+    }
+    
+    // Show adjacent items for slider effect
+    if (this.categoryItems[index - 1]) {
+      this.categoryItems[index - 1].style.display = 'block';
+    }
+    if (this.categoryItems[index + 1]) {
+      this.categoryItems[index + 1].style.display = 'block';
+    }
+  }
+  
+  // Method to handle slider transform
+  updateSliderPosition() {
+    if (!this.slider) return;
+    
+    // Calculate transform based on current index
+    const offset = this.currentIndex * -80; // Adjust based on your item width
+    this.slider.style.transform = `translateX(${offset}px)`;
   }
   
   nextCategory() {
