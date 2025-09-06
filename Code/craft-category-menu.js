@@ -12,16 +12,7 @@ class CraftCategoryMenu {
     this.currentIndex = 0;
     this.slider = document.querySelector('.category-slider');
     this.categoryItems = document.querySelectorAll('.category-item');
-    this.storyInterface = document.querySelector('.story-interface');
-    
-    // Debug: Check what elements exist
-    // Remove lines 18-19:
-    // console.log('Story interface found:', document.querySelector('.story-interface'));
-    // console.log('Available story elements:', document.querySelectorAll('[class*="story"]'));
-    
-    // Remove line 206:
-    // console.log('Category changed to:', e.detail.category);
-    
+    this.storyInterface = document.querySelector('.story-interface');   
     this.init();
   }
   
@@ -83,10 +74,13 @@ class CraftCategoryMenu {
     if (window.FsLibrary) {
       const fsInstance = new FsLibrary('.fs-dynamic-feed');
       fsInstance.filter({
-        filterBy: 'category', // Your CMS field name
+        filterBy: 'category',
         filterValue: activeCategory
       });
     }
+    
+    // Filter story indicators
+    this.filterStoryIndicators();
     
     // Trigger custom event for other components
     document.dispatchEvent(new CustomEvent('categoryChanged', {
@@ -198,7 +192,97 @@ class CraftCategoryMenu {
   getCurrentCategory() {
     return this.categories[this.currentIndex];
   }
-}
+  
+  // MOVED METHODS INSIDE THE CLASS
+  filterStoryIndicators() {
+    const activeCategory = this.categories[this.currentIndex].id;
+    
+    // Get all tab buttons and their corresponding content
+    const tabButtons = document.querySelectorAll('.tab-button-demo');
+    const tabPanes = document.querySelectorAll('.tab-pane-demo');
+    
+    let visibleCount = 0;
+    
+    tabButtons.forEach((button, index) => {
+      const tabPane = tabPanes[index];
+      
+      if (tabPane) {
+        // Check if this tab's content matches the active category
+        const tabCategory = this.getTabCategory(tabPane);
+        
+        if (tabCategory === activeCategory || this.shouldShowTab(tabPane, activeCategory)) {
+          button.style.display = 'block';
+          tabPane.style.display = 'block';
+          visibleCount++;
+        } else {
+          button.style.display = 'none';
+          tabPane.style.display = 'none';
+        }
+      }
+    });
+    
+    // Update story progress indicators
+    this.updateStoryProgress(visibleCount);
+  }
+  
+  getTabCategory(tabPane) {
+    // Method 1: Check for category data attribute
+    const categoryAttr = tabPane.getAttribute('data-category');
+    if (categoryAttr) return categoryAttr;
+    
+    // Method 2: Extract from tab name or content
+    const tabName = tabPane.querySelector('.tab-name');
+    if (tabName) {
+      const name = tabName.textContent.toLowerCase().trim();
+      return this.mapTabNameToCategory(name);
+    }
+    
+    // Method 3: Check video source or other identifiers
+    const video = tabPane.querySelector('video source');
+    if (video) {
+      const src = video.getAttribute('src');
+      return this.mapVideoToCategory(src);
+    }
+    
+    return null;
+  }
+  
+  mapTabNameToCategory(tabName) {
+    // Map tab names to categories
+    const categoryMap = {
+      'web dev': 'motion',
+      'motion branding': 'motion',
+      'ui design': 'design',
+      'research': 'research',
+      // Add more mappings based on your content
+    };
+    
+    return categoryMap[tabName] || null;
+  }
+  
+  mapVideoToCategory(videoSrc) {
+    // Map video files to categories based on filename patterns
+    if (videoSrc.includes('Payoneer') || videoSrc.includes('motion')) return 'motion';
+    if (videoSrc.includes('design') || videoSrc.includes('ui')) return 'design';
+    if (videoSrc.includes('research')) return 'research';
+    // Add more patterns
+    
+    return null;
+  }
+  
+  shouldShowTab(tabPane, activeCategory) {
+    // Additional logic to determine if tab should be shown
+    return false;
+  }
+  
+  updateStoryProgress(visibleTabCount) {
+    // Update any story progress indicators or counters
+    const progressContainer = document.querySelector('.story-progress');
+    if (progressContainer) {
+      progressContainer.setAttribute('data-total-stories', visibleTabCount);
+    }
+  }
+} // <- Class ends here
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', () => {
@@ -207,14 +291,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Integration with existing Instagram story system
 document.addEventListener('categoryChanged', (e) => {
-  console.log('Category changed to:', e.detail.category);
-  
   // Reset story to first subcategory when category changes
   const firstTab = document.querySelector('.fs-tabs .w-tab-link');
   if (firstTab) {
     firstTab.click();
   }
-  
 });
 
 // Updated Finsweet integration

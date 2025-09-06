@@ -48,3 +48,16 @@
     width: 70px;
   }
 }
+
+.tab-button-demo {
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+.tab-button-demo[style*="display: none"] {
+  opacity: 0;
+  transform: scale(0.8);
+}
+
+.tab-pane-demo {
+  transition: opacity 0.3s ease;
+}

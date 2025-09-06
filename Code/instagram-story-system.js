@@ -49,4 +49,19 @@ Webflow.push(function() {
   if (!$(".uui-navbar06_menu-button").hasClass("w--open")) {
     var loop = setInterval(nextTab, 5000);
   }
+  
+  // Add this to the categoryChanged event listener
+  document.addEventListener('categoryChanged', (e) => {
+    // Reset story to first visible subcategory when category changes
+    const firstVisibleTab = document.querySelector('.tab-button-demo:not([style*="display: none"])');
+    if (firstVisibleTab) {
+      firstVisibleTab.click();
+    }
+    
+    // Reset any story timers
+    if (typeof loop !== 'undefined') {
+      clearInterval(loop);
+      loop = setInterval(nextTab, 5000);
+    }
+  });
 });
