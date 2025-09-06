@@ -1,3 +1,4 @@
+//craft menu system
 class CraftCategoryMenu {
   constructor() {
     this.categories = [
@@ -199,4 +200,28 @@ document.addEventListener('categoryChanged', (e) => {
   if (firstTab) {
     firstTab.click();
   }
+  
 });
+
+// Updated Finsweet integration
+(function() {
+  // Wait for category menu to initialize
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      var fsTabs = new FsLibrary('.fs-dynamic-feed');
+      
+      fsTabs.tabs({
+        tabComponent: '.fs-tabs',
+        tabContent: '.fs-tab-content'
+      });
+      
+      // Listen for category changes
+      document.addEventListener('categoryChanged', (e) => {
+        fsTabs.filter({
+          filterBy: 'category',
+          filterValue: e.detail.category
+        });
+      });
+    }, 100);
+  });
+})();
