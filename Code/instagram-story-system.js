@@ -273,7 +273,7 @@ class MultiCategoryTabsManager {
   }
 
   createSequentialTabsComponents(categoryGroups) {
-    const tabsContainer = document.querySelector('.tabs-container'); // Your container
+    const tabsContainer = document.querySelector('.Story-Function'); // Changed from .tabs-container
     
     this.categoryOrder.forEach((category, index) => {
       const items = categoryGroups.get(category);
