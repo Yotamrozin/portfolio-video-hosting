@@ -12,36 +12,263 @@ class CraftCategoryMenu {
     this.init();
   }
   
-  // Add this method to debug the HTML structure
-  debugHTMLStructure() {
-    console.log('=== HTML Structure Debug ===');
+  // Add these debugging methods to the CraftCategoryMenu class
+  
+  // Enhanced debugging method
+  debugCategoryStructure() {
+    console.log('\n=== CATEGORY STRUCTURE DEBUG ===');
     
+    // Debug all available categories
+    console.log('Available categories:', this.categories);
+    console.log('Current category index:', this.currentIndex);
+    console.log('Current active category:', this.categories[this.currentIndex]);
+    
+    // Debug different data attribute types
     const categoryRows = document.querySelectorAll('[data-category-row]');
-    console.log('Category rows found:', categoryRows.length);
-    categoryRows.forEach((row, i) => {
-      console.log(`Row ${i}:`, row.getAttribute('data-category-row'));
-    });
-    
     const categoryExamples = document.querySelectorAll('[data-category-example]');
-    console.log('Category examples found:', categoryExamples.length);
-    categoryExamples.forEach((example, i) => {
-      console.log(`Example ${i}:`, example.getAttribute('data-category-example'));
-    });
-    
     const categoryLogos = document.querySelectorAll('[data-category-logo]');
-    console.log('Category logos found:', categoryLogos.length);
-    
     const oldDataCategory = document.querySelectorAll('[data-category]');
-    console.log('Old data-category elements found:', oldDataCategory.length);
+    const storyTabs = document.querySelectorAll('.tab-button-demo');
+    const progressBars = document.querySelectorAll('.story-progress, .progress-bar, [class*="progress"]');
+    
+    console.log('\n--- ELEMENT COUNTS ---');
+    console.log('Category rows [data-category-row]:', categoryRows.length);
+    console.log('Category examples [data-category-example]:', categoryExamples.length);
+    console.log('Category logos [data-category-logo]:', categoryLogos.length);
+    console.log('Old data-category elements:', oldDataCategory.length);
+    console.log('Story tabs (.tab-button-demo):', storyTabs.length);
+    console.log('Progress bars found:', progressBars.length);
+    
+    // Debug each category's subcategories
+    console.log('\n--- CATEGORY BREAKDOWN ---');
+    this.categories.forEach((category, index) => {
+      console.log(`\n📁 Category ${index}: "${category.name}"`);
+      
+      // Count subcategories for this category
+      const subcategoriesInRows = Array.from(categoryRows).filter(row => 
+        row.getAttribute('data-category-row') === category.id
+      );
+      const subcategoriesInExamples = Array.from(categoryExamples).filter(example => 
+        example.getAttribute('data-category-example') === category.id
+      );
+      const subcategoriesInLogos = Array.from(categoryLogos).filter(logo => 
+        logo.getAttribute('data-category-logo') === category.id || 
+        logo.getAttribute('data-category-logo-2') === category.id
+      );
+      
+      console.log(`  📄 Rows: ${subcategoriesInRows.length}`);
+      console.log(`  🎯 Examples: ${subcategoriesInExamples.length}`);
+      console.log(`  🏢 Logos: ${subcategoriesInLogos.length}`);
+      console.log(`  📊 Total subcategories: ${subcategoriesInRows.length + subcategoriesInExamples.length + subcategoriesInLogos.length}`);
+    });
   }
   
-  // Call this in the init method
+  // Enhanced filtering with detailed logging
+  filterStoryIndicators() {
+    const activeCategory = this.categories[this.currentIndex]?.id;
+    if (!activeCategory) {
+      console.warn('No active category found!');
+      return;
+    }
+    
+    console.log(`\n🔍 FILTERING FOR CATEGORY: "${activeCategory}"`);
+    
+    let totalVisibleSections = 0;
+    let visibleRows = 0;
+    let visibleExamples = 0;
+    let visibleLogos = 0;
+    let visibleStoryTabs = 0;
+    
+    // Filter category rows
+    const categoryRows = document.querySelectorAll('[data-category-row]');
+    console.log(`\n📄 Processing ${categoryRows.length} category rows...`);
+    
+    categoryRows.forEach((row, index) => {
+      const rowCategory = row.getAttribute('data-category-row');
+      const isVisible = rowCategory === activeCategory;
+      
+      if (isVisible) {
+        row.style.display = 'block';
+        row.classList.add('active-category');
+        visibleRows++;
+        console.log(`  ✅ Row ${index}: "${rowCategory}" - VISIBLE`);
+        
+        // Check for subcategories within this row
+        const subcategories = row.querySelectorAll('[data-subcategory-label], .subcategory-group > *');
+        if (subcategories.length > 0) {
+          console.log(`    📋 Found ${subcategories.length} subcategories in this row`);
+        }
+      } else {
+        row.style.display = 'none';
+        row.classList.remove('active-category');
+        console.log(`  ❌ Row ${index}: "${rowCategory}" - HIDDEN`);
+      }
+    });
+    
+    // Filter category examples
+    const categoryExamples = document.querySelectorAll('[data-category-example]');
+    console.log(`\n🎯 Processing ${categoryExamples.length} category examples...`);
+    
+    categoryExamples.forEach((example, index) => {
+      const exampleCategory = example.getAttribute('data-category-example');
+      const isVisible = exampleCategory === activeCategory;
+      
+      if (isVisible) {
+        example.style.display = 'block';
+        example.classList.add('fade-in');
+        visibleExamples++;
+        console.log(`  ✅ Example ${index}: "${exampleCategory}" - VISIBLE`);
+      } else {
+        example.style.display = 'none';
+        example.classList.remove('fade-in');
+        console.log(`  ❌ Example ${index}: "${exampleCategory}" - HIDDEN`);
+      }
+    });
+    
+    // Filter category logos
+    const categoryLogos = document.querySelectorAll('[data-category-logo]');
+    console.log(`\n🏢 Processing ${categoryLogos.length} category logos...`);
+    
+    categoryLogos.forEach((logo, index) => {
+      const logoCategory = logo.getAttribute('data-category-logo');
+      const logoCategory2 = logo.getAttribute('data-category-logo-2');
+      const isVisible = logoCategory === activeCategory || logoCategory2 === activeCategory;
+      
+      if (isVisible) {
+        logo.style.display = 'block';
+        visibleLogos++;
+        console.log(`  ✅ Logo ${index}: "${logoCategory}${logoCategory2 ? '/' + logoCategory2 : ''}" - VISIBLE`);
+      } else {
+        logo.style.display = 'none';
+        console.log(`  ❌ Logo ${index}: "${logoCategory}${logoCategory2 ? '/' + logoCategory2 : ''}" - HIDDEN`);
+      }
+    });
+    
+    // Check story tabs (for Instagram story system)
+    const storyTabs = document.querySelectorAll('.tab-button-demo');
+    console.log(`\n📱 Processing ${storyTabs.length} story tabs...`);
+    
+    storyTabs.forEach((tab, index) => {
+      const tabParent = tab.closest('[data-category], [data-category-row], [data-category-example]');
+      if (tabParent) {
+        const tabCategory = tabParent.getAttribute('data-category') || 
+                         tabParent.getAttribute('data-category-row') || 
+                         tabParent.getAttribute('data-category-example');
+        const isVisible = tabCategory === activeCategory;
+        
+        if (isVisible) {
+          tab.style.display = 'block';
+          visibleStoryTabs++;
+          console.log(`  ✅ Story tab ${index}: "${tabCategory}" - VISIBLE`);
+        } else {
+          tab.style.display = 'none';
+          console.log(`  ❌ Story tab ${index}: "${tabCategory}" - HIDDEN`);
+        }
+      }
+    });
+    
+    // Count progress bars
+    const progressBars = document.querySelectorAll('.story-progress, .progress-bar, [class*="progress"]');
+    const visibleProgressBars = Array.from(progressBars).filter(bar => {
+      const style = window.getComputedStyle(bar);
+      return style.display !== 'none' && style.visibility !== 'hidden';
+    });
+    
+    totalVisibleSections = visibleRows + visibleExamples + visibleLogos;
+    
+    console.log(`\n📊 FILTERING RESULTS:`);
+    console.log(`  📄 Visible rows: ${visibleRows}`);
+    console.log(`  🎯 Visible examples: ${visibleExamples}`);
+    console.log(`  🏢 Visible logos: ${visibleLogos}`);
+    console.log(`  📱 Visible story tabs: ${visibleStoryTabs}`);
+    console.log(`  📊 Total visible sections: ${totalVisibleSections}`);
+    console.log(`  🎚️ Progress bars found: ${progressBars.length}`);
+    console.log(`  🎚️ Visible progress bars: ${visibleProgressBars.length}`);
+    
+    // Check if numbers match
+    if (totalVisibleSections !== visibleProgressBars.length) {
+      console.warn(`⚠️  MISMATCH: ${totalVisibleSections} visible sections but ${visibleProgressBars.length} progress bars!`);
+    } else {
+      console.log(`✅ MATCH: ${totalVisibleSections} sections = ${visibleProgressBars.length} progress bars`);
+    }
+    
+    this.updateStoryProgress(totalVisibleSections);
+    
+    // Return debug info
+    return {
+      activeCategory,
+      visibleRows,
+      visibleExamples,
+      visibleLogos,
+      visibleStoryTabs,
+      totalVisibleSections,
+      progressBarsFound: progressBars.length,
+      visibleProgressBars: visibleProgressBars.length,
+      match: totalVisibleSections === visibleProgressBars.length
+    };
+  }
+  
+  // Enhanced story progress update with debugging
+  updateStoryProgress(visibleTabCount) {
+    console.log(`\n🎚️ UPDATING STORY PROGRESS: ${visibleTabCount} visible sections`);
+    
+    // Update any story progress indicators or counters
+    const progressContainer = document.querySelector('.story-progress');
+    if (progressContainer) {
+      progressContainer.setAttribute('data-total-stories', visibleTabCount);
+      console.log(`  ✅ Updated .story-progress container with ${visibleTabCount} stories`);
+    } else {
+      console.log(`  ❌ No .story-progress container found`);
+    }
+    
+    // Look for other progress indicators
+    const progressBars = document.querySelectorAll('.progress-bar, [class*="progress"]');
+    progressBars.forEach((bar, index) => {
+      console.log(`  📊 Progress bar ${index}:`, bar.className);
+      // You can add specific updates here based on your progress bar structure
+    });
+  }
+  
+  // Add method to manually trigger debug from console
+  debugCurrentState() {
+    console.log('\n🔍 MANUAL DEBUG TRIGGER');
+    this.debugCategoryStructure();
+    const filterResults = this.filterStoryIndicators();
+    return filterResults;
+  }
+  
+  // Update the selectCategory method to include debugging
+  selectCategory(index) {
+    if (index === this.currentIndex) return;
+    
+    console.log(`\n🎯 SELECTING CATEGORY ${index}`);
+    console.log(`Previous: ${this.currentIndex} ("${this.categories[this.currentIndex]?.name}")`);
+    console.log(`New: ${index} ("${this.categories[index]?.name}")`);
+    
+    // Update active states immediately
+    this.updateActiveStates(index);
+    this.currentIndex = index;
+    this.updateSliderPosition();
+    this.filterCMSContent();
+  }
+  
+  // Update the init method to include initial debugging
   async init() {
-    this.debugHTMLStructure(); // Add this line
+    console.log('🚀 Initializing CraftCategoryMenu...');
+    
     await this.loadCategoriesFromDOM();
+    this.debugCategoryStructure(); // Add initial debug
     this.setupEventListeners();
     this.updateSliderPosition();
     this.initializeFinsweet();
+    
+    // Trigger initial filtering debug
+    console.log('\n🔍 Initial filtering...');
+    this.filterStoryIndicators();
+    
+    // Make debug method available globally
+    window.debugCraftMenu = () => this.debugCurrentState();
+    console.log('\n💡 TIP: Use debugCraftMenu() in console for manual debugging');
   }
   
   // Load categories from existing DOM elements
