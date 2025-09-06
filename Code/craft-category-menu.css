@@ -16,7 +16,7 @@
 .category-item.active {
   width: calc(100vw - 160px); /* Full width minus 2 side items */
   opacity: 1;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: white;
   border-radius: 30px;
 }
 
