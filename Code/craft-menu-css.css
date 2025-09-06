@@ -1,4 +1,3 @@
-
   /* Subcategories */
   .subcategory-group { display: none; }
   [data-category-row].active-category .subcategory-group { display: flex; }

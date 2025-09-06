@@ -1,3 +1,4 @@
+
 document.addEventListener("DOMContentLoaded", () => {
   const section = document.querySelector("[data-crafty-section]");
   if (!section) return;
