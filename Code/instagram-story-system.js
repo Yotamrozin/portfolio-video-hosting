@@ -233,3 +233,187 @@ Webflow.push(function() {
     }
   });
 });
+
+// Enhanced multi-instance Finsweet tabs with sequential population
+class MultiCategoryTabsManager {
+  constructor() {
+    this.tabsInstances = new Map();
+    this.categoryOrder = [];
+    this.initializeSequentialTabs();
+  }
+
+  async initializeSequentialTabs() {
+    // Wait for DOM and CMS content to load
+    await this.waitForCMSContent();
+    
+    // Find all collection lists and group by category
+    const categoryGroups = this.groupCollectionsByCategory();
+    
+    // Create tabs components sequentially
+    this.createSequentialTabsComponents(categoryGroups);
+    
+    // Initialize Finsweet tabs for each component
+    this.initializeFinsweet();
+  }
+
+  groupCollectionsByCategory() {
+    const collections = document.querySelectorAll('[data-category]');
+    const groups = new Map();
+    
+    collections.forEach(item => {
+      const category = item.getAttribute('data-category');
+      if (!groups.has(category)) {
+        groups.set(category, []);
+        this.categoryOrder.push(category);
+      }
+      groups.get(category).push(item);
+    });
+    
+    return groups;
+  }
+
+  createSequentialTabsComponents(categoryGroups) {
+    const tabsContainer = document.querySelector('.tabs-container'); // Your container
+    
+    this.categoryOrder.forEach((category, index) => {
+      const items = categoryGroups.get(category);
+      
+      // Create tabs component wrapper
+      const tabsWrapper = this.createTabsWrapper(category, index);
+      
+      // Populate with collection items
+      this.populateTabsComponent(tabsWrapper, items, category);
+      
+      // Append to container
+      tabsContainer.appendChild(tabsWrapper);
+      
+      // Store reference
+      this.tabsInstances.set(category, {
+        wrapper: tabsWrapper,
+        items: items,
+        index: index
+      });
+    });
+  }
+
+  createTabsWrapper(category, index) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'fs-tabs w-tabs';
+    wrapper.setAttribute('data-category', category);
+    wrapper.setAttribute('data-tabs-index', index);
+    wrapper.setAttribute('fs-element', 'tabs');
+    
+    // Create tabs menu
+    const tabsMenu = document.createElement('div');
+    tabsMenu.className = 'fs-tabs-menu w-tab-menu';
+    tabsMenu.setAttribute('role', 'tablist');
+    
+    // Create tabs content
+    const tabsContent = document.createElement('div');
+    tabsContent.className = 'fs-tabs-content w-tab-content';
+    
+    wrapper.appendChild(tabsMenu);
+    wrapper.appendChild(tabsContent);
+    
+    return wrapper;
+  }
+
+  populateTabsComponent(wrapper, items, category) {
+    const tabsMenu = wrapper.querySelector('.fs-tabs-menu');
+    const tabsContent = wrapper.querySelector('.fs-tabs-content');
+    
+    items.forEach((item, index) => {
+      // Create tab link
+      const tabLink = document.createElement('a');
+      tabLink.className = `tab-button-demo w-inline-block w-tab-link${index === 0 ? ' w--current' : ''}`;
+      tabLink.setAttribute('data-w-tab', `${category}-tab-${index}`);
+      tabLink.setAttribute('href', '#');
+      tabLink.setAttribute('role', 'tab');
+      tabLink.setAttribute('aria-controls', `${category}-tab-${index}`);
+      tabLink.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
+      
+      // Clone and append item content to tab link
+      const clonedItem = item.cloneNode(true);
+      tabLink.appendChild(clonedItem);
+      tabsMenu.appendChild(tabLink);
+      
+      // Create tab pane
+      const tabPane = document.createElement('div');
+      tabPane.className = `w-tab-pane${index === 0 ? ' w--tab-active' : ''}`;
+      tabPane.setAttribute('data-w-tab', `${category}-tab-${index}`);
+      tabPane.setAttribute('role', 'tabpanel');
+      tabPane.setAttribute('aria-labelledby', `${category}-tab-${index}`);
+      
+      // Add content to tab pane (you can customize this based on your needs)
+      const content = document.createElement('div');
+      content.className = 'tab-content';
+      content.innerHTML = `<h3>Content for ${category} - Item ${index + 1}</h3>`;
+      tabPane.appendChild(content);
+      
+      tabsContent.appendChild(tabPane);
+    });
+  }
+
+  initializeFinsweet() {
+    this.tabsInstances.forEach((instance, category) => {
+      const wrapper = instance.wrapper;
+      
+      // Initialize Finsweet tabs for this component
+      if (window.fsAttributes && window.fsAttributes.tabs) {
+        window.fsAttributes.tabs.init(wrapper);
+      }
+      
+      console.log(`Initialized tabs for category: ${category}`);
+    });
+  }
+
+  // Show specific category tabs
+  showCategory(categoryName) {
+    this.tabsInstances.forEach((instance, category) => {
+      const wrapper = instance.wrapper;
+      if (category === categoryName) {
+        wrapper.style.display = 'block';
+        wrapper.classList.add('active-category');
+      } else {
+        wrapper.style.display = 'none';
+        wrapper.classList.remove('active-category');
+      }
+    });
+  }
+
+  // Get tabs instance by category
+  getTabsInstance(category) {
+    return this.tabsInstances.get(category);
+  }
+
+  // Navigate to specific tab within a category
+  navigateToTab(category, tabIndex) {
+    const instance = this.tabsInstances.get(category);
+    if (instance) {
+      const tabLinks = instance.wrapper.querySelectorAll('.w-tab-link');
+      if (tabLinks[tabIndex]) {
+        tabLinks[tabIndex].click();
+      }
+    }
+  }
+
+  async waitForCMSContent() {
+    return new Promise((resolve) => {
+      const checkContent = () => {
+        const items = document.querySelectorAll('[data-category]');
+        if (items.length > 0) {
+          resolve();
+        } else {
+          setTimeout(checkContent, 100);
+        }
+      };
+      checkContent();
+    });
+  }
+}
+
+// Initialize the manager
+const tabsManager = new MultiCategoryTabsManager();
+
+// Export for use in other scripts
+window.tabsManager = tabsManager;

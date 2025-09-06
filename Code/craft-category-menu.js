@@ -1,3 +1,4 @@
+// Update your category selection to work with sequential tabs
 class CraftCategoryMenu {
   constructor() {
     this.categories = [];
@@ -208,34 +209,77 @@ class CraftCategoryMenu {
     console.log(`✅ Updated ${progressBars.length} progress bars and ${storyCounters.length} counters`);
   }
   
-  // Select category and filter content
-  selectCategory(index) {
-    if (index === this.currentIndex) return;
+  // Select category and filter content - FIXED: Now properly inside the class
+  selectCategory(indexOrName) {
+    let index;
     
-    console.log(`\n🎯 SELECTING CATEGORY ${index}`);
-    console.log(`Previous: ${this.currentIndex} ("${this.categories[this.currentIndex]?.name}")`);
-    console.log(`New: ${index} ("${this.categories[index]?.name}")`);
-    
-    // Update active states
-    this.updateActiveStates(index);
-    this.currentIndex = index;
-    this.currentCategory = this.categories[index]?.name;
-    
-    // Update slider position if needed
-    this.updateSliderPosition();
-    
-    // Filter subcategory tabs
-    if (this.currentCategory) {
-      this.filterSubcategoryTabs(this.currentCategory);
-    }
-    
-    // Trigger custom event
-    document.dispatchEvent(new CustomEvent('categoryChanged', {
-      detail: { 
-        category: this.currentCategory,
-        index: this.currentIndex
+    // Handle both index and category name
+    if (typeof indexOrName === 'string') {
+      // If it's a category name, find the index
+      index = this.categories.findIndex(cat => cat.name === indexOrName);
+      if (index === -1) {
+        console.warn(`Category "${indexOrName}" not found`);
+        return;
       }
-    }));
+      
+      // Show the appropriate tabs component
+      if (window.tabsManager) {
+        window.tabsManager.showCategory(indexOrName);
+      }
+      
+      // Update active category styling
+      this.updateActiveCategoryUI(indexOrName);
+      
+      // Reset to first tab of the category
+      setTimeout(() => {
+        if (window.tabsManager) {
+          window.tabsManager.navigateToTab(indexOrName, 0);
+        }
+      }, 100);
+    } else {
+      // If it's an index
+      index = indexOrName;
+      
+      if (index === this.currentIndex) return;
+      
+      console.log(`\n🎯 SELECTING CATEGORY ${index}`);
+      console.log(`Previous: ${this.currentIndex} ("${this.categories[this.currentIndex]?.name}")`);
+      console.log(`New: ${index} ("${this.categories[index]?.name}")`);
+      
+      // Update active states
+      this.updateActiveStates(index);
+      this.currentIndex = index;
+      this.currentCategory = this.categories[index]?.name;
+      
+      // Update slider position if needed
+      this.updateSliderPosition();
+      
+      // Filter subcategory tabs
+      if (this.currentCategory) {
+        this.filterSubcategoryTabs(this.currentCategory);
+      }
+      
+      // Trigger custom event
+      document.dispatchEvent(new CustomEvent('categoryChanged', {
+        detail: { 
+          category: this.currentCategory,
+          index: this.currentIndex
+        }
+      }));
+    }
+  }
+  
+  // FIXED: Now properly inside the class
+  updateActiveCategoryUI(categoryName) {
+    // Update your category menu UI
+    const categoryButtons = document.querySelectorAll('[data-category-button]');
+    categoryButtons.forEach(button => {
+      if (button.getAttribute('data-category-button') === categoryName) {
+        button.classList.add('active');
+      } else {
+        button.classList.remove('active');
+      }
+    });
   }
   
   // Debug current state
