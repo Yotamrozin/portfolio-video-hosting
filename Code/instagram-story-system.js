@@ -94,59 +94,82 @@ class MultiInstanceTabsManager {
   createInstancesFromArrays() {
     const tabsComponents = Array.from(document.querySelectorAll('.fs-tabs'));
     const collectionLists = Array.from(document.querySelectorAll('.fs-dynamic-feed'));
-    const tabContents = Array.from(document.querySelectorAll('.fs-tab-content'));
+    const allTabContents = Array.from(document.querySelectorAll('.fs-tab-content'));
     
-    console.log(`Found ${tabsComponents.length} tabs, ${collectionLists.length} lists, ${tabContents.length} contents`);
+    console.log(`Found ${tabsComponents.length} tabs, ${collectionLists.length} lists, ${allTabContents.length} contents`);
     
-    // Ensure we have matching numbers
-    const minLength = Math.min(tabsComponents.length, collectionLists.length, tabContents.length);
+    // Ensure we have matching numbers of tabs and lists
+    const minLength = Math.min(tabsComponents.length, collectionLists.length);
     
     if (minLength === 0) {
       console.warn('⚠️ No matching tab components found');
       return;
     }
     
-    // Create instances by pairing elements sequentially
+    // Group tab contents by their parent collection list
     for (let i = 0; i < minLength; i++) {
       const tabsComponent = tabsComponents[i];
       const collectionList = collectionLists[i];
-      const tabContent = tabContents[i];
       
-      // Get category from tab content's data-category attribute
-      const category = tabContent.getAttribute('data-category');
+      // Find all tab contents that belong to this collection list
+      const tabContentsForThisList = allTabContents.filter(content => {
+        // Check if the tab content is a child of this collection list
+        return collectionList.contains(content);
+      });
       
-      if (category) {
-        // Assign the same category to the tabs component
-        tabsComponent.setAttribute('data-category', category);
-        console.log(`📋 Assigned category "${category}" to tabs component ${i + 1}`);
+      console.log(`📋 Found ${tabContentsForThisList.length} tab contents for collection list ${i + 1}`);
+      
+      // Get category from the collection list or first tab content
+      let category = collectionList.getAttribute('data-category');
+      if (!category && tabContentsForThisList.length > 0) {
+        category = tabContentsForThisList[0].getAttribute('data-category');
       }
       
-      // Create instance object
+      // If still no category, try to infer from collection list class or nearby elements
+      if (!category) {
+        // Look for category in collection list classes
+        const classList = Array.from(collectionList.classList);
+        const categoryClass = classList.find(cls => cls.includes('category-') || cls.includes('cat-'));
+        if (categoryClass) {
+          category = categoryClass.replace(/^(category-|cat-)/, '').replace(/-/g, ' ');
+        }
+      }
+      
+      // Fallback category
+      if (!category) {
+        category = `Category ${i + 1}`;
+      }
+      
+      // Assign the category to the tabs component
+      tabsComponent.setAttribute('data-category', category);
+      console.log(`📋 Assigned category "${category}" to tabs component ${i + 1}`);
+      
+      // Create instance object with all tab contents for this collection
       const instance = {
         index: i,
-        category: category || `category-${i + 1}`,
+        category: category,
         tabsComponent,
         collectionList,
-        tabContent,
+        tabContents: tabContentsForThisList, // Array of all tab contents
         fsLibrary: null
       };
       
       this.instances.push(instance);
-      console.log(`📦 Created instance ${i + 1}: ${instance.category}`);
+      console.log(`📦 Created instance ${i + 1}: ${instance.category} (${tabContentsForThisList.length} tab contents)`);
     }
   }
 
   initializeInstances() {
     this.instances.forEach((instance, index) => {
       try {
-        // Initialize FsLibrary for this instance
+        // Initialize FsLibrary for this instance with all tab contents
         instance.fsLibrary = new FsLibrary({
           feed: instance.collectionList,
           tabs: instance.tabsComponent,
-          tabContent: instance.tabContent
+          tabContent: instance.tabContents // Pass the array of tab contents
         });
         
-        console.log(`✅ Initialized FsLibrary for instance ${index + 1}: ${instance.category}`);
+        console.log(`✅ Initialized FsLibrary for instance ${index + 1}: ${instance.category} with ${instance.tabContents.length} tab contents`);
       } catch (error) {
         console.error(`❌ Failed to initialize instance ${index + 1}:`, error);
       }
