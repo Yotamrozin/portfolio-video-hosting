@@ -257,37 +257,52 @@ class MultiInstanceTabsManager {
   }
 }
 
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-  // Wait for Finsweet library to load
+// Single initialization point with proper checks
+(function initializeTabsManager() {
+  // Prevent multiple initializations
+  if (window.tabsManager) {
+    console.log('📋 Tabs manager already initialized');
+    return;
+  }
+
+  let initAttempts = 0;
+  const maxAttempts = 30; // Maximum 30 seconds
+  
   const initTabs = () => {
+    initAttempts++;
+    
     if (typeof FsLibrary !== 'undefined') {
-      window.tabsManager = new MultiInstanceTabsManager();
-      
-      // Make debug method available globally
-      window.debugMultiTabs = () => window.tabsManager.debugInstances();
-      console.log('💡 TIP: Use debugMultiTabs() in console for debugging');
+      try {
+        window.tabsManager = new MultiInstanceTabsManager();
+        
+        // Make debug method available globally
+        window.debugMultiTabs = () => window.tabsManager.debugInstances();
+        console.log('💡 TIP: Use debugMultiTabs() in console for debugging');
+        console.log('✅ Tabs manager successfully initialized');
+      } catch (error) {
+        console.error('❌ Failed to initialize tabs manager:', error);
+      }
+    } else if (initAttempts < maxAttempts) {
+      console.log(`⏳ Waiting for Finsweet library... (attempt ${initAttempts}/${maxAttempts})`);
+      setTimeout(initTabs, 1000);
     } else {
-      console.log('⏳ Waiting for Finsweet library...');
-      setTimeout(initTabs, 1000); // Increased timeout to reduce console spam
+      console.error('❌ Failed to load Finsweet library after 30 seconds. Please check if the library is properly loaded.');
     }
   };
   
-  initTabs();
-});
-
-// Also initialize on Webflow ready (for Webflow-specific timing)
-if (typeof Webflow !== 'undefined') {
-  Webflow.push(() => {
-    if (!window.tabsManager) {
-      const initTabs = () => {
-        if (typeof FsLibrary !== 'undefined') {
-          window.tabsManager = new MultiInstanceTabsManager();
-        } else {
-          setTimeout(initTabs, 1000); // Increased timeout to reduce console spam
-        }
-      };
-      initTabs();
-    }
-  });
-}
+  // Initialize immediately if DOM is ready, otherwise wait
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTabs);
+  } else {
+    initTabs();
+  }
+  
+  // Also try on Webflow ready as backup
+  if (typeof Webflow !== 'undefined') {
+    Webflow.push(() => {
+      if (!window.tabsManager) {
+        initTabs();
+      }
+    });
+  }
+})();
