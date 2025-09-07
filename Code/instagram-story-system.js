@@ -162,11 +162,13 @@ class MultiInstanceTabsManager {
   initializeInstances() {
     this.instances.forEach((instance, index) => {
       try {
-        // Initialize FsLibrary for this instance with all tab contents
-        instance.fsLibrary = new FsLibrary({
-          feed: instance.collectionList,
-          tabs: instance.tabsComponent,
-          tabContent: instance.tabContents // Pass the array of tab contents
+        // Create FsLibrary instance with the collection list element
+        instance.fsLibrary = new FsLibrary(instance.collectionList);
+        
+        // Call tabs method with the tabs component and tab content selector
+        instance.fsLibrary.tabs({
+          tabComponent: instance.tabsComponent,
+          tabContent: '.fs-tab-content'  // Use selector, not elements
         });
         
         console.log(`✅ Initialized FsLibrary for instance ${index + 1}: ${instance.category} with ${instance.tabContents.length} tab contents`);
