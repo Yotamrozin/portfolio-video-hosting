@@ -77,8 +77,6 @@ class MultiInstanceTabsManager {
   }
 
   async init() {
-    console.log('🚀 Initializing Multi-Instance Tabs Manager...');
-    
     // Wait for content to load
     await this.waitForContent();
     
@@ -87,8 +85,6 @@ class MultiInstanceTabsManager {
     
     // Initialize all instances
     this.initializeInstances();
-    
-    console.log(`✅ Initialized ${this.instances.length} tab instances`);
   }
 
   createInstancesFromArrays() {
@@ -96,12 +92,9 @@ class MultiInstanceTabsManager {
     const collectionLists = Array.from(document.querySelectorAll('.fs-dynamic-feed'));
     const allTabContents = Array.from(document.querySelectorAll('.fs-tab-content'));
     
-    console.log(`Found ${tabsComponents.length} tabs, ${collectionLists.length} lists, ${allTabContents.length} contents`);
-    
     const minLength = Math.min(tabsComponents.length, collectionLists.length);
     
     if (minLength === 0) {
-      console.warn('⚠️ No matching tab components found');
       return;
     }
     
@@ -118,8 +111,6 @@ class MultiInstanceTabsManager {
       const tabContentsForThisList = allTabContents.filter(content => {
         return collectionList.contains(content);
       });
-      
-      console.log(`📋 Found ${tabContentsForThisList.length} tab contents for collection list ${i + 1}`);
       
       // Get category logic (same as before)
       let category = collectionList.getAttribute('data-category');
@@ -138,7 +129,6 @@ class MultiInstanceTabsManager {
       }
       
       tabsComponent.setAttribute('data-category', category);
-      console.log(`📋 Assigned category "${category}" to tabs component ${i + 1}`);
       
       const instance = {
         index: i,
@@ -151,7 +141,6 @@ class MultiInstanceTabsManager {
       };
       
       this.instances.push(instance);
-      console.log(`📦 Created instance ${i + 1}: ${instance.category} (${tabContentsForThisList.length} tab contents)`);
     }
   }
 
@@ -170,10 +159,8 @@ class MultiInstanceTabsManager {
           tabComponent: tabsComponentSelector,
           tabContent: '.fs-tab-content'
         });
-        
-        console.log(`✅ Initialized FsLibrary for instance ${index + 1}: ${instance.category} with ${instance.tabContents.length} tab contents`);
       } catch (error) {
-        console.error(`❌ Failed to initialize instance ${index + 1}:`, error);
+        // Silent error handling
       }
     });
   }
@@ -204,7 +191,6 @@ class MultiInstanceTabsManager {
         }
       });
       
-      console.log(`👁️ Showing category: ${categoryName}`);
       return true;
     }
     return false;
@@ -221,11 +207,10 @@ class MultiInstanceTabsManager {
         const tabLinks = instance.tabsComponent.querySelectorAll('.w-tab-link');
         if (tabLinks[tabIndex]) {
           tabLinks[tabIndex].click();
-          console.log(`🎯 Navigated to tab ${tabIndex} in category ${categoryName}`);
           return true;
         }
       } catch (error) {
-        console.error(`❌ Failed to navigate to tab:`, error);
+        // Silent error handling
       }
     }
     return false;
@@ -236,9 +221,8 @@ class MultiInstanceTabsManager {
       if (instance.fsLibrary && typeof instance.fsLibrary.refresh === 'function') {
         try {
           instance.fsLibrary.refresh();
-          console.log(`🔄 Refreshed instance ${index + 1}`);
         } catch (error) {
-          console.error(`❌ Failed to refresh instance ${index + 1}:`, error);
+          // Silent error handling
         }
       }
     });
@@ -252,10 +236,8 @@ class MultiInstanceTabsManager {
         const tabContents = document.querySelectorAll('.fs-tab-content');
         
         if (tabsComponents.length > 0 && collectionLists.length > 0 && tabContents.length > 0) {
-          console.log('📄 Content loaded, proceeding with initialization');
           resolve();
         } else {
-          console.log('⏳ Waiting for content to load...');
           setTimeout(checkContent, 100);
         }
       };
@@ -286,7 +268,6 @@ class MultiInstanceTabsManager {
 (function initializeTabsManager() {
   // Prevent multiple initializations
   if (window.tabsManager) {
-    console.log('📋 Tabs manager already initialized');
     return;
   }
 
@@ -302,16 +283,11 @@ class MultiInstanceTabsManager {
         
         // Make debug method available globally
         window.debugMultiTabs = () => window.tabsManager.debugInstances();
-        console.log('💡 TIP: Use debugMultiTabs() in console for debugging');
-        console.log('✅ Tabs manager successfully initialized');
       } catch (error) {
-        console.error('❌ Failed to initialize tabs manager:', error);
+        // Silent error handling
       }
     } else if (initAttempts < maxAttempts) {
-      console.log(`⏳ Waiting for Finsweet library... (attempt ${initAttempts}/${maxAttempts})`);
       setTimeout(initTabs, 1000);
-    } else {
-      console.error('❌ Failed to load Finsweet library after 30 seconds. Please check if the library is properly loaded.');
     }
   };
   

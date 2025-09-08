@@ -205,9 +205,20 @@ class CategoryMenuSlider {
     const activeItem = this.items[this.currentIndex];
     
     if (activeItem) {
-        const activeItemRect = activeItem.getBoundingClientRect();
+        // Calculate blue line position relative to wrapper, not viewport
+        const activeItemLeft = activeItem.offsetLeft;
+        const activeItemWidth = activeItem.offsetWidth;
+        const activeItemCenter = activeItemLeft + (activeItemWidth / 2);
         
-        // Red line - wrapper center (this is working correctly)
+        // Get current slider transform
+        const sliderTransform = this.slider.style.transform;
+        const translateMatch = sliderTransform.match(/translateX\(([^)]+)px\)/);
+        const currentTranslateX = translateMatch ? parseFloat(translateMatch[1]) : 0;
+        
+        // Calculate the blue line position in the wrapper coordinate system
+        const blueLineX = wrapperRect.left + activeItemCenter + currentTranslateX;
+        
+        // Red line - wrapper center
         const redLine = document.createElement('div');
         redLine.className = 'debug-center-line';
         redLine.style.cssText = `
@@ -221,15 +232,15 @@ class CategoryMenuSlider {
             pointer-events: none;
         `;
         
-        // Blue line - active item center (fixed positioning)
+        // Blue line - active item center (corrected positioning)
         const blueLine = document.createElement('div');
         blueLine.className = 'debug-active-line';
         blueLine.style.cssText = `
             position: fixed;
-            left: ${activeItemRect.left + activeItemRect.width / 2}px;
-            top: ${activeItemRect.top}px;
+            left: ${blueLineX}px;
+            top: ${wrapperRect.top}px;
             width: 2px;
-            height: ${activeItemRect.height}px;
+            height: ${wrapperRect.height}px;
             background: blue;
             z-index: 10001;
             pointer-events: none;
@@ -238,10 +249,12 @@ class CategoryMenuSlider {
         document.body.appendChild(redLine);
         document.body.appendChild(blueLine);
         
-        console.log('🎯 Visual Debug Lines:', {
+        console.log('🎯 Visual Debug Lines (Fixed):', {
             redLineX: wrapperRect.left + wrapperRect.width / 2,
-            blueLineX: activeItemRect.left + activeItemRect.width / 2,
-            difference: (activeItemRect.left + activeItemRect.width / 2) - (wrapperRect.left + wrapperRect.width / 2)
+            blueLineX: blueLineX,
+            activeItemCenter: activeItemCenter,
+            currentTranslateX: currentTranslateX,
+            difference: blueLineX - (wrapperRect.left + wrapperRect.width / 2)
         });
     }
     

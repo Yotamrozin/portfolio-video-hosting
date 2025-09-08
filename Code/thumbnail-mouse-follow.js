@@ -149,26 +149,7 @@ document.addEventListener("DOMContentLoaded", function() {
   // Optimized: Cache selectors and use more specific query
   const thumbnails = document.querySelectorAll('[hover-mouse-follow="thumbnail"]');
   
-  // Remove lines 152-153:
-  // console.log(`🔍 Found ${thumbnails.length} thumbnails with mouse-follow behavior`);
-  // console.log('📋 Thumbnail elements:', Array.from(thumbnails));
-  
-  // Remove line 200:
-  // console.log(`Initialized thumbnail ${index}:`, {
-  
-  // Remove line 320:
-  // console.log(`🐭 Mouse Enter on thumbnail ${index}`, {
-  
-  // Remove line 376:
-  // console.log(`✅ Thumbnail ${index} animation complete:`, {
-  
-  // Remove line 388:
-  // console.log(`🐭 Mouse Leave on thumbnail ${index}`, {
-  
-  // Remove line 415:
-  // console.log(`❌ Thumbnail ${index} hidden:`, {
   if (thumbnails.length === 0) {
-    console.warn('⚠️ No thumbnails found! Make sure elements have hover-mouse-follow="thumbnail" attribute');
     return;
   }
 
@@ -181,7 +162,6 @@ document.addEventListener("DOMContentLoaded", function() {
                     thumbnail.closest('[class*="item"]');
     
     if (!listItem) {
-      console.warn(`Thumbnail ${index} could not find parent container`);
       return;
     }
 
@@ -210,13 +190,6 @@ document.addEventListener("DOMContentLoaded", function() {
       opacity: 0,
       clearProps: "transform",
       force3D: true
-    });
-    
-    console.log(`Initialized thumbnail ${index}:`, {
-      element: thumbnail,
-      parent: listItem,
-      initialScale: gsap.getProperty(thumbnail, "scale"),
-      initialOpacity: gsap.getProperty(thumbnail, "opacity")
     });
 
     // Optimized: Cache rect calculations and reduce DOM queries
@@ -332,12 +305,6 @@ document.addEventListener("DOMContentLoaded", function() {
     
     // Mouse enter - start rotation tracking and show thumbnail
     listItem.addEventListener('mouseenter', (e) => {
-      console.log(`🐭 Mouse Enter on thumbnail ${index}`, {
-        target: e.target,
-        currentTarget: e.currentTarget,
-        isHovering: isHovering
-      });
-      
       isHovering = true;
       activeInstances.add(instanceId);
       cachedRect = null;
@@ -386,13 +353,7 @@ document.addEventListener("DOMContentLoaded", function() {
         scale: 1,
         opacity: 1,
         duration: 0.6,
-        ease: "back.out(1.7)",
-        onComplete: () => {
-          console.log(`✅ Thumbnail ${index} animation complete:`, {
-            scale: gsap.getProperty(thumbnail, "scale"),
-            opacity: gsap.getProperty(thumbnail, "opacity")
-          });
-        }
+        ease: "back.out(1.7)"
       });
       
       updateThumbnailPosition();
@@ -400,12 +361,6 @@ document.addEventListener("DOMContentLoaded", function() {
 
     // Mouse leave - reset rotation and hide thumbnail
     listItem.addEventListener('mouseleave', (e) => {
-      console.log(`🐭 Mouse Leave on thumbnail ${index}`, {
-        target: e.target,
-        currentTarget: e.currentTarget,
-        isHovering: isHovering
-      });
-      
       isHovering = false;
       activeInstances.delete(instanceId);
       
@@ -425,13 +380,7 @@ document.addEventListener("DOMContentLoaded", function() {
         rotationY: 0,
         rotationZ: 0,
         duration: config.resetSpeed,
-        ease: "power2.out",
-        onComplete: () => {
-          console.log(`❌ Thumbnail ${index} hidden:`, {
-            scale: gsap.getProperty(thumbnail, "scale"),
-            opacity: gsap.getProperty(thumbnail, "opacity")
-          });
-        }
+        ease: "power2.out"
       });
       
       // Reset variables
