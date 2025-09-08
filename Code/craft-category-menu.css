@@ -1,63 +1,64 @@
+/* Category Menu Container */
+.category-slider-wrapper {
+  display: flex;
+  overflow: hidden;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  position: relative;
+  padding: clamp(1.25 * 1rem, ((1.25 - ((1.6875 - 1.25) / (var(--site--viewport-max) - var(--site--viewport-min)) * var(--site--viewport-min))) * 1rem + ((1.6875 - 1.25) / (var(--site--viewport-max) - var(--site--viewport-min))) * 100vw), 1.6875 * 1rem) 0;
+}
+
+/* Category List - The sliding container */
 .category-slider {
+  display: flex;
+  align-items: center;
+  gap: clamp(0.375 * 1rem, ((0.375 - ((0.5 - 0.375) / (var(--site--viewport-max) - var(--site--viewport-min)) * var(--site--viewport-min))) * 1rem + ((0.5 - 0.375) / (var(--site--viewport-max) - var(--site--viewport-min))) * 100vw), 0.5 * 1rem);
+  transition: transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   will-change: transform;
 }
 
+/* Individual Category Items */
 .category-item {
-  height: 60px;
-} 
+  flex-shrink: 0;
+  padding: clamp(0.375 * 1rem, ((0.375 - ((0.5 - 0.375) / (var(--site--viewport-max) - var(--site--viewport-min)) * var(--site--viewport-min))) * 1rem + ((0.5 - 0.375) / (var(--site--viewport-max) - var(--site--viewport-min))) * 100vw), 0.5 * 1rem) clamp(1.25 * 1rem, ((1.25 - ((1.6875 - 1.25) / (var(--site--viewport-max) - var(--site--viewport-min)) * var(--site--viewport-min))) * 1rem + ((1.6875 - 1.25) / (var(--site--viewport-max) - var(--site--viewport-min))) * 100vw), 1.6875 * 1rem);
+  border-radius: 25px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  font-weight: 500;
+  font-size: 0.875rem;
+  white-space: nowrap;
+  user-select: none;
+  transform-origin: center;
+}
 
-/* Inactive items (cropped) */
+/* Active State - Centered and Prominent */
+.category-item.active {
+  background: rgba(255, 255, 255, 0.9);
+  color: #000;
+  transform: scale(1.1);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  border-color: rgba(255, 255, 255, 0.8);
+  z-index: 2;
+  position: relative;
+}
+
+/* Hover Effects for Non-Active Items */
+.category-item:not(.active):hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.9);
+  transform: scale(1.05);
+}
+
+/* Adjacent Items - Slightly Faded */
 .category-item:not(.active) {
-  width: 80px;
   opacity: 0.6;
 }
 
-/* Active item (takes majority of space) */
-.category-item.active {
-  width: calc(100vw - 160px); /* Full width minus 2 side items */
-  opacity: 1;
-  background: white;
-  border-radius: 30px;
-}
-
-.category-title {
-  font-size: 16px;
-  font-weight: 600;
-  color: white;
-  text-align: center;
-  white-space: nowrap;
-  padding: 0 20px;
-}
-
-.category-item:not(.active) .category-title {
-  color: #666;
-  font-size: 14px;
-}
-
-/* Touch-friendly sizing */
-@media (max-width: 768px) {
-  .category-item {
-    height: 50px;
-  }
-  
-  .category-item.active {
-    width: calc(100vw - 140px);
-  }
-  
-  .category-item:not(.active) {
-    width: 70px;
-  }
-}
-
-.tab-button-demo {
-  transition: opacity 0.3s ease, transform 0.3s ease;
-}
-
-.tab-button-demo[style*="display: none"] {
-  opacity: 0;
-  transform: scale(0.8);
-}
-
-.tab-pane-demo {
-  transition: opacity 0.3s ease;
+/* Smooth opacity transition for better visual flow */
+.category-item {
+  transition: all 0.3s ease, opacity 0.3s ease;
 }
