@@ -101,18 +101,14 @@ class CategoryMenuSlider {
     const wrapperCenter = wrapperWidth / 2;
     const translateX = wrapperCenter - itemCenter;
     
-    // FIXED: Better bounds checking to prevent off-screen sliding
-    const maxTranslateX = 0; // Can't scroll right past start
-    const minTranslateX = wrapperWidth - sliderWidth; // Can't scroll left past end
+    // FIXED: Proper bounds with enforced safe margins
+    const maxTranslateX = -20; // Small negative to allow slight left movement
+    const minTranslateX = -(sliderWidth - wrapperWidth + 20); // Keep 20px visible on right
     
-    // Apply more conservative bounds to keep content visible
-    const safeMargin = 50; // Keep at least 50px visible
-    const boundedTranslateX = Math.max(
-        minTranslateX + safeMargin, 
-        Math.min(maxTranslateX - safeMargin, translateX)
-    );
+    // Enforce stricter bounds to prevent off-screen sliding
+    const boundedTranslateX = Math.max(minTranslateX, Math.min(maxTranslateX, translateX));
     
-    console.log('🔧 Fixed Centering Debug:', {
+    console.log('🔧 Strict Bounds Debug:', {
         activeItemText: activeItem.textContent?.trim(),
         wrapperWidth,
         sliderWidth,
@@ -121,10 +117,10 @@ class CategoryMenuSlider {
         itemCenter,
         wrapperCenter,
         rawTranslateX: translateX,
-        minTranslateX,
-        maxTranslateX,
+        strictMinTranslateX: minTranslateX,
+        strictMaxTranslateX: maxTranslateX,
         boundedTranslateX,
-        safeMargin
+        wouldBeOffScreen: translateX < minTranslateX
     });
     
     // Apply the transform
