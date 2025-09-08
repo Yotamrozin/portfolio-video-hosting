@@ -82,7 +82,7 @@ class CategoryMenuSlider {
   }
   
   centerActiveItem() {
-    const activeItem = this.wrapper.querySelector('.w--current');
+    const activeItem = this.wrapper.querySelector('.active');
     if (!activeItem) {
         console.log('❌ No active item found');
         return;
@@ -107,6 +107,7 @@ class CategoryMenuSlider {
     const boundedTranslateX = Math.max(minTranslateX, Math.min(maxTranslateX, translateX));
     
     console.log('🔧 Centering Debug:', {
+        activeItemText: activeItem.textContent?.trim(),
         wrapperWidth,
         sliderWidth,
         itemLeft,
