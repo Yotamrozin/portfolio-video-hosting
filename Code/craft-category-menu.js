@@ -101,12 +101,18 @@ class CategoryMenuSlider {
     const wrapperCenter = wrapperWidth / 2;
     const translateX = wrapperCenter - itemCenter;
     
-    // Apply bounds to prevent over-scrolling
+    // FIXED: Better bounds checking to prevent off-screen sliding
     const maxTranslateX = 0; // Can't scroll right past start
-    const minTranslateX = Math.min(0, wrapperWidth - sliderWidth); // Can't scroll left past end
-    const boundedTranslateX = Math.max(minTranslateX, Math.min(maxTranslateX, translateX));
+    const minTranslateX = wrapperWidth - sliderWidth; // Can't scroll left past end
     
-    console.log('🔧 Centering Debug:', {
+    // Apply more conservative bounds to keep content visible
+    const safeMargin = 50; // Keep at least 50px visible
+    const boundedTranslateX = Math.max(
+        minTranslateX + safeMargin, 
+        Math.min(maxTranslateX - safeMargin, translateX)
+    );
+    
+    console.log('🔧 Fixed Centering Debug:', {
         activeItemText: activeItem.textContent?.trim(),
         wrapperWidth,
         sliderWidth,
@@ -114,9 +120,11 @@ class CategoryMenuSlider {
         itemWidth,
         itemCenter,
         wrapperCenter,
-        calculateTranslateX: translateX,
+        rawTranslateX: translateX,
+        minTranslateX,
+        maxTranslateX,
         boundedTranslateX,
-        bounds: { min: minTranslateX, max: maxTranslateX }
+        safeMargin
     });
     
     // Apply the transform
