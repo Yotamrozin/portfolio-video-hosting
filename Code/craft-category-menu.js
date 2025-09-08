@@ -1,9 +1,9 @@
 /**
- * Category Menu Slider - Scroll-Based Approach
- * Uses scrollIntoView for natural horizontal navigation
+ * Infinite Category Slider
+ * Professional infinite loop slider with proper centering
  */
 
-class CategoryMenuSlider {
+class InfiniteCategorySlider {
   constructor(wrapperSelector = '.category-slider-wrapper') {
     this.wrapper = document.querySelector(wrapperSelector);
     
@@ -12,34 +12,123 @@ class CategoryMenuSlider {
       return;
     }
     
-    this.slider = this.wrapper.querySelector('.category-slider');
-    this.items = this.wrapper.querySelectorAll('.category-item');
-    this.currentIndex = 0;
+    this.originalSlider = this.wrapper.querySelector('.category-slider');
+    this.originalItems = this.wrapper.querySelectorAll('.category-item');
     
-    if (!this.slider || this.items.length === 0) {
+    if (!this.originalSlider || this.originalItems.length === 0) {
       console.warn('Category menu elements not found within wrapper');
       return;
     }
+    
+    this.currentIndex = 0;
+    this.isAnimating = false;
+    this.cloneCount = Math.ceil(this.wrapper.offsetWidth / 200) + 2; // Adaptive clone count
     
     this.init();
   }
   
   init() {
-    // Ensure wrapper can scroll
-    this.wrapper.style.overflowX = 'hidden'; // Still hidden for transform approach
-    
-    // Set initial active state
+    this.createInfiniteSlider();
     this.setActiveItem(0);
+    this.setupEventListeners();
+    this.centerActiveItem();
+  }
+  
+  createInfiniteSlider() {
+    // Store original items data
+    this.itemsData = Array.from(this.originalItems).map(item => ({
+      text: item.textContent.trim(),
+      category: item.dataset.category || item.textContent.trim(),
+      color: item.dataset.color || '',
+      html: item.outerHTML
+    }));
     
-    // Add click listeners
-    this.items.forEach((item, index) => {
+    // Create new slider structure
+    this.slider = document.createElement('div');
+    this.slider.className = this.originalSlider.className;
+    this.slider.style.display = 'flex';
+    this.slider.style.transition = 'none';
+    this.slider.style.willChange = 'transform';
+    
+    // Create infinite loop: [clones] + [original] + [clones]
+    this.allItems = [];
+    this.totalItems = this.itemsData.length;
+    
+    // Left clones (for seamless loop)
+    for (let i = 0; i < this.cloneCount; i++) {
+      const dataIndex = (this.totalItems - this.cloneCount + i) % this.totalItems;
+      const clone = this.createItem(this.itemsData[dataIndex], `clone-left-${i}`);
+      this.slider.appendChild(clone);
+      this.allItems.push(clone);
+    }
+    
+    // Original items
+    this.itemsData.forEach((itemData, index) => {
+      const item = this.createItem(itemData, `original-${index}`);
+      this.slider.appendChild(item);
+      this.allItems.push(item);
+    });
+    
+    // Right clones (for seamless loop)
+    for (let i = 0; i < this.cloneCount; i++) {
+      const dataIndex = i % this.totalItems;
+      const clone = this.createItem(this.itemsData[dataIndex], `clone-right-${i}`);
+      this.slider.appendChild(clone);
+      this.allItems.push(clone);
+    }
+    
+    // Replace original slider
+    this.originalSlider.parentNode.replaceChild(this.slider, this.originalSlider);
+    
+    // Set initial position to first original item
+    this.realIndex = this.cloneCount;
+    this.setPosition(this.realIndex);
+    
+    console.log('🔧 Infinite slider created:', {
+      totalOriginalItems: this.totalItems,
+      cloneCount: this.cloneCount,
+      totalVisualItems: this.allItems.length,
+      startPosition: this.realIndex
+    });
+  }
+  
+  createItem(itemData, id) {
+    const item = document.createElement('div');
+    item.className = 'category-item';
+    item.textContent = itemData.text;
+    item.dataset.category = itemData.category;
+    item.dataset.itemId = id;
+    if (itemData.color) item.dataset.color = itemData.color;
+    
+    // Copy styles from original
+    const originalItem = this.originalItems[0];
+    if (originalItem) {
+      const computedStyles = window.getComputedStyle(originalItem);
+      item.style.padding = computedStyles.padding;
+      item.style.margin = computedStyles.margin;
+      item.style.fontSize = computedStyles.fontSize;
+      item.style.fontWeight = computedStyles.fontWeight;
+      item.style.borderRadius = computedStyles.borderRadius;
+      item.style.backgroundColor = computedStyles.backgroundColor;
+      item.style.color = computedStyles.color;
+      item.style.flexShrink = '0';
+      item.style.cursor = 'pointer';
+      item.style.whiteSpace = 'nowrap';
+    }
+    
+    return item;
+  }
+  
+  setupEventListeners() {
+    // Click handlers
+    this.allItems.forEach((item, visualIndex) => {
       item.addEventListener('click', (e) => {
         e.preventDefault();
-        this.handleCategoryClick(index, item);
+        this.handleItemClick(visualIndex);
       });
     });
     
-    // Handle resize with debouncing
+    // Resize handler
     this.resizeHandler = this.debounce(() => {
       this.centerActiveItem();
     }, 100);
@@ -47,183 +136,189 @@ class CategoryMenuSlider {
     window.addEventListener('resize', this.resizeHandler);
   }
   
-  handleCategoryClick(index, item) {
-    this.setActiveItem(index);
+  handleItemClick(visualIndex) {
+    if (this.isAnimating) return;
     
-    // Get category from data attribute or text content
-    const category = item.dataset.category || item.textContent.trim();
+    // Calculate the logical index (0 to totalItems-1)
+    const logicalIndex = this.getLogicalIndex(visualIndex);
+    
+    // Move to clicked item
+    this.goToItem(logicalIndex);
     
     // Integrate with existing tabs system
+    const category = this.itemsData[logicalIndex].category;
     if (window.MultiInstanceTabsManager) {
       window.MultiInstanceTabsManager.showCategory(category);
     }
   }
   
-  setActiveItem(index) {
+  goToItem(logicalIndex, animate = true) {
+    if (this.isAnimating && animate) return;
+    
+    this.currentIndex = logicalIndex;
+    
+    // Find the best visual position for this logical index
+    const targetVisualIndex = this.findBestVisualIndex(logicalIndex);
+    
+    if (animate) {
+      this.animateToPosition(targetVisualIndex);
+    } else {
+      this.setPosition(targetVisualIndex);
+      this.updateActiveStates();
+    }
+  }
+  
+  findBestVisualIndex(logicalIndex) {
+    // Find all visual indices that represent this logical index
+    const candidates = [];
+    
+    this.allItems.forEach((item, visualIndex) => {
+      const itemLogicalIndex = this.getLogicalIndex(visualIndex);
+      if (itemLogicalIndex === logicalIndex) {
+        candidates.push(visualIndex);
+      }
+    });
+    
+    // Choose the candidate closest to center
+    const centerPosition = this.allItems.length / 2;
+    return candidates.reduce((best, current) => {
+      return Math.abs(current - centerPosition) < Math.abs(best - centerPosition) ? current : best;
+    });
+  }
+  
+  getLogicalIndex(visualIndex) {
+    if (visualIndex < this.cloneCount) {
+      // Left clones
+      return (this.totalItems - this.cloneCount + visualIndex) % this.totalItems;
+    } else if (visualIndex >= this.cloneCount + this.totalItems) {
+      // Right clones
+      return (visualIndex - this.cloneCount - this.totalItems) % this.totalItems;
+    } else {
+      // Original items
+      return visualIndex - this.cloneCount;
+    }
+  }
+  
+  setPosition(visualIndex) {
+    this.realIndex = visualIndex;
+    const item = this.allItems[visualIndex];
+    if (!item) return;
+    
+    const wrapperWidth = this.wrapper.offsetWidth;
+    const itemLeft = item.offsetLeft;
+    const itemWidth = item.offsetWidth;
+    const itemCenter = itemLeft + (itemWidth / 2);
+    const wrapperCenter = wrapperWidth / 2;
+    
+    const translateX = wrapperCenter - itemCenter;
+    this.slider.style.transform = `translateX(${translateX}px)`;
+    
+    console.log('📍 Position set:', {
+      visualIndex,
+      logicalIndex: this.getLogicalIndex(visualIndex),
+      itemText: item.textContent.trim(),
+      translateX
+    });
+  }
+  
+  animateToPosition(targetVisualIndex) {
+    this.isAnimating = true;
+    this.slider.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+    
+    this.setPosition(targetVisualIndex);
+    this.updateActiveStates();
+    
+    setTimeout(() => {
+      this.isAnimating = false;
+      this.slider.style.transition = 'none';
+      this.checkLoopReset();
+    }, 400);
+  }
+  
+  checkLoopReset() {
+    // If we're too far left or right, jump to equivalent position
+    if (this.realIndex < this.cloneCount / 2) {
+      const equivalentIndex = this.realIndex + this.totalItems;
+      this.setPosition(equivalentIndex);
+    } else if (this.realIndex >= this.allItems.length - this.cloneCount / 2) {
+      const equivalentIndex = this.realIndex - this.totalItems;
+      this.setPosition(equivalentIndex);
+    }
+  }
+  
+  setActiveItem(logicalIndex) {
+    this.currentIndex = logicalIndex;
+    this.goToItem(logicalIndex, false);
+    this.updateActiveStates();
+  }
+  
+  updateActiveStates() {
     // Remove active from all items
-    this.items.forEach(item => {
+    this.allItems.forEach(item => {
       item.classList.remove('active');
       item.style.backgroundColor = '';
     });
     
-    // Set new active item
-    const activeItem = this.items[index];
-    activeItem.classList.add('active');
-    
-    // Apply custom color if available
-    const customColor = activeItem.dataset.color;
-    if (customColor) {
-      activeItem.style.backgroundColor = customColor;
-    }
-    
-    this.currentIndex = index;
-    this.centerActiveItem();
+    // Add active to all items representing current logical index
+    this.allItems.forEach((item, visualIndex) => {
+      const itemLogicalIndex = this.getLogicalIndex(visualIndex);
+      if (itemLogicalIndex === this.currentIndex) {
+        item.classList.add('active');
+        const customColor = item.dataset.color;
+        if (customColor) {
+          item.style.backgroundColor = customColor;
+        }
+      }
+    });
   }
   
   centerActiveItem() {
-    const activeItem = this.items[this.currentIndex];
-    if (!activeItem) return;
-
-    const wrapperWidth = this.wrapper.offsetWidth;
-    const sliderWidth = this.slider.scrollWidth;
-    
-    // If slider fits within wrapper, center it naturally
-    if (sliderWidth <= wrapperWidth) {
-      this.applyTransform(0);
-      return;
+    if (this.realIndex !== undefined) {
+      this.setPosition(this.realIndex);
     }
-    
-    // Calculate positions
-    let itemLeft = 0;
-    for (let i = 0; i < this.currentIndex; i++) {
-      itemLeft += this.items[i].offsetWidth;
-    }
-    
-    const itemWidth = activeItem.offsetWidth;
-    const itemCenter = itemLeft + (itemWidth / 2);
-    const wrapperCenter = wrapperWidth / 2;
-    
-    // NEW APPROACH: Progressive positioning based on item location
-    let targetTransform;
-    
-    const maxScroll = sliderWidth - wrapperWidth;
-    const itemProgress = itemCenter / sliderWidth; // 0 to 1
-    
-    if (itemProgress <= 0.2) {
-      // First 20% of items - stay at beginning
-      targetTransform = 0;
-    } else if (itemProgress >= 0.8) {
-      // Last 20% of items - show the end
-      targetTransform = -maxScroll;
-    } else {
-      // Middle items - use proportional scrolling
-      const scrollProgress = (itemProgress - 0.2) / 0.6; // Normalize to 0-1
-      targetTransform = -scrollProgress * maxScroll;
-    }
-    
-    console.log('🎯 Progressive centering:', {
-      activeItem: activeItem.textContent?.trim(),
-      wrapperWidth,
-      sliderWidth,
-      itemCenter,
-      itemProgress: (itemProgress * 100).toFixed(1) + '%',
-      targetTransform,
-      maxScroll: -maxScroll
-    });
-    
-    this.applyTransform(targetTransform);
   }
   
-  applyTransform(translateX) {
-    // Smooth CSS transition
-    this.slider.style.transition = 'transform 0.4s ease-out';
-    this.slider.style.transform = `translateX(${translateX}px)`;
-    
-    // Remove transition after animation completes
-    setTimeout(() => {
-      this.slider.style.transition = '';
-    }, 400);
+  // Navigation methods
+  next() {
+    const nextIndex = (this.currentIndex + 1) % this.totalItems;
+    this.goToItem(nextIndex);
   }
   
-  // Alternative method: Try scroll-based approach
-  centerActiveItemScroll() {
-    const activeItem = this.items[this.currentIndex];
-    if (!activeItem) return;
-    
-    // Temporarily enable scrolling
-    this.wrapper.style.overflowX = 'auto';
-    
-    // Use scrollIntoView for natural centering
-    activeItem.scrollIntoView({
-      behavior: 'smooth',
-      block: 'nearest',
-      inline: 'center'
-    });
-    
-    // Re-hide scrollbar after animation
-    setTimeout(() => {
-      this.wrapper.style.overflowX = 'hidden';
-    }, 500);
+  prev() {
+    const prevIndex = (this.currentIndex - 1 + this.totalItems) % this.totalItems;
+    this.goToItem(prevIndex);
   }
   
-  // Public method to set active category
+  // Public API methods
   setActiveCategory(category) {
-    const targetItem = Array.from(this.items).find(item => {
-      const itemCategory = item.dataset.category || item.textContent.trim();
-      return itemCategory.toLowerCase() === category.toLowerCase();
-    });
+    const targetIndex = this.itemsData.findIndex(item => 
+      item.category.toLowerCase() === category.toLowerCase()
+    );
     
-    if (targetItem) {
-      const index = Array.from(this.items).indexOf(targetItem);
-      this.setActiveItem(index);
+    if (targetIndex !== -1) {
+      this.goToItem(targetIndex);
     }
   }
   
-  // Get current active category
   getCurrentCategory() {
-    const activeItem = this.items[this.currentIndex];
-    return activeItem ? (activeItem.dataset.category || activeItem.textContent.trim()) : null;
+    return this.itemsData[this.currentIndex]?.category || null;
   }
   
-  // Switch between transform and scroll approaches
-  useScrollMethod() {
-    console.log('🔄 Switching to scroll-based centering');
-    this.centerActiveItem = this.centerActiveItemScroll;
-    this.centerActiveItem();
-  }
-  
-  // Debug method
+  // Debug methods
   debug() {
-    const activeItem = this.items[this.currentIndex];
-    if (!activeItem) return;
-    
-    console.group('🔍 Category Menu Debug');
-    console.log('Container:', { 
-      wrapperWidth: this.wrapper.offsetWidth, 
-      sliderWidth: this.slider.scrollWidth 
+    console.group('🔍 Infinite Slider Debug');
+    console.log('Current State:', {
+      logicalIndex: this.currentIndex,
+      visualIndex: this.realIndex,
+      currentCategory: this.getCurrentCategory(),
+      totalOriginalItems: this.totalItems,
+      totalVisualItems: this.allItems.length
     });
-    console.log('Active Item:', {
-      index: this.currentIndex,
-      text: activeItem.textContent.trim(),
-      offsetLeft: activeItem.offsetLeft,
-      offsetWidth: activeItem.offsetWidth
-    });
-    console.log('Current Transform:', this.slider.style.transform);
+    console.log('Transform:', this.slider.style.transform);
     console.groupEnd();
   }
   
-  // Test both methods
-  testBothMethods() {
-    console.log('🧪 Testing transform method...');
-    this.centerActiveItem();
-    
-    setTimeout(() => {
-      console.log('🧪 Testing scroll method...');
-      this.useScrollMethod();
-    }, 2000);
-  }
-  
-  // Utility: Debounce function
+  // Utility methods
   debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -236,7 +331,6 @@ class CategoryMenuSlider {
     };
   }
   
-  // Cleanup method
   destroy() {
     if (this.resizeHandler) {
       window.removeEventListener('resize', this.resizeHandler);
@@ -247,11 +341,11 @@ class CategoryMenuSlider {
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
-    window.categoryMenuSlider = new CategoryMenuSlider();
+    window.categoryMenuSlider = new InfiniteCategorySlider();
   });
 } else {
-  window.categoryMenuSlider = new CategoryMenuSlider();
+  window.categoryMenuSlider = new InfiniteCategorySlider();
 }
 
 // Export for external access
-window.CategoryMenuSlider = CategoryMenuSlider;
+window.InfiniteCategorySlider = InfiniteCategorySlider;
