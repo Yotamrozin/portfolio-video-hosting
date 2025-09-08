@@ -82,49 +82,50 @@ class CategoryMenuSlider {
   }
   
   centerActiveItem() {
-    if (!this.slider || !this.items.length) return;
-    
-    const activeItem = this.items[this.currentIndex];
-    if (!activeItem) return;
-    
-    // Get measurements
-    const wrapperRect = this.wrapper.getBoundingClientRect();
-    const wrapperCenter = wrapperRect.width / 2;
-    
-    // Use getBoundingClientRect for accurate positioning
-    const activeItemRect = activeItem.getBoundingClientRect();
-    const sliderRect = this.slider.getBoundingClientRect();
-    
-    // Calculate the active item's center relative to the slider
-    const activeItemCenterInSlider = (activeItemRect.left - sliderRect.left) + (activeItemRect.width / 2);
-    
-    // Calculate how much to translate to center the active item
-    const translateX = wrapperCenter - activeItemCenterInSlider;
-    
-    // Apply bounds checking
-    const maxTranslate = 0;
-    const minTranslate = Math.min(0, wrapperRect.width - this.slider.scrollWidth);
-    const boundedTranslateX = Math.max(minTranslate, Math.min(maxTranslate, translateX));
-    
-    // Apply the transform using GSAP for smooth animation
-    if (window.gsap) {
-        gsap.to(this.slider, {
-            x: boundedTranslateX,
-            duration: 0.3,
-            ease: "power2.out"
-        });
-    } else {
-        // Fallback to CSS transform
-        this.slider.style.transform = `translateX(${boundedTranslateX}px)`;
+    const activeItem = this.wrapper.querySelector('.w--current');
+    if (!activeItem) {
+        console.log('❌ No active item found');
+        return;
     }
+
+    // Get container and slider dimensions
+    const wrapperWidth = this.wrapper.offsetWidth;
+    const sliderWidth = this.slider.scrollWidth;
     
-    // Debug logging (remove after fixing)
-    console.log('🔧 Applied Transform:', {
-        translateX,
+    // Get active item position and dimensions
+    const itemLeft = activeItem.offsetLeft;
+    const itemWidth = activeItem.offsetWidth;
+    const itemCenter = itemLeft + (itemWidth / 2);
+    
+    // Calculate how much to move to center the item
+    const wrapperCenter = wrapperWidth / 2;
+    const translateX = wrapperCenter - itemCenter;
+    
+    // Apply bounds to prevent over-scrolling
+    const maxTranslateX = 0; // Can't scroll right past start
+    const minTranslateX = Math.min(0, wrapperWidth - sliderWidth); // Can't scroll left past end
+    const boundedTranslateX = Math.max(minTranslateX, Math.min(maxTranslateX, translateX));
+    
+    console.log('🔧 Centering Debug:', {
+        wrapperWidth,
+        sliderWidth,
+        itemLeft,
+        itemWidth,
+        itemCenter,
+        wrapperCenter,
+        calculateTranslateX: translateX,
         boundedTranslateX,
-        activeItemCenterInSlider,
-        wrapperCenter
+        bounds: { min: minTranslateX, max: maxTranslateX }
     });
+    
+    // Apply the transform
+    if (window.gsap) {
+        gsap.set(this.slider, { x: boundedTranslateX });
+        console.log('✅ GSAP transform applied:', boundedTranslateX);
+    } else {
+        this.slider.style.transform = `translateX(${boundedTranslateX}px)`;
+        console.log('✅ CSS transform applied:', boundedTranslateX);
+    }
 }
 
   // === DEBUG METHODS ===
