@@ -1,6 +1,6 @@
 /**
- * Simplified Category Menu Slider
- * Robust centering without off-screen sliding issues
+ * Category Menu Slider - Scroll-Based Approach
+ * Uses scrollIntoView for natural horizontal navigation
  */
 
 class CategoryMenuSlider {
@@ -25,6 +25,9 @@ class CategoryMenuSlider {
   }
   
   init() {
+    // Ensure wrapper can scroll
+    this.wrapper.style.overflowX = 'hidden'; // Still hidden for transform approach
+    
     // Set initial active state
     this.setActiveItem(0);
     
@@ -84,64 +87,86 @@ class CategoryMenuSlider {
     const wrapperWidth = this.wrapper.offsetWidth;
     const sliderWidth = this.slider.scrollWidth;
     
-    // If slider fits within wrapper, no need to move
+    // If slider fits within wrapper, center it naturally
     if (sliderWidth <= wrapperWidth) {
       this.applyTransform(0);
       return;
     }
     
-    // Calculate item's center position
-    const itemLeft = activeItem.offsetLeft;
-    const itemWidth = activeItem.offsetWidth;
-    const itemCenter = itemLeft + (itemWidth / 2);
-    
-    // Calculate ideal centering position
-    const wrapperCenter = wrapperWidth / 2;
-    const idealTranslateX = wrapperCenter - itemCenter;
-    
-    // Calculate bounds - keep some content visible at edges
-    const maxTranslateX = 0; // Don't move past the start
-    const minTranslateX = wrapperWidth - sliderWidth; // Don't move past the end
-    
-    // Apply smart bounds checking
-    let finalTranslateX;
-    
-    if (idealTranslateX > maxTranslateX) {
-      // Item is near the beginning, stick to start
-      finalTranslateX = maxTranslateX;
-    } else if (idealTranslateX < minTranslateX) {
-      // Item is near the end, stick to end
-      finalTranslateX = minTranslateX;
-    } else {
-      // Item can be centered
-      finalTranslateX = idealTranslateX;
+    // Calculate positions
+    let itemLeft = 0;
+    for (let i = 0; i < this.currentIndex; i++) {
+      itemLeft += this.items[i].offsetWidth;
     }
     
-    console.log('🎯 Centering calculation:', {
+    const itemWidth = activeItem.offsetWidth;
+    const itemCenter = itemLeft + (itemWidth / 2);
+    const wrapperCenter = wrapperWidth / 2;
+    
+    // NEW APPROACH: Progressive positioning based on item location
+    let targetTransform;
+    
+    const maxScroll = sliderWidth - wrapperWidth;
+    const itemProgress = itemCenter / sliderWidth; // 0 to 1
+    
+    if (itemProgress <= 0.2) {
+      // First 20% of items - stay at beginning
+      targetTransform = 0;
+    } else if (itemProgress >= 0.8) {
+      // Last 20% of items - show the end
+      targetTransform = -maxScroll;
+    } else {
+      // Middle items - use proportional scrolling
+      const scrollProgress = (itemProgress - 0.2) / 0.6; // Normalize to 0-1
+      targetTransform = -scrollProgress * maxScroll;
+    }
+    
+    console.log('🎯 Progressive centering:', {
       activeItem: activeItem.textContent?.trim(),
       wrapperWidth,
       sliderWidth,
       itemCenter,
-      idealTranslateX,
-      finalTranslateX,
-      bounds: { min: minTranslateX, max: maxTranslateX }
+      itemProgress: (itemProgress * 100).toFixed(1) + '%',
+      targetTransform,
+      maxScroll: -maxScroll
     });
     
-    this.applyTransform(finalTranslateX);
+    this.applyTransform(targetTransform);
   }
   
   applyTransform(translateX) {
     // Smooth CSS transition
-    this.slider.style.transition = 'transform 0.3s ease-out';
+    this.slider.style.transition = 'transform 0.4s ease-out';
     this.slider.style.transform = `translateX(${translateX}px)`;
     
-    // Remove transition after animation completes to prevent interference
+    // Remove transition after animation completes
     setTimeout(() => {
       this.slider.style.transition = '';
-    }, 300);
+    }, 400);
   }
   
-  // Public method to set active category from external code
+  // Alternative method: Try scroll-based approach
+  centerActiveItemScroll() {
+    const activeItem = this.items[this.currentIndex];
+    if (!activeItem) return;
+    
+    // Temporarily enable scrolling
+    this.wrapper.style.overflowX = 'auto';
+    
+    // Use scrollIntoView for natural centering
+    activeItem.scrollIntoView({
+      behavior: 'smooth',
+      block: 'nearest',
+      inline: 'center'
+    });
+    
+    // Re-hide scrollbar after animation
+    setTimeout(() => {
+      this.wrapper.style.overflowX = 'hidden';
+    }, 500);
+  }
+  
+  // Public method to set active category
   setActiveCategory(category) {
     const targetItem = Array.from(this.items).find(item => {
       const itemCategory = item.dataset.category || item.textContent.trim();
@@ -160,25 +185,42 @@ class CategoryMenuSlider {
     return activeItem ? (activeItem.dataset.category || activeItem.textContent.trim()) : null;
   }
   
+  // Switch between transform and scroll approaches
+  useScrollMethod() {
+    console.log('🔄 Switching to scroll-based centering');
+    this.centerActiveItem = this.centerActiveItemScroll;
+    this.centerActiveItem();
+  }
+  
   // Debug method
   debug() {
     const activeItem = this.items[this.currentIndex];
     if (!activeItem) return;
     
-    const wrapperWidth = this.wrapper.offsetWidth;
-    const sliderWidth = this.slider.scrollWidth;
-    const currentTransform = this.slider.style.transform;
-    
     console.group('🔍 Category Menu Debug');
-    console.log('Container:', { wrapperWidth, sliderWidth });
+    console.log('Container:', { 
+      wrapperWidth: this.wrapper.offsetWidth, 
+      sliderWidth: this.slider.scrollWidth 
+    });
     console.log('Active Item:', {
       index: this.currentIndex,
       text: activeItem.textContent.trim(),
       offsetLeft: activeItem.offsetLeft,
       offsetWidth: activeItem.offsetWidth
     });
-    console.log('Current Transform:', currentTransform);
+    console.log('Current Transform:', this.slider.style.transform);
     console.groupEnd();
+  }
+  
+  // Test both methods
+  testBothMethods() {
+    console.log('🧪 Testing transform method...');
+    this.centerActiveItem();
+    
+    setTimeout(() => {
+      console.log('🧪 Testing scroll method...');
+      this.useScrollMethod();
+    }, 2000);
   }
   
   // Utility: Debounce function
