@@ -163,6 +163,92 @@ class SwiperInspiredCategorySlider {
     }, 100);
     
     window.addEventListener('resize', this.resizeHandler);
+    
+    // Add mobile swipe listeners
+    this.setupSwipeListeners();
+  }
+  
+  setupSwipeListeners() {
+    // Touch start
+    this.slider.addEventListener('touchstart', (e) => {
+      this.touchStartX = e.touches[0].clientX;
+      this.touchStartY = e.touches[0].clientY;
+      this.isSwiping = true;
+      
+      console.log('👆 Touch start:', {
+        x: this.touchStartX,
+        y: this.touchStartY
+      });
+    }, { passive: true });
+    
+    // Touch move (optional - for visual feedback)
+    this.slider.addEventListener('touchmove', (e) => {
+      if (!this.isSwiping) return;
+      
+      const currentX = e.touches[0].clientX;
+      const currentY = e.touches[0].clientY;
+      const deltaX = currentX - this.touchStartX;
+      const deltaY = Math.abs(currentY - this.touchStartY);
+      
+      // Prevent default if it's a horizontal swipe
+      if (Math.abs(deltaX) > deltaY && Math.abs(deltaX) > 10) {
+        e.preventDefault();
+      }
+    }, { passive: false });
+    
+    // Touch end
+    this.slider.addEventListener('touchend', (e) => {
+      if (!this.isSwiping) return;
+      
+      this.touchEndX = e.changedTouches[0].clientX;
+      this.touchEndY = e.changedTouches[0].clientY;
+      
+      this.handleSwipe();
+      this.isSwiping = false;
+      
+      console.log('👆 Touch end:', {
+        startX: this.touchStartX,
+        endX: this.touchEndX,
+        deltaX: this.touchEndX - this.touchStartX
+      });
+    }, { passive: true });
+    
+    // Touch cancel
+    this.slider.addEventListener('touchcancel', () => {
+      this.isSwiping = false;
+      console.log('👆 Touch cancelled');
+    }, { passive: true });
+  }
+  
+  handleSwipe() {
+    const deltaX = this.touchEndX - this.touchStartX;
+    const deltaY = Math.abs(this.touchEndY - this.touchStartY);
+    const absDeltaX = Math.abs(deltaX);
+    
+    console.log('🔄 Swipe analysis:', {
+      deltaX,
+      deltaY,
+      absDeltaX,
+      minDistance: this.minSwipeDistance,
+      maxVertical: this.maxVerticalDistance,
+      isHorizontal: deltaY < this.maxVerticalDistance,
+      isLongEnough: absDeltaX > this.minSwipeDistance
+    });
+    
+    // Check if it's a valid horizontal swipe
+    if (deltaY < this.maxVerticalDistance && absDeltaX > this.minSwipeDistance) {
+      if (deltaX > 0) {
+        // Swipe right - go to previous category
+        console.log('👈 Swipe right detected - going to previous category');
+        this.slidePrev();
+      } else {
+        // Swipe left - go to next category
+        console.log('👉 Swipe left detected - going to next category');
+        this.slideNext();
+      }
+    } else {
+      console.log('❌ Swipe not recognized - insufficient distance or too vertical');
+    }
   }
   
   setInitialPosition() {
@@ -375,6 +461,12 @@ class SwiperInspiredCategorySlider {
     if (this.resizeHandler) {
       window.removeEventListener('resize', this.resizeHandler);
     }
+    
+    // Clean up swipe listeners
+    this.slider.removeEventListener('touchstart', this.handleTouchStart);
+    this.slider.removeEventListener('touchmove', this.handleTouchMove);
+    this.slider.removeEventListener('touchend', this.handleTouchEnd);
+    this.slider.removeEventListener('touchcancel', this.handleTouchCancel);
   }
 }
 
