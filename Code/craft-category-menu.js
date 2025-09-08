@@ -82,34 +82,50 @@ class CategoryMenuSlider {
   }
   
   centerActiveItem() {
+    if (!this.slider || !this.items.length) return;
+    
     const activeItem = this.items[this.currentIndex];
     if (!activeItem) return;
     
-    // Get dimensions using offsetLeft/offsetWidth for more accurate positioning
-    const wrapperWidth = this.wrapper.offsetWidth;
-    const sliderWidth = this.slider.offsetWidth;
+    // Get measurements
+    const wrapperRect = this.wrapper.getBoundingClientRect();
+    const wrapperCenter = wrapperRect.width / 2;
     
-    // Calculate active item position relative to slider
-    const activeItemLeft = activeItem.offsetLeft;
-    const activeItemWidth = activeItem.offsetWidth;
-    const activeItemCenter = activeItemLeft + (activeItemWidth / 2);
+    // Use getBoundingClientRect for accurate positioning
+    const activeItemRect = activeItem.getBoundingClientRect();
+    const sliderRect = this.slider.getBoundingClientRect();
     
-    // Calculate wrapper center
-    const wrapperCenter = wrapperWidth / 2;
+    // Calculate the active item's center relative to the slider
+    const activeItemCenterInSlider = (activeItemRect.left - sliderRect.left) + (activeItemRect.width / 2);
     
-    // Calculate required translation to center the active item
-    const translateX = wrapperCenter - activeItemCenter;
+    // Calculate how much to translate to center the active item
+    const translateX = wrapperCenter - activeItemCenterInSlider;
     
-    // Ensure we don't slide too far (optional bounds checking)
-    const maxTranslate = 0; // Don't slide past the start
-    const minTranslate = wrapperWidth - sliderWidth; // Don't slide past the end
-    
+    // Apply bounds checking
+    const maxTranslate = 0;
+    const minTranslate = Math.min(0, wrapperRect.width - this.slider.scrollWidth);
     const boundedTranslateX = Math.max(minTranslate, Math.min(maxTranslate, translateX));
     
-    // Apply smooth translation
-    this.slider.style.transform = `translateX(${boundedTranslateX}px)`;
-    this.slider.style.transition = 'transform 0.3s ease';
-  }
+    // Apply the transform using GSAP for smooth animation
+    if (window.gsap) {
+        gsap.to(this.slider, {
+            x: boundedTranslateX,
+            duration: 0.3,
+            ease: "power2.out"
+        });
+    } else {
+        // Fallback to CSS transform
+        this.slider.style.transform = `translateX(${boundedTranslateX}px)`;
+    }
+    
+    // Debug logging (remove after fixing)
+    console.log('🔧 Applied Transform:', {
+        translateX,
+        boundedTranslateX,
+        activeItemCenterInSlider,
+        wrapperCenter
+    });
+}
 
   // === DEBUG METHODS ===
   
@@ -183,11 +199,51 @@ class CategoryMenuSlider {
   
   // Visual debug overlay
   showVisualDebug() {
-    // Remove existing debug overlay
     this.hideVisualDebug();
     
+    const wrapperRect = this.wrapper.getBoundingClientRect();
     const activeItem = this.items[this.currentIndex];
-    if (!activeItem) return;
+    
+    if (activeItem) {
+        const activeItemRect = activeItem.getBoundingClientRect();
+        
+        // Red line - wrapper center (this is working correctly)
+        const redLine = document.createElement('div');
+        redLine.className = 'debug-center-line';
+        redLine.style.cssText = `
+            position: fixed;
+            left: ${wrapperRect.left + wrapperRect.width / 2}px;
+            top: ${wrapperRect.top}px;
+            width: 2px;
+            height: ${wrapperRect.height}px;
+            background: red;
+            z-index: 10000;
+            pointer-events: none;
+        `;
+        
+        // Blue line - active item center (fixed positioning)
+        const blueLine = document.createElement('div');
+        blueLine.className = 'debug-active-line';
+        blueLine.style.cssText = `
+            position: fixed;
+            left: ${activeItemRect.left + activeItemRect.width / 2}px;
+            top: ${activeItemRect.top}px;
+            width: 2px;
+            height: ${activeItemRect.height}px;
+            background: blue;
+            z-index: 10001;
+            pointer-events: none;
+        `;
+        
+        document.body.appendChild(redLine);
+        document.body.appendChild(blueLine);
+        
+        console.log('🎯 Visual Debug Lines:', {
+            redLineX: wrapperRect.left + wrapperRect.width / 2,
+            blueLineX: activeItemRect.left + activeItemRect.width / 2,
+            difference: (activeItemRect.left + activeItemRect.width / 2) - (wrapperRect.left + wrapperRect.width / 2)
+        });
+    }
     
     // Create debug overlay
     const overlay = document.createElement('div');
@@ -205,9 +261,9 @@ class CategoryMenuSlider {
     `;
     
     // Get positions
-    const wrapperRect = this.wrapper.getBoundingClientRect();
+    const wrapperRect2 = this.wrapper.getBoundingClientRect();
     const itemRect = activeItem.getBoundingClientRect();
-    const wrapperCenter = wrapperRect.left + (wrapperRect.width / 2);
+    const wrapperCenter = wrapperRect2.left + (wrapperRect2.width / 2);
     const itemCenter = itemRect.left + (itemRect.width / 2);
     
     // Wrapper center line
@@ -215,9 +271,9 @@ class CategoryMenuSlider {
     wrapperCenterLine.style.cssText = `
       position: absolute;
       left: ${wrapperCenter}px;
-      top: ${wrapperRect.top}px;
+      top: ${wrapperRect2.top}px;
       width: 2px;
-      height: ${wrapperRect.height}px;
+      height: ${wrapperRect2.height}px;
       background: red;
       opacity: 0.8;
     `;
@@ -238,8 +294,8 @@ class CategoryMenuSlider {
     const infoBox = document.createElement('div');
     infoBox.style.cssText = `
       position: absolute;
-      top: ${wrapperRect.bottom + 10}px;
-      left: ${wrapperRect.left}px;
+      top: ${wrapperRect2.bottom + 10}px;
+      left: ${wrapperRect2.left}px;
       background: rgba(0,0,0,0.8);
       color: white;
       padding: 10px;

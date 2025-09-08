@@ -1,271 +1,60 @@
-🚀 Initializing Multi-Instance Tabs Manager...
-instagram-story-system.js:255 📄 Content loaded, proceeding with initialization
-instagram-story-system.js:305 💡 TIP: Use debugMultiTabs() in console for debugging
-instagram-story-system.js:306 ✅ Tabs manager successfully initialized
-jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2 [Violation] 'setTimeout' handler took 120ms
-instagram-story-system.js:99 Found 5 tabs, 5 lists, 17 contents
-instagram-story-system.js:120 📋 Found 1 tab contents for collection list 1
-instagram-story-system.js:145 📋 Assigned category "Software + Tools" to tabs component 1
-instagram-story-system.js:158 📦 Created instance 1: Software + Tools (1 tab contents)
-instagram-story-system.js:120 📋 Found 6 tab contents for collection list 2
-instagram-story-system.js:145 📋 Assigned category "Web + Brand" to tabs component 2
-instagram-story-system.js:158 📦 Created instance 2: Web + Brand (6 tab contents)
-instagram-story-system.js:120 📋 Found 3 tab contents for collection list 3
-instagram-story-system.js:145 📋 Assigned category "Generative AI" to tabs component 3
-instagram-story-system.js:158 📦 Created instance 3: Generative AI (3 tab contents)
-instagram-story-system.js:120 📋 Found 3 tab contents for collection list 4
-instagram-story-system.js:145 📋 Assigned category "Motion" to tabs component 4
-instagram-story-system.js:158 📦 Created instance 4: Motion (3 tab contents)
-instagram-story-system.js:120 📋 Found 4 tab contents for collection list 5
-instagram-story-system.js:145 📋 Assigned category "Creative Lead" to tabs component 5
-instagram-story-system.js:158 📦 Created instance 5: Creative Lead (4 tab contents)
-instagram-story-system.js:176 ❌ Failed to initialize instance 1: SyntaxError: Failed to execute 'querySelector' on 'Document': '[object HTMLDivElement]' is not a valid selector.
-    at E.getMasterCollection (cms-library.js:1108:21)
-    at E.tabs (cms-library.js:2228:18)
-    at instagram-story-system.js:169:28
-    at Array.forEach (<anonymous>)
-    at MultiInstanceTabsManager.initializeInstances (instagram-story-system.js:163:20)
-    at MultiInstanceTabsManager.init (instagram-story-system.js:89:10)
-(anonymous) @ instagram-story-system.js:176
-initializeInstances @ instagram-story-system.js:163
-init @ instagram-story-system.js:89
-await in init
-MultiInstanceTabsManager @ instagram-story-system.js:76
-initTabs @ instagram-story-system.js:301
-(anonymous) @ instagram-story-system.js:329
-S @ webflow.schunk.a3caa2a8e765e6e0.js:1
-(anonymous) @ webflow.schunk.a3caa2a8e765e6e0.js:1
-(anonymous) @ webflow.schunk.a3caa2a8e765e6e0.js:1
-e @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-t @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-setTimeout
-(anonymous) @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-c @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-fireWith @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-fire @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-c @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-fireWith @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-ready @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-B @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2Understand this error
-instagram-story-system.js:176 ❌ Failed to initialize instance 2: SyntaxError: Failed to execute 'querySelector' on 'Document': '[object HTMLDivElement]' is not a valid selector.
-    at E.getMasterCollection (cms-library.js:1108:21)
-    at E.tabs (cms-library.js:2228:18)
-    at instagram-story-system.js:169:28
-    at Array.forEach (<anonymous>)
-    at MultiInstanceTabsManager.initializeInstances (instagram-story-system.js:163:20)
-    at MultiInstanceTabsManager.init (instagram-story-system.js:89:10)
-(anonymous) @ instagram-story-system.js:176
-initializeInstances @ instagram-story-system.js:163
-init @ instagram-story-system.js:89
-await in init
-MultiInstanceTabsManager @ instagram-story-system.js:76
-initTabs @ instagram-story-system.js:301
-(anonymous) @ instagram-story-system.js:329
-S @ webflow.schunk.a3caa2a8e765e6e0.js:1
-(anonymous) @ webflow.schunk.a3caa2a8e765e6e0.js:1
-(anonymous) @ webflow.schunk.a3caa2a8e765e6e0.js:1
-e @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-t @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-setTimeout
-(anonymous) @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-c @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-fireWith @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-fire @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-c @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-fireWith @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-ready @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-B @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2Understand this error
-instagram-story-system.js:176 ❌ Failed to initialize instance 3: SyntaxError: Failed to execute 'querySelector' on 'Document': '[object HTMLDivElement]' is not a valid selector.
-    at E.getMasterCollection (cms-library.js:1108:21)
-    at E.tabs (cms-library.js:2228:18)
-    at instagram-story-system.js:169:28
-    at Array.forEach (<anonymous>)
-    at MultiInstanceTabsManager.initializeInstances (instagram-story-system.js:163:20)
-    at MultiInstanceTabsManager.init (instagram-story-system.js:89:10)
-(anonymous) @ instagram-story-system.js:176
-initializeInstances @ instagram-story-system.js:163
-init @ instagram-story-system.js:89
-await in init
-MultiInstanceTabsManager @ instagram-story-system.js:76
-initTabs @ instagram-story-system.js:301
-(anonymous) @ instagram-story-system.js:329
-S @ webflow.schunk.a3caa2a8e765e6e0.js:1
-(anonymous) @ webflow.schunk.a3caa2a8e765e6e0.js:1
-(anonymous) @ webflow.schunk.a3caa2a8e765e6e0.js:1
-e @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-t @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-setTimeout
-(anonymous) @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-c @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-fireWith @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-fire @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-c @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-fireWith @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-ready @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-B @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2Understand this error
-instagram-story-system.js:176 ❌ Failed to initialize instance 4: SyntaxError: Failed to execute 'querySelector' on 'Document': '[object HTMLDivElement]' is not a valid selector.
-    at E.getMasterCollection (cms-library.js:1108:21)
-    at E.tabs (cms-library.js:2228:18)
-    at instagram-story-system.js:169:28
-    at Array.forEach (<anonymous>)
-    at MultiInstanceTabsManager.initializeInstances (instagram-story-system.js:163:20)
-    at MultiInstanceTabsManager.init (instagram-story-system.js:89:10)
-(anonymous) @ instagram-story-system.js:176
-initializeInstances @ instagram-story-system.js:163
-init @ instagram-story-system.js:89
-await in init
-MultiInstanceTabsManager @ instagram-story-system.js:76
-initTabs @ instagram-story-system.js:301
-(anonymous) @ instagram-story-system.js:329
-S @ webflow.schunk.a3caa2a8e765e6e0.js:1
-(anonymous) @ webflow.schunk.a3caa2a8e765e6e0.js:1
-(anonymous) @ webflow.schunk.a3caa2a8e765e6e0.js:1
-e @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-t @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-setTimeout
-(anonymous) @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-c @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-fireWith @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-fire @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-c @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-fireWith @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-ready @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-B @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2Understand this error
-instagram-story-system.js:176 ❌ Failed to initialize instance 5: SyntaxError: Failed to execute 'querySelector' on 'Document': '[object HTMLDivElement]' is not a valid selector.
-    at E.getMasterCollection (cms-library.js:1108:21)
-    at E.tabs (cms-library.js:2228:18)
-    at instagram-story-system.js:169:28
-    at Array.forEach (<anonymous>)
-    at MultiInstanceTabsManager.initializeInstances (instagram-story-system.js:163:20)
-    at MultiInstanceTabsManager.init (instagram-story-system.js:89:10)
-(anonymous) @ instagram-story-system.js:176
-initializeInstances @ instagram-story-system.js:163
-init @ instagram-story-system.js:89
-await in init
-MultiInstanceTabsManager @ instagram-story-system.js:76
-initTabs @ instagram-story-system.js:301
-(anonymous) @ instagram-story-system.js:329
-S @ webflow.schunk.a3caa2a8e765e6e0.js:1
-(anonymous) @ webflow.schunk.a3caa2a8e765e6e0.js:1
-(anonymous) @ webflow.schunk.a3caa2a8e765e6e0.js:1
-e @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-t @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-setTimeout
-(anonymous) @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-c @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-fireWith @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-fire @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-c @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-fireWith @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-ready @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-B @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2Understand this error
-instagram-story-system.js:91 ✅ Initialized 5 tab instances
-[Violation] Forced reflow while executing JavaScript took 90ms
-gsap.min.js:10 [Violation] 'requestAnimationFrame' handler took 260ms
-[Violation] Forced reflow while executing JavaScript took 250ms
-instagram-story-system.js:80 🚀 Initializing Multi-Instance Tabs Manager...
-instagram-story-system.js:255 📄 Content loaded, proceeding with initialization
-instagram-story-system.js:305 💡 TIP: Use debugMultiTabs() in console for debugging
-instagram-story-system.js:306 ✅ Tabs manager successfully initialized
-instagram-story-system.js:99 Found 5 tabs, 5 lists, 17 contents
-instagram-story-system.js:120 📋 Found 1 tab contents for collection list 1
-instagram-story-system.js:145 📋 Assigned category "Software + Tools" to tabs component 1
-instagram-story-system.js:158 📦 Created instance 1: Software + Tools (1 tab contents)
-instagram-story-system.js:120 📋 Found 6 tab contents for collection list 2
-instagram-story-system.js:145 📋 Assigned category "Web + Brand" to tabs component 2
-instagram-story-system.js:158 📦 Created instance 2: Web + Brand (6 tab contents)
-instagram-story-system.js:120 📋 Found 3 tab contents for collection list 3
-instagram-story-system.js:145 📋 Assigned category "Generative AI" to tabs component 3
-instagram-story-system.js:158 📦 Created instance 3: Generative AI (3 tab contents)
-instagram-story-system.js:120 📋 Found 3 tab contents for collection list 4
-instagram-story-system.js:145 📋 Assigned category "Motion" to tabs component 4
-instagram-story-system.js:158 📦 Created instance 4: Motion (3 tab contents)
-instagram-story-system.js:120 📋 Found 4 tab contents for collection list 5
-instagram-story-system.js:145 📋 Assigned category "Creative Lead" to tabs component 5
-instagram-story-system.js:158 📦 Created instance 5: Creative Lead (4 tab contents)
-instagram-story-system.js:176 ❌ Failed to initialize instance 1: SyntaxError: Failed to execute 'querySelector' on 'Document': '[object HTMLDivElement]' is not a valid selector.
-    at E.getMasterCollection (cms-library.js:1108:21)
-    at E.tabs (cms-library.js:2228:18)
-    at instagram-story-system.js:169:28
-    at Array.forEach (<anonymous>)
-    at MultiInstanceTabsManager.initializeInstances (instagram-story-system.js:163:20)
-    at MultiInstanceTabsManager.init (instagram-story-system.js:89:10)
-(anonymous) @ instagram-story-system.js:176
-initializeInstances @ instagram-story-system.js:163
-init @ instagram-story-system.js:89
-await in init
-MultiInstanceTabsManager @ instagram-story-system.js:76
-initTabs @ instagram-story-system.js:301
-setTimeout
-initTabs @ instagram-story-system.js:312
-initializeTabsManager @ instagram-story-system.js:322
-(anonymous) @ instagram-story-system.js:333Understand this error
-instagram-story-system.js:176 ❌ Failed to initialize instance 2: SyntaxError: Failed to execute 'querySelector' on 'Document': '[object HTMLDivElement]' is not a valid selector.
-    at E.getMasterCollection (cms-library.js:1108:21)
-    at E.tabs (cms-library.js:2228:18)
-    at instagram-story-system.js:169:28
-    at Array.forEach (<anonymous>)
-    at MultiInstanceTabsManager.initializeInstances (instagram-story-system.js:163:20)
-    at MultiInstanceTabsManager.init (instagram-story-system.js:89:10)
-(anonymous) @ instagram-story-system.js:176
-initializeInstances @ instagram-story-system.js:163
-init @ instagram-story-system.js:89
-await in init
-MultiInstanceTabsManager @ instagram-story-system.js:76
-initTabs @ instagram-story-system.js:301
-setTimeout
-initTabs @ instagram-story-system.js:312
-initializeTabsManager @ instagram-story-system.js:322
-(anonymous) @ instagram-story-system.js:333Understand this error
-instagram-story-system.js:176 ❌ Failed to initialize instance 3: SyntaxError: Failed to execute 'querySelector' on 'Document': '[object HTMLDivElement]' is not a valid selector.
-    at E.getMasterCollection (cms-library.js:1108:21)
-    at E.tabs (cms-library.js:2228:18)
-    at instagram-story-system.js:169:28
-    at Array.forEach (<anonymous>)
-    at MultiInstanceTabsManager.initializeInstances (instagram-story-system.js:163:20)
-    at MultiInstanceTabsManager.init (instagram-story-system.js:89:10)
-(anonymous) @ instagram-story-system.js:176
-initializeInstances @ instagram-story-system.js:163
-init @ instagram-story-system.js:89
-await in init
-MultiInstanceTabsManager @ instagram-story-system.js:76
-initTabs @ instagram-story-system.js:301
-setTimeout
-initTabs @ instagram-story-system.js:312
-initializeTabsManager @ instagram-story-system.js:322
-(anonymous) @ instagram-story-system.js:333Understand this error
-instagram-story-system.js:176 ❌ Failed to initialize instance 4: SyntaxError: Failed to execute 'querySelector' on 'Document': '[object HTMLDivElement]' is not a valid selector.
-    at E.getMasterCollection (cms-library.js:1108:21)
-    at E.tabs (cms-library.js:2228:18)
-    at instagram-story-system.js:169:28
-    at Array.forEach (<anonymous>)
-    at MultiInstanceTabsManager.initializeInstances (instagram-story-system.js:163:20)
-    at MultiInstanceTabsManager.init (instagram-story-system.js:89:10)
-(anonymous) @ instagram-story-system.js:176
-initializeInstances @ instagram-story-system.js:163
-init @ instagram-story-system.js:89
-await in init
-MultiInstanceTabsManager @ instagram-story-system.js:76
-initTabs @ instagram-story-system.js:301
-setTimeout
-initTabs @ instagram-story-system.js:312
-initializeTabsManager @ instagram-story-system.js:322
-(anonymous) @ instagram-story-system.js:333Understand this error
-instagram-story-system.js:176 ❌ Failed to initialize instance 5: SyntaxError: Failed to execute 'querySelector' on 'Document': '[object HTMLDivElement]' is not a valid selector.
-    at E.getMasterCollection (cms-library.js:1108:21)
-    at E.tabs (cms-library.js:2228:18)
-    at instagram-story-system.js:169:28
-    at Array.forEach (<anonymous>)
-    at MultiInstanceTabsManager.initializeInstances (instagram-story-system.js:163:20)
-    at MultiInstanceTabsManager.init (instagram-story-system.js:89:10)
-(anonymous) @ instagram-story-system.js:176
-initializeInstances @ instagram-story-system.js:163
-init @ instagram-story-system.js:89
-await in init
-MultiInstanceTabsManager @ instagram-story-system.js:76
-initTabs @ instagram-story-system.js:301
-setTimeout
-initTabs @ instagram-story-system.js:312
-initializeTabsManager @ instagram-story-system.js:322
-(anonymous) @ instagram-story-system.js:333Understand this error
-instagram-story-system.js:91 ✅ Initialized 5 tab instances
+window.categoryMenuSlider.debugCentering()
+craft-category-menu.js:141 🔍 Category Menu Debug Info
+craft-category-menu.js:142 📏 Container Measurements: {wrapperWidth: 368, wrapperHeight: 52, wrapperCenter: 184, sliderWidth: 1455, sliderHeight: 52}
+craft-category-menu.js:150 🎯 Active Item Info: {currentIndex: 0, itemText: 'Software + Tools', activeItemLeft: 0, activeItemWidth: 335, activeItemCenter: 167.5, …}
+craft-category-menu.js:159 📐 Positioning Calculations: {translateX: 16.5, boundedTranslateX: 0, maxTranslate: 0, minTranslate: -1087, currentTransform: 'translateX(0px)'}
+craft-category-menu.js:167 📍 Bounding Rectangles: {wrapper: {…}, slider: {…}, activeItem: {…}}
+craft-category-menu.js:173 🎨 CSS Styles: {wrapperPosition: 'relative', wrapperOverflow: 'visible', sliderPosition: 'relative', sliderTransform: 'matrix(1, 0, 0, 1, 0, 0)', itemPosition: 'relative'}
+undefined
+
+For the visual debug: 
+Red line is great, set exactly in the middle of the screen.
+Blue line is no where to be seen
+
+window.categoryMenuSlider.debugAllItems()
+craft-category-menu.js:280 📋 All Items Debug
+craft-category-menu.js:283 Item 0: {text: 'Software + Tools', offsetLeft: 0, offsetWidth: 337, center: 168.5, boundingRect: {…}, …}
+craft-category-menu.js:283 Item 1: {text: 'Motion', offsetLeft: 354, offsetWidth: 195, center: 451.5, boundingRect: {…}, …}
+craft-category-menu.js:283 Item 2: {text: 'Generative AI', offsetLeft: 566, offsetWidth: 288, center: 710, boundingRect: {…}, …}
+craft-category-menu.js:283 Item 3: {text: 'Web + Brand', offsetLeft: 872, offsetWidth: 275, center: 1009.5, boundingRect: {…}, …}
+craft-category-menu.js:283 Item 4: {text: 'Creative Lead', offsetLeft: 1164, offsetWidth: 291, center: 1309.5, boundingRect: {…}, …}
+
+
+window.categoryMenuSlider.testCentering()
+craft-category-menu.js:297 🧪 Testing centering for all items...
+undefined
+craft-category-menu.js:300 Testing item 0: Software + Tools
+craft-category-menu.js:141 🔍 Category Menu Debug Info
+craft-category-menu.js:142 📏 Container Measurements: {wrapperWidth: 368, wrapperHeight: 52, wrapperCenter: 184, sliderWidth: 1455, sliderHeight: 52}
+craft-category-menu.js:150 🎯 Active Item Info: {currentIndex: 0, itemText: 'Software + Tools', activeItemLeft: 0, activeItemWidth: 335, activeItemCenter: 167.5, …}
+craft-category-menu.js:159 📐 Positioning Calculations: {translateX: 16.5, boundedTranslateX: 0, maxTranslate: 0, minTranslate: -1087, currentTransform: 'translateX(0px)'}
+craft-category-menu.js:167 📍 Bounding Rectangles: {wrapper: {…}, slider: {…}, activeItem: {…}}
+craft-category-menu.js:173 🎨 CSS Styles: {wrapperPosition: 'relative', wrapperOverflow: 'visible', sliderPosition: 'relative', sliderTransform: 'matrix(1, 0, 0, 1, 0, 0)', itemPosition: 'relative'}
+craft-category-menu.js:300 Testing item 1: Motion
+craft-category-menu.js:141 🔍 Category Menu Debug Info
+craft-category-menu.js:142 📏 Container Measurements: {wrapperWidth: 368, wrapperHeight: 52, wrapperCenter: 184, sliderWidth: 1455, sliderHeight: 52}
+craft-category-menu.js:150 🎯 Active Item Info: {currentIndex: 1, itemText: 'Motion', activeItemLeft: 354, activeItemWidth: 194, activeItemCenter: 451, …}
+craft-category-menu.js:159 📐 Positioning Calculations: {translateX: -267, boundedTranslateX: -267, maxTranslate: 0, minTranslate: -1087, currentTransform: 'translateX(-267px)'}
+craft-category-menu.js:167 📍 Bounding Rectangles: {wrapper: {…}, slider: {…}, activeItem: {…}}
+craft-category-menu.js:173 🎨 CSS Styles: {wrapperPosition: 'relative', wrapperOverflow: 'visible', sliderPosition: 'relative', sliderTransform: 'matrix(1, 0, 0, 1, 0, 0)', itemPosition: 'relative'}
+craft-category-menu.js:300 Testing item 2: Generative AI
+craft-category-menu.js:141 🔍 Category Menu Debug Info
+craft-category-menu.js:142 📏 Container Measurements: {wrapperWidth: 368, wrapperHeight: 52, wrapperCenter: 184, sliderWidth: 1455, sliderHeight: 52}
+craft-category-menu.js:150 🎯 Active Item Info: {currentIndex: 2, itemText: 'Generative AI', activeItemLeft: 566, activeItemWidth: 287, activeItemCenter: 709.5, …}
+craft-category-menu.js:159 📐 Positioning Calculations: {translateX: -525.5, boundedTranslateX: -525.5, maxTranslate: 0, minTranslate: -1087, currentTransform: 'translateX(-525.5px)'}
+craft-category-menu.js:167 📍 Bounding Rectangles: {wrapper: {…}, slider: {…}, activeItem: {…}}
+craft-category-menu.js:173 🎨 CSS Styles: {wrapperPosition: 'relative', wrapperOverflow: 'visible', sliderPosition: 'relative', sliderTransform: 'matrix(1, 0, 0, 1, 0, 0)', itemPosition: 'relative'}
+craft-category-menu.js:300 Testing item 3: Web + Brand
+craft-category-menu.js:141 🔍 Category Menu Debug Info
+craft-category-menu.js:142 📏 Container Measurements: {wrapperWidth: 368, wrapperHeight: 52, wrapperCenter: 184, sliderWidth: 1455, sliderHeight: 52}
+craft-category-menu.js:150 🎯 Active Item Info: {currentIndex: 3, itemText: 'Web + Brand', activeItemLeft: 872, activeItemWidth: 275, activeItemCenter: 1009.5, …}
+craft-category-menu.js:159 📐 Positioning Calculations: {translateX: -825.5, boundedTranslateX: -825.5, maxTranslate: 0, minTranslate: -1087, currentTransform: 'translateX(-825.5px)'}
+craft-category-menu.js:167 📍 Bounding Rectangles: {wrapper: {…}, slider: {…}, activeItem: {…}}
+craft-category-menu.js:173 🎨 CSS Styles: {wrapperPosition: 'relative', wrapperOverflow: 'visible', sliderPosition: 'relative', sliderTransform: 'matrix(1, 0, 0, 1, 0, 0)', itemPosition: 'relative'}
+craft-category-menu.js:300 Testing item 4: Creative Lead
+craft-category-menu.js:141 🔍 Category Menu Debug Info
+craft-category-menu.js:142 📏 Container Measurements: {wrapperWidth: 368, wrapperHeight: 52, wrapperCenter: 184, sliderWidth: 1455, sliderHeight: 52}
+craft-category-menu.js:150 🎯 Active Item Info: {currentIndex: 4, itemText: 'Creative Lead', activeItemLeft: 1166, activeItemWidth: 290, activeItemCenter: 1311, …}
+craft-category-menu.js:159 📐 Positioning Calculations: {translateX: -1127, boundedTranslateX: -1087, maxTranslate: 0, minTranslate: -1087, currentTransform: 'translateX(-1087px)'}
+craft-category-menu.js:167 📍 Bounding Rectangles: {wrapper: {…}, slider: {…}, activeItem: {…}}
+craft-category-menu.js:173 🎨 CSS Styles: {wrapperPosition: 'relative', wrapperOverflow: 'visible', sliderPosition: 'relative', sliderTransform: 'matrix(1, 0, 0, 1, 0, 0)', itemPosition: 'relative'}
