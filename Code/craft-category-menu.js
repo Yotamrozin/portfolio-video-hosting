@@ -27,6 +27,15 @@ class SwiperInspiredCategorySlider {
     this.isTransitioning = false;
     this.loopedSlides = this.originalItems.length; // Number of clones on each side
     
+    // Touch/swipe properties
+    this.touchStartX = 0;
+    this.touchEndX = 0;
+    this.touchStartY = 0;
+    this.touchEndY = 0;
+    this.isSwiping = false;
+    this.minSwipeDistance = 50; // Minimum distance for swipe
+    this.maxVerticalDistance = 100; // Max vertical movement to still count as horizontal swipe
+    
     this.init();
   }
   
@@ -254,8 +263,15 @@ class SwiperInspiredCategorySlider {
   setInitialPosition() {
     // Start at the first original slide (after the clones)
     this.activeIndex = this.loopedSlides;
-    this.realIndex = 0;
+    this.realIndex = 0; // This ensures first category (index 0) is active
     this.updateSlidePositions();
+    
+    // Explicitly ensure first category has active class
+    console.log('🎯 Setting first category as active by default:', {
+      realIndex: this.realIndex,
+      activeIndex: this.activeIndex,
+      firstCategory: this.originalSlides[0]?.category
+    });
   }
   
   slideTo(targetRealIndex, animate = true) {
