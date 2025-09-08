@@ -85,20 +85,29 @@ class CategoryMenuSlider {
     const activeItem = this.items[this.currentIndex];
     if (!activeItem) return;
     
-    // Get dimensions
-    const wrapperRect = this.wrapper.getBoundingClientRect();
-    const activeRect = activeItem.getBoundingClientRect();
-    const sliderRect = this.slider.getBoundingClientRect();
+    // Get dimensions using offsetLeft/offsetWidth for more accurate positioning
+    const wrapperWidth = this.wrapper.offsetWidth;
+    const sliderWidth = this.slider.offsetWidth;
     
-    // Calculate center positions
-    const wrapperCenter = wrapperRect.width / 2;
-    const activeCenter = activeRect.left - sliderRect.left + activeRect.width / 2;
+    // Calculate active item position relative to slider
+    const activeItemLeft = activeItem.offsetLeft;
+    const activeItemWidth = activeItem.offsetWidth;
+    const activeItemCenter = activeItemLeft + (activeItemWidth / 2);
     
-    // Calculate required translation
-    const translateX = wrapperCenter - activeCenter;
+    // Calculate wrapper center
+    const wrapperCenter = wrapperWidth / 2;
+    
+    // Calculate required translation to center the active item
+    const translateX = wrapperCenter - activeItemCenter;
+    
+    // Ensure we don't slide too far (optional bounds checking)
+    const maxTranslate = 0; // Don't slide past the start
+    const minTranslate = wrapperWidth - sliderWidth; // Don't slide past the end
+    
+    const boundedTranslateX = Math.max(minTranslate, Math.min(maxTranslate, translateX));
     
     // Apply smooth translation
-    this.slider.style.transform = `translateX(${translateX}px)`;
+    this.slider.style.transform = `translateX(${boundedTranslateX}px)`;
   }
   
   // Public method to set active category from external code
