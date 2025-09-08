@@ -4,33 +4,6 @@
  * Maintains compatibility with existing custom attributes while leveraging GSAP's superior performance
  */
 
-// Remove line 7:
-// console.log('GSAP Scroll animation system initialized');
-
-// Remove line 60:
-// console.log(`Found ${animatedElements.length} elements with scroll animations`);
-
-// Remove line 137:
-// console.log(`Setting up staggered animation for container ${containerIndex}`);
-
-// Remove line 159:
-// console.log(`Found ${staggerChildren.length} stagger items`);
-
-// Remove line 237:
-// console.log('ScrollTrigger refreshed');
-
-// Remove lines 272-281 (the entire debug block):
-// console.log('Checking element visibility on load:');
-// document.querySelectorAll('[scroll-animate]').forEach((el, i) => {
-//   const rect = el.getBoundingClientRect();
-//   console.log(`Element ${i}:`, {
-//     visible: rect.top < window.innerHeight && rect.bottom > 0,
-//     top: rect.top,
-//     bottom: rect.bottom,
-//     windowHeight: window.innerHeight
-//   });
-// });
-
 // Animation configurations - SIMPLIFIED with faster timings
 const animationConfig = {
   'slide-up': {
@@ -82,7 +55,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function initializeScrollAnimations() {
   const animatedElements = document.querySelectorAll('[scroll-animate]');
-  console.log(`Found ${animatedElements.length} elements with scroll animations`);
   
   animatedElements.forEach((element, index) => {
     const animationType = element.getAttribute('scroll-animate');
@@ -101,7 +73,6 @@ function setupSingleAnimation(element, animationType) {
   const config = animationConfig[animationType];
   
   if (!config) {
-    console.warn(`Unknown animation type: ${animationType}`);
     return;
   }
   
@@ -113,8 +84,6 @@ function setupSingleAnimation(element, animationType) {
   
   // Create ScrollTrigger - SIMPLIFIED approach without timeline conflicts
   ScrollTrigger.create({
-      //  markers: true, // Uncomment for debugging
-
     trigger: element,
     start: 'top 99%', // Early trigger point - animations start as soon as element enters viewport
     end: 'bottom 5%', // Exit only when almost completely out of viewport
@@ -159,10 +128,7 @@ function setupStaggerAnimation(container, containerIndex) {
   const baseAnimationType = animationType.replace('-stagger', '');
   const config = animationConfig[baseAnimationType];
   
-  console.log(`Setting up staggered animation for container ${containerIndex}`);
-  
   if (!config) {
-    console.warn(`Unknown base animation type: ${baseAnimationType}`);
     return;
   }
   
@@ -181,10 +147,7 @@ function setupStaggerAnimation(container, containerIndex) {
     }
   }
   
-  console.log(`Found ${staggerChildren.length} stagger items`);
-  
   if (staggerChildren.length === 0) {
-    console.warn('Stagger container has no children to animate');
     return;
   }
   
@@ -247,7 +210,6 @@ function setupStaggerAnimation(container, containerIndex) {
         });
       }
     }
-    // markers: true // Uncomment for debugging
   });
   
   // Set animation attribute on children for consistency
@@ -259,7 +221,6 @@ function setupStaggerAnimation(container, containerIndex) {
 // Utility functions
 function refreshScrollAnimations() {
   ScrollTrigger.refresh();
-  console.log('ScrollTrigger refreshed');
 }
 
 window.refreshScrollAnimations = refreshScrollAnimations;
@@ -267,8 +228,6 @@ window.refreshScrollAnimations = refreshScrollAnimations;
 window.addEventListener('resize', () => {
   ScrollTrigger.refresh();
 });
-
-// Add this at the end of the file, after the resize listener
 
 // Force check visibility for elements already in viewport on load
 function checkInitialVisibility() {
@@ -291,18 +250,5 @@ function checkInitialVisibility() {
     }
   });
 }
-
-// Debug mode - remove after testing
-// Remove these lines after testing:
-console.log('Checking element visibility on load:');
-document.querySelectorAll('[scroll-animate]').forEach((el, i) => {
-  const rect = el.getBoundingClientRect();
-  console.log(`Element ${i}:`, {
-    visible: rect.top < window.innerHeight && rect.bottom > 0,
-    top: rect.top,
-    bottom: rect.bottom,
-    windowHeight: window.innerHeight
-  });
-});
 
 setTimeout(checkInitialVisibility, 100);
