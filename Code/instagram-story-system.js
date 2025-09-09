@@ -1,6 +1,75 @@
-// Enhanced story system integration
+// Enhanced story system integration with comprehensive debugging
 var Webflow = Webflow || [];
 Webflow.push(function() {
+  // Debug: Check initial state
+  console.group('🔍 Instagram Story System Debug - Initial State');
+  console.log('DOM Ready State:', document.readyState);
+  console.log('Webflow object:', typeof Webflow);
+  console.log('jQuery available:', typeof $ !== 'undefined');
+  
+  // Debug: Check for tabs components and buttons
+  const allTabsComponents = document.querySelectorAll('.fs-tabs');
+  console.log('Total .fs-tabs components found:', allTabsComponents.length);
+  
+  allTabsComponents.forEach((component, index) => {
+    const category = component.getAttribute('data-category') || 'Unknown';
+    const isVisible = component.classList.contains('tabs-visible');
+    const prevButtons = component.querySelectorAll('.tab_previous');
+    const nextButtons = component.querySelectorAll('.tab_next');
+    const tabLinks = component.querySelectorAll('.w-tab-link');
+    const tabMenu = component.querySelector('.w-tab-menu');
+    
+    console.log(`📋 Tabs Component ${index + 1}:`, {
+      category,
+      isVisible,
+      prevButtons: prevButtons.length,
+      nextButtons: nextButtons.length,
+      tabLinks: tabLinks.length,
+      hasTabMenu: !!tabMenu,
+      element: component
+    });
+    
+    // Debug each button
+    prevButtons.forEach((btn, btnIndex) => {
+      console.log(`  ⬅️ Previous Button ${btnIndex + 1}:`, {
+        visible: btn.offsetParent !== null,
+        disabled: btn.disabled,
+        classes: btn.className,
+        element: btn
+      });
+    });
+    
+    nextButtons.forEach((btn, btnIndex) => {
+      console.log(`  ➡️ Next Button ${btnIndex + 1}:`, {
+        visible: btn.offsetParent !== null,
+        disabled: btn.disabled,
+        classes: btn.className,
+        element: btn
+      });
+    });
+    
+    // Debug tab structure
+    if (tabMenu) {
+      const currentTab = tabMenu.querySelector('.w--current');
+      const currentIndex = currentTab ? Array.from(tabMenu.children).indexOf(currentTab) : -1;
+      console.log(`  📑 Tab Structure:`, {
+        totalTabs: tabMenu.children.length,
+        currentIndex,
+        currentTab: currentTab ? currentTab.textContent.trim() : 'None'
+      });
+    }
+  });
+  
+  console.groupEnd();
+  
+  // Debug: Check craftMenu availability
+  console.log('🎛️ CraftMenu Status:', {
+    available: !!window.craftMenu,
+    hasNextCategory: window.craftMenu && typeof window.craftMenu.nextCategory === 'function',
+    hasPreviousCategory: window.craftMenu && typeof window.craftMenu.previousCategory === 'function',
+    craftMenu: window.craftMenu
+  });
+  
   // Fix for Safari
   if (navigator.userAgent.includes("Safari")) {
     document.querySelectorAll(".tab-button-demo").forEach((t) => (t.focus = function() {
@@ -16,76 +85,143 @@ Webflow.push(function() {
   
   function nextTab() {
     if (!$(".uui-navbar06_menu-button").hasClass("w--open")) {
+      console.log('⏭️ Auto nextTab triggered');
       // Only trigger next button in the visible tabs component
       $('.fs-tabs.tabs-visible .tab_next').trigger("click");
     }
   }
   
-  // Navigation with proper scoping to visible tabs component
-  $(document).on('click', '.fs-tabs.tabs-visible .tab_previous, .fs-tabs.tabs-visible .tab_next', function() {
+  // Debug: Test button selection
+  console.group('🔍 Button Selection Debug');
+  const allPrevButtons = document.querySelectorAll('.tab_previous');
+  const allNextButtons = document.querySelectorAll('.tab_next');
+  const visiblePrevButtons = document.querySelectorAll('.fs-tabs.tabs-visible .tab_previous');
+  const visibleNextButtons = document.querySelectorAll('.fs-tabs.tabs-visible .tab_next');
+  
+  console.log('Button counts:', {
+    allPrevButtons: allPrevButtons.length,
+    allNextButtons: allNextButtons.length,
+    visiblePrevButtons: visiblePrevButtons.length,
+    visibleNextButtons: visibleNextButtons.length
+  });
+  console.groupEnd();
+  
+  // Navigation with comprehensive debugging
+  $(document).on('click', '.tab_previous, .tab_next', function(e) {
+    console.group('🎯 Button Click Debug');
+    console.log('Button clicked:', {
+      element: this,
+      classes: this.className,
+      isPrevious: $(this).hasClass('tab_previous'),
+      isNext: $(this).hasClass('tab_next'),
+      event: e
+    });
+    
+    const closestTabsComponent = $(this).closest('.fs-tabs');
+    console.log('Closest tabs component:', {
+      found: closestTabsComponent.length > 0,
+      isVisible: closestTabsComponent.hasClass('tabs-visible'),
+      category: closestTabsComponent.attr('data-category'),
+      element: closestTabsComponent[0]
+    });
+    
     if (!$(".uui-navbar06_menu-button").hasClass("w--open")) {
       clearInterval(loop);
       
-      // Find the closest tabs component to this button
-      var closestTabsComponent = $(this).closest('.fs-tabs');
-      
-      // Ensure this is the visible tabs component
+      // Only proceed if this is the visible tabs component
       if (!closestTabsComponent.hasClass('tabs-visible')) {
         console.log('⚠️ Ignoring click on hidden tabs component');
+        console.groupEnd();
         return;
       }
       
       var direction = $(this).hasClass('tab_previous') ? -1 : 1;
       var tablinks = closestTabsComponent.find('.w-tab-menu');
-      var currentIndex = tablinks.find('.w--current').index();
+      var currentTab = tablinks.find('.w--current');
+      var currentIndex = currentTab.index();
       var newIndex = currentIndex + direction;
+      var totalTabs = tablinks.children().length;
       
-      console.log('🎯 Story navigation:', {
+      console.log('🎯 Navigation calculation:', {
         direction: direction > 0 ? 'next' : 'previous',
         currentIndex,
         newIndex,
-        totalTabs: tablinks.children().length,
-        category: closestTabsComponent.attr('data-category')
+        totalTabs,
+        category: closestTabsComponent.attr('data-category'),
+        currentTab: currentTab.length > 0 ? currentTab[0].textContent.trim() : 'None'
       });
       
       // Check if we need to change category
       if (newIndex < 0) {
-        // Go to previous category, last subcategory
-        console.log('📱 Reached first tab - switching to previous category');
+        console.log('📱 Reached first tab - attempting category switch');
+        console.log('CraftMenu check:', {
+          available: !!window.craftMenu,
+          hasPreviousCategory: window.craftMenu && typeof window.craftMenu.previousCategory === 'function'
+        });
+        
         if (window.craftMenu && typeof window.craftMenu.previousCategory === 'function') {
+          console.log('🔄 Calling previousCategory()');
           window.craftMenu.previousCategory();
-          // After category change, navigate to last tab of the visible category
+          
           setTimeout(() => {
             const visibleTablinks = $('.fs-tabs.tabs-visible .w-tab-menu');
+            console.log('After category change - visible tabs:', {
+              found: visibleTablinks.length > 0,
+              totalTabs: visibleTablinks.length > 0 ? visibleTablinks.children().length : 0
+            });
+            
             if (visibleTablinks.length > 0) {
               const lastTabIndex = visibleTablinks.children().length - 1;
-              visibleTablinks.find('.w-tab-link').eq(lastTabIndex).trigger('click');
-              console.log(`🎯 Navigated to last tab (${lastTabIndex}) of previous category`);
+              const lastTab = visibleTablinks.find('.w-tab-link').eq(lastTabIndex);
+              console.log('Clicking last tab:', { index: lastTabIndex, element: lastTab[0] });
+              lastTab.trigger('click');
             }
           }, 200);
+        } else {
+          console.error('❌ CraftMenu previousCategory method not available');
         }
-      } else if (newIndex >= tablinks.children().length) {
-        // Go to next category, first subcategory
-        console.log('📱 Reached last tab - switching to next category');
+      } else if (newIndex >= totalTabs) {
+        console.log('📱 Reached last tab - attempting category switch');
+        console.log('CraftMenu check:', {
+          available: !!window.craftMenu,
+          hasNextCategory: window.craftMenu && typeof window.craftMenu.nextCategory === 'function'
+        });
+        
         if (window.craftMenu && typeof window.craftMenu.nextCategory === 'function') {
+          console.log('🔄 Calling nextCategory()');
           window.craftMenu.nextCategory();
-          // After category change, navigate to first tab of the visible category
+          
           setTimeout(() => {
             const visibleTablinks = $('.fs-tabs.tabs-visible .w-tab-menu');
+            console.log('After category change - visible tabs:', {
+              found: visibleTablinks.length > 0,
+              totalTabs: visibleTablinks.length > 0 ? visibleTablinks.children().length : 0
+            });
+            
             if (visibleTablinks.length > 0) {
-              visibleTablinks.find('.w-tab-link').eq(0).trigger('click');
-              console.log('🎯 Navigated to first tab of next category');
+              const firstTab = visibleTablinks.find('.w-tab-link').eq(0);
+              console.log('Clicking first tab:', { element: firstTab[0] });
+              firstTab.trigger('click');
             }
           }, 200);
+        } else {
+          console.error('❌ CraftMenu nextCategory method not available');
         }
       } else {
-        // Stay in same category, change subcategory
-        tablinks.find('.w-tab-link').eq(newIndex).trigger('click');
-        console.log(`🎯 Navigated to tab ${newIndex} within same category`);
+        console.log('🎯 Staying in same category - changing tab');
+        const targetTab = tablinks.find('.w-tab-link').eq(newIndex);
+        console.log('Target tab:', {
+          index: newIndex,
+          element: targetTab[0],
+          text: targetTab.length > 0 ? targetTab[0].textContent.trim() : 'None'
+        });
+        targetTab.trigger('click');
       }
       
       loop = setInterval(nextTab, 5000);
     }
+    
+    console.groupEnd();
   });
   
   if (!$(".uui-navbar06_menu-button").hasClass("w--open")) {
