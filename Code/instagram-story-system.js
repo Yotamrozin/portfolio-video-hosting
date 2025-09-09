@@ -533,18 +533,11 @@ Webflow.push(function() {
       if (typeof FsLibrary !== 'undefined') {
         try {
           window.tabsManager = new MultiInstanceTabsManager();
-          
-          // Make debug method available globally
-          window.debugMultiTabs = () => window.tabsManager.debugInstances();
-          
-          console.log('🎉 TabsManager initialized and available globally as window.tabsManager');
         } catch (error) {
-          console.error('❌ Error initializing TabsManager:', error);
+          console.error('Error initializing TabsManager:', error);
         }
       } else if (initAttempts < maxAttempts) {
         setTimeout(initTabs, 1000);
-      } else {
-        console.error('❌ Failed to initialize TabsManager: FsLibrary not found after maximum attempts');
       }
     };
     
