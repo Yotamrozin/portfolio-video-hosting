@@ -27,15 +27,6 @@ class SwiperInspiredCategorySlider {
     this.isTransitioning = false;
     this.loopedSlides = this.originalItems.length; // Number of clones on each side
     
-    // Touch/swipe properties
-    this.touchStartX = 0;
-    this.touchEndX = 0;
-    this.touchStartY = 0;
-    this.touchEndY = 0;
-    this.isSwiping = false;
-    this.minSwipeDistance = 50; // Minimum distance for swipe
-    this.maxVerticalDistance = 100; // Max vertical movement to still count as horizontal swipe
-    
     this.init();
   }
   
@@ -172,106 +163,13 @@ class SwiperInspiredCategorySlider {
     }, 100);
     
     window.addEventListener('resize', this.resizeHandler);
-    
-    // Add mobile swipe listeners
-    this.setupSwipeListeners();
-  }
-  
-  setupSwipeListeners() {
-    // Touch start
-    this.slider.addEventListener('touchstart', (e) => {
-      this.touchStartX = e.touches[0].clientX;
-      this.touchStartY = e.touches[0].clientY;
-      this.isSwiping = true;
-      
-      console.log('👆 Touch start:', {
-        x: this.touchStartX,
-        y: this.touchStartY
-      });
-    }, { passive: true });
-    
-    // Touch move (optional - for visual feedback)
-    this.slider.addEventListener('touchmove', (e) => {
-      if (!this.isSwiping) return;
-      
-      const currentX = e.touches[0].clientX;
-      const currentY = e.touches[0].clientY;
-      const deltaX = currentX - this.touchStartX;
-      const deltaY = Math.abs(currentY - this.touchStartY);
-      
-      // Prevent default if it's a horizontal swipe
-      if (Math.abs(deltaX) > deltaY && Math.abs(deltaX) > 10) {
-        e.preventDefault();
-      }
-    }, { passive: false });
-    
-    // Touch end
-    this.slider.addEventListener('touchend', (e) => {
-      if (!this.isSwiping) return;
-      
-      this.touchEndX = e.changedTouches[0].clientX;
-      this.touchEndY = e.changedTouches[0].clientY;
-      
-      this.handleSwipe();
-      this.isSwiping = false;
-      
-      console.log('👆 Touch end:', {
-        startX: this.touchStartX,
-        endX: this.touchEndX,
-        deltaX: this.touchEndX - this.touchStartX
-      });
-    }, { passive: true });
-    
-    // Touch cancel
-    this.slider.addEventListener('touchcancel', () => {
-      this.isSwiping = false;
-      console.log('👆 Touch cancelled');
-    }, { passive: true });
-  }
-  
-  handleSwipe() {
-    const deltaX = this.touchEndX - this.touchStartX;
-    const deltaY = Math.abs(this.touchEndY - this.touchStartY);
-    const absDeltaX = Math.abs(deltaX);
-    
-    console.log('🔄 Swipe analysis:', {
-      deltaX,
-      deltaY,
-      absDeltaX,
-      minDistance: this.minSwipeDistance,
-      maxVertical: this.maxVerticalDistance,
-      isHorizontal: deltaY < this.maxVerticalDistance,
-      isLongEnough: absDeltaX > this.minSwipeDistance
-    });
-    
-    // Check if it's a valid horizontal swipe
-    if (deltaY < this.maxVerticalDistance && absDeltaX > this.minSwipeDistance) {
-      if (deltaX > 0) {
-        // Swipe right - go to previous category
-        console.log('👈 Swipe right detected - going to previous category');
-        this.slidePrev();
-      } else {
-        // Swipe left - go to next category
-        console.log('👉 Swipe left detected - going to next category');
-        this.slideNext();
-      }
-    } else {
-      console.log('❌ Swipe not recognized - insufficient distance or too vertical');
-    }
   }
   
   setInitialPosition() {
     // Start at the first original slide (after the clones)
     this.activeIndex = this.loopedSlides;
-    this.realIndex = 0; // This ensures first category (index 0) is active
+    this.realIndex = 0;
     this.updateSlidePositions();
-    
-    // Explicitly ensure first category has active class
-    console.log('🎯 Setting first category as active by default:', {
-      realIndex: this.realIndex,
-      activeIndex: this.activeIndex,
-      firstCategory: this.originalSlides[0]?.category
-    });
   }
   
   slideTo(targetRealIndex, animate = true) {
@@ -412,13 +310,6 @@ class SwiperInspiredCategorySlider {
         }
       }
     });
-    
-    // NEW: Integrate with Instagram Story System
-    const currentCategory = this.getCurrentCategory();
-    if (currentCategory && window.tabsManager) {
-      console.log(`🔄 Category changed to: "${currentCategory}" - updating tabs visibility`);
-      window.tabsManager.showCategory(currentCategory);
-    }
   }
   
   // Navigation methods (Swiper-style)
@@ -484,12 +375,6 @@ class SwiperInspiredCategorySlider {
     if (this.resizeHandler) {
       window.removeEventListener('resize', this.resizeHandler);
     }
-    
-    // Clean up swipe listeners
-    this.slider.removeEventListener('touchstart', this.handleTouchStart);
-    this.slider.removeEventListener('touchmove', this.handleTouchMove);
-    this.slider.removeEventListener('touchend', this.handleTouchEnd);
-    this.slider.removeEventListener('touchcancel', this.handleTouchCancel);
   }
 }
 
@@ -497,13 +382,10 @@ class SwiperInspiredCategorySlider {
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     window.categoryMenuSlider = new SwiperInspiredCategorySlider();
-    // NEW: Also expose as craftMenu for story navigation compatibility
-    window.craftMenu = window.categoryMenuSlider;
   });
 } else {
   window.categoryMenuSlider = new SwiperInspiredCategorySlider();
-  // NEW: Also expose as craftMenu for story navigation compatibility
-  window.craftMenu = window.categoryMenuSlider;
 }
 
+// Export for external access
 window.SwiperInspiredCategorySlider = SwiperInspiredCategorySlider;

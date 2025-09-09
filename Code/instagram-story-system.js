@@ -16,16 +16,27 @@ Webflow.push(function() {
   
   function nextTab() {
     if (!$(".uui-navbar06_menu-button").hasClass("w--open")) {
-      $('.tab_next').trigger("click");
+      // Only trigger next button in the visible tabs component
+      $('.fs-tabs.tabs-visible .tab_next').trigger("click");
     }
   }
   
-  // Enhanced navigation with category awareness
+  // Navigation with proper scoping to visible tabs component
   $('.tab-wrapper').on('click', '.tab_previous, .tab_next', function() {
     if (!$(".uui-navbar06_menu-button").hasClass("w--open")) {
       clearInterval(loop);
+      
+      // Find the closest tabs component to this button
+      var closestTabsComponent = $(this).closest('.fs-tabs');
+      
+      // Only proceed if this is the visible tabs component
+      if (!closestTabsComponent.hasClass('tabs-visible')) {
+        console.log('⚠️ Ignoring click on hidden tabs component');
+        return;
+      }
+      
       var direction = $(this).hasClass('tab_previous') ? -1 : 1;
-      var tablinks = $(this).parent().find('.w-tab-menu');
+      var tablinks = closestTabsComponent.find('.w-tab-menu');
       var currentIndex = tablinks.find('.w--current').index();
       var newIndex = currentIndex + direction;
       
@@ -33,7 +44,8 @@ Webflow.push(function() {
         direction: direction > 0 ? 'next' : 'previous',
         currentIndex,
         newIndex,
-        totalTabs: tablinks.children().length
+        totalTabs: tablinks.children().length,
+        category: closestTabsComponent.attr('data-category')
       });
       
       // Check if we need to change category
@@ -42,29 +54,29 @@ Webflow.push(function() {
         console.log('📱 Reached first tab - switching to previous category');
         if (window.craftMenu) {
           window.craftMenu.previousCategory();
-          // After category change, navigate to last tab of new category
+          // After category change, navigate to last tab of the visible category
           setTimeout(() => {
-            const newTablinks = $('.fs-tabs.tabs-visible .w-tab-menu');
-            if (newTablinks.length > 0) {
-              const lastTabIndex = newTablinks.children().length - 1;
-              newTablinks.find('.w-tab-link').eq(lastTabIndex).trigger('click');
+            const visibleTablinks = $('.fs-tabs.tabs-visible .w-tab-menu');
+            if (visibleTablinks.length > 0) {
+              const lastTabIndex = visibleTablinks.children().length - 1;
+              visibleTablinks.find('.w-tab-link').eq(lastTabIndex).trigger('click');
               console.log(`🎯 Navigated to last tab (${lastTabIndex}) of previous category`);
             }
-          }, 100);
+          }, 150);
         }
       } else if (newIndex >= tablinks.children().length) {
         // Go to next category, first subcategory
         console.log('📱 Reached last tab - switching to next category');
         if (window.craftMenu) {
           window.craftMenu.nextCategory();
-          // After category change, navigate to first tab of new category
+          // After category change, navigate to first tab of the visible category
           setTimeout(() => {
-            const newTablinks = $('.fs-tabs.tabs-visible .w-tab-menu');
-            if (newTablinks.length > 0) {
-              newTablinks.find('.w-tab-link').eq(0).trigger('click');
+            const visibleTablinks = $('.fs-tabs.tabs-visible .w-tab-menu');
+            if (visibleTablinks.length > 0) {
+              visibleTablinks.find('.w-tab-link').eq(0).trigger('click');
               console.log('🎯 Navigated to first tab of next category');
             }
-          }, 100);
+          }, 150);
         }
       } else {
         // Stay in same category, change subcategory
@@ -81,6 +93,7 @@ Webflow.push(function() {
   }
   
   // Enhanced category change event listener
+  // Category change event listener with better timing
   document.addEventListener('categoryChanged', (e) => {
     console.log('📂 Category changed event received:', e.detail);
     
@@ -91,7 +104,7 @@ Webflow.push(function() {
         firstVisibleTab.click();
         console.log('🎯 Reset to first tab of new category');
       }
-    }, 50);
+    }, 100);
     
     // Reset any story timers
     if (typeof loop !== 'undefined') {
