@@ -1,176 +1,278 @@
-Webflow = window.Webflow || [];
+var Webflow = Webflow || [];
 Webflow.push(function () {
   'use strict';
 
-  const config = {
-    wrapperSelector: '.fs-tabs',             // category wrapper (Tabs component)
-    tabContentSelector: '.fs-tab-content',   // tab content area
-    tabMenuSelector: '.w-tab-menu',          // Webflow default tab menu
-    tabLinkSelector: '.w-tab-link',          // Webflow default tab link
-    categoryItemSelector: '.category-item',  // category menu button
-    categoryWrapperSelector: '.category-slider-wrapper',
-    autoAdvanceInterval: 5000,
-    holdPauseThreshold: 300,                 // ms hold before pausing
-    swipeThreshold: 50,                      // px movement to count as swipe
-    leftZoneFraction: 0.35,                  // left screen fraction = prev
-    menuOpenSelector: '.uui-navbar06_menu-button',
-    menuOpenClass: 'w--open'
-  };
-
-  const wrappers = Array.from(document.querySelectorAll(config.wrapperSelector));
-  if (!wrappers.length) return;
-
-  let activeWrapperIndex = 0;
-  let autoTimer = null;
-  let paused = false;
-  let holdTimeout = null;
-
-  // ---- Helpers ----
-  function isMenuOpen() {
-    const btn = document.querySelector(config.menuOpenSelector);
-    return btn && btn.classList.contains(config.menuOpenClass);
+  // Fix for Safari
+  if (navigator.userAgent.includes("Safari")) {
+    document.querySelectorAll(".tab-button-demo").forEach((t) => (t.focus = function() {
+      const x = window.scrollX, y = window.scrollY;
+      const f = () => {
+        setTimeout(() => window.scrollTo(x, y), 1);
+        t.removeEventListener("focus", f);
+      };
+      t.addEventListener("focus", f);
+      HTMLElement.prototype.focus.apply(this, arguments);
+    }));
   }
 
-  function tabLinksFor(wrapper) {
-    const menu = wrapper.querySelector(config.tabMenuSelector);
-    return menu ? Array.from(menu.querySelectorAll(config.tabLinkSelector)) : [];
-  }
-
-  function currentTabIndex(wrapper) {
-    const links = tabLinksFor(wrapper);
-    return links.findIndex(l => l.classList.contains('w--current')) || 0;
-  }
-
-  function clickTab(wrapper, idx) {
-    const links = tabLinksFor(wrapper);
-    if (!links.length) return;
-    const safe = ((idx % links.length) + links.length) % links.length;
-    setTimeout(() => links[safe].click(), 30);
-  }
-
-  function showWrapper(idx, opts = { focusFirstTab: false }) {
-    wrappers.forEach((w, i) => {
-      w.style.display = (i === idx) ? '' : 'none';
-    });
-    activeWrapperIndex = ((idx % wrappers.length) + wrappers.length) % wrappers.length;
-
-    const links = tabLinksFor(wrappers[activeWrapperIndex]);
-    if (links.length && !links.some(l => l.classList.contains('w--current'))) {
-      links[0].click();
-    }
-    if (opts.focusFirstTab && links.length) clickTab(wrappers[activeWrapperIndex], 0);
-
-    syncCategoryMenu();
-  }
-
-  function advance(dir = 1) {
-    const wrapper = wrappers[activeWrapperIndex];
-    const links = tabLinksFor(wrapper);
-    const cur = currentTabIndex(wrapper);
-    const next = cur + dir;
-
-    if (next >= links.length) {
-      showWrapper(activeWrapperIndex + 1, { focusFirstTab: true });
-    } else if (next < 0) {
-      showWrapper(activeWrapperIndex - 1);
-      const prevLinks = tabLinksFor(wrappers[activeWrapperIndex]);
-      if (prevLinks.length) clickTab(wrappers[activeWrapperIndex], prevLinks.length - 1);
-    } else {
-      clickTab(wrapper, next);
+  // Simple navigation functions (from original working code)
+  var loop;
+  
+  function nextTab() {
+    if (!$(".uui-navbar06_menu-button").hasClass("w--open")) {
+      $('.fs-tabs.tabs-visible .tab_next').trigger("click");
     }
   }
 
-  function startAuto() {
-    if (autoTimer) return;
-    autoTimer = setInterval(() => {
-      if (!paused && !isMenuOpen()) advance(1);
-    }, config.autoAdvanceInterval);
+  // Start auto-advance only if menu is closed
+  if (!$(".uui-navbar06_menu-button").hasClass("w--open")) {
+    loop = setInterval(nextTab, 5000);
   }
 
-  function stopAuto() {
-    clearInterval(autoTimer);
-    autoTimer = null;
-  }
-
-  function pauseAuto(state = true) {
-    paused = state;
-  }
-
-  // ---- Category Menu ----
-  const categoryItems = document.querySelectorAll(config.categoryItemSelector);
-  function syncCategoryMenu() {
-    const wrapper = wrappers[activeWrapperIndex];
-    const firstContent = wrapper.querySelector(config.tabContentSelector);
-    if (!firstContent) return;
-    const cat = firstContent.dataset.category;
-
-    categoryItems.forEach(item => {
-      if (item.dataset.category === cat) {
-        item.classList.add('active-category');
-        if (item.dataset.color) {
-          item.style.backgroundColor = item.dataset.color;
+  // Button navigation (based on original working code)
+  $(document).on('click', '.tab_previous, .tab_next', function() {
+    if (!$(".uui-navbar06_menu-button").hasClass("w--open")) {
+      clearInterval(loop);
+      
+      // Only work with visible tabs component
+      var tabsComponent = $(this).closest('.fs-tabs.tabs-visible');
+      if (tabsComponent.length === 0) return;
+      
+      var direction = $(this).hasClass('tab_previous') ? -1 : 1;
+      var tablinks = tabsComponent.find('.w-tab-menu');
+      var currentIndex = tablinks.find('.w--current').index();
+      var newIndex = currentIndex + direction;
+      var totalTabs = tablinks.children().length;
+      
+      // Handle category switching at boundaries
+      if (newIndex < 0) {
+        // Go to previous category, last tab
+        if (window.craftMenu && typeof window.craftMenu.previousCategory === 'function') {
+          window.craftMenu.previousCategory();
+          setTimeout(() => {
+            const visibleTablinks = $('.fs-tabs.tabs-visible .w-tab-menu');
+            if (visibleTablinks.length > 0) {
+              const lastIndex = visibleTablinks.children().length - 1;
+              visibleTablinks.find('.w-tab-link').eq(lastIndex).trigger('click');
+            }
+          }, 200);
+        }
+      } else if (newIndex >= totalTabs) {
+        // Go to next category, first tab
+        if (window.craftMenu && typeof window.craftMenu.nextCategory === 'function') {
+          window.craftMenu.nextCategory();
+          setTimeout(() => {
+            const visibleTablinks = $('.fs-tabs.tabs-visible .w-tab-menu');
+            if (visibleTablinks.length > 0) {
+              visibleTablinks.find('.w-tab-link').eq(0).trigger('click');
+            }
+          }, 200);
         }
       } else {
-        item.classList.remove('active-category');
-        item.style.backgroundColor = '';
+        // Stay in same category
+        tablinks.find('.w-tab-link').eq(newIndex).trigger('click');
+      }
+      
+      // Restart auto-advance
+      loop = setInterval(nextTab, 5000);
+    }
+  });
+
+  // Category change handler
+  document.addEventListener('categoryChanged', () => {
+    clearInterval(loop);
+    setTimeout(() => {
+      const firstVisibleTab = document.querySelector('.fs-tabs.tabs-visible .w-tab-link');
+      if (firstVisibleTab) {
+        firstVisibleTab.click();
+      }
+      loop = setInterval(nextTab, 5000);
+    }, 100);
+  });
+});
+
+// Multi-instance Finsweet tabs script (from old working system)
+class MultiInstanceTabsManager {
+  constructor() {
+    this.instances = [];
+    this.isInitialized = false;
+    this.init();
+  }
+
+  async init() {
+    await this.waitForContent();
+    this.createInstancesFromArrays();
+    this.initializeInstances();
+    this.setInitialVisibilityState();
+    this.isInitialized = true;
+  }
+
+  setInitialVisibilityState() {
+    // Hide all tabs components initially
+    this.instances.forEach(instance => {
+      if (instance.tabsComponent) {
+        instance.tabsComponent.classList.remove('tabs-visible');
+      }
+    });
+    
+    // Show the first category's tabs component
+    if (this.instances.length > 0) {
+      const firstInstance = this.instances[0];
+      if (firstInstance.tabsComponent) {
+        firstInstance.tabsComponent.classList.add('tabs-visible');
+      }
+    }
+  }
+
+  showCategory(categoryName) {
+    const instance = this.getInstanceByCategory(categoryName);
+    if (instance && instance.tabsComponent) {
+      // Hide all tabs components
+      this.instances.forEach(otherInstance => {
+        if (otherInstance.tabsComponent) {
+          otherInstance.tabsComponent.classList.remove('tabs-visible');
+        }
+      });
+      
+      // Show the target tabs component
+      instance.tabsComponent.classList.add('tabs-visible');
+      return true;
+    }
+    return false;
+  }
+
+  createInstancesFromArrays() {
+    const tabsComponents = Array.from(document.querySelectorAll('.fs-tabs'));
+    const collectionLists = Array.from(document.querySelectorAll('.fs-dynamic-feed'));
+    const allTabContents = Array.from(document.querySelectorAll('.fs-tab-content'));
+    
+    const minLength = Math.min(tabsComponents.length, collectionLists.length);
+    if (minLength === 0) return;
+    
+    const pairedTabsComponents = new Set();
+    
+    for (let i = 0; i < minLength; i++) {
+      const tabsComponent = tabsComponents[i];
+      const collectionList = collectionLists[i];
+      
+      const uniqueId = `tabs-instance-${i + 1}`;
+      tabsComponent.setAttribute('data-tabs-id', uniqueId);
+      collectionList.setAttribute('data-tabs-id', uniqueId);
+      
+      const tabContentsForThisList = allTabContents.filter(content => {
+        return collectionList.contains(content);
+      });
+      
+      let category = collectionList.getAttribute('data-category');
+      if (!category && tabContentsForThisList.length > 0) {
+        category = tabContentsForThisList[0].getAttribute('data-category');
+      }
+      if (!category) {
+        const classList = Array.from(collectionList.classList);
+        const categoryClass = classList.find(cls => cls.includes('category-') || cls.includes('cat-'));
+        if (categoryClass) {
+          category = categoryClass.replace(/^(category-|cat-)/, '').replace(/-/g, ' ');
+        }
+      }
+      if (!category) {
+        category = `Category ${i + 1}`;
+      }
+      
+      tabsComponent.setAttribute('data-category', category);
+      pairedTabsComponents.add(tabsComponent);
+      
+      const instance = {
+        index: i,
+        category: category,
+        uniqueId: uniqueId,
+        tabsComponent,
+        collectionList,
+        tabContents: tabContentsForThisList,
+        fsLibrary: null
+      };
+      
+      this.instances.push(instance);
+    }
+    
+    // Handle orphaned tabs components
+    tabsComponents.forEach(tabsComponent => {
+      if (!pairedTabsComponents.has(tabsComponent)) {
+        tabsComponent.style.display = 'none';
       }
     });
   }
 
-  categoryItems.forEach((item, idx) => {
-    item.addEventListener('click', (e) => {
-      e.preventDefault();
-      const target = item.dataset.category;
-      const wrapperIdx = wrappers.findIndex(w => {
-        const firstContent = w.querySelector(config.tabContentSelector);
-        return firstContent && firstContent.dataset.category === target;
-      });
-      if (wrapperIdx >= 0) showWrapper(wrapperIdx, { focusFirstTab: true });
-    });
-  });
-
-  // ---- Gestures ----
-  wrappers.forEach(wrapper => {
-    const surface = wrapper.querySelector(config.tabContentSelector) || wrapper;
-    let startX, startY, startTime;
-
-    surface.addEventListener('touchstart', e => {
-      if (isMenuOpen()) return;
-      const t = e.touches[0];
-      startX = t.clientX; startY = t.clientY; startTime = Date.now();
-
-      holdTimeout = setTimeout(() => pauseAuto(true), config.holdPauseThreshold);
-    });
-
-    surface.addEventListener('touchend', e => {
-      clearTimeout(holdTimeout);
-      if (paused) { pauseAuto(false); return; }
-
-      const dx = e.changedTouches[0].clientX - startX;
-      const dy = e.changedTouches[0].clientY - startY;
-      const dt = Date.now() - startTime;
-
-      // swipe
-      if (Math.abs(dx) > config.swipeThreshold && Math.abs(dx) > Math.abs(dy)) {
-        if (dx > 0) showWrapper(activeWrapperIndex - 1, { focusFirstTab: true });
-        else showWrapper(activeWrapperIndex + 1, { focusFirstTab: true });
-        return;
+  initializeInstances() {
+    this.instances.forEach((instance) => {
+      try {
+        const collectionListSelector = `[data-tabs-id="${instance.uniqueId}"].fs-dynamic-feed`;
+        const tabsComponentSelector = `[data-tabs-id="${instance.uniqueId}"].fs-tabs`;
+        
+        instance.fsLibrary = new FsLibrary(collectionListSelector);
+        instance.fsLibrary.tabs({
+          tabComponent: tabsComponentSelector,
+          tabContent: '.fs-tab-content'
+        });
+      } catch (error) {
+        // Silent error handling
       }
-
-      // tap
-      const rect = surface.getBoundingClientRect();
-      const x = e.changedTouches[0].clientX - rect.left;
-      if (x <= rect.width * config.leftZoneFraction) advance(-1);
-      else advance(1);
     });
-  });
+  }
 
-  // ---- Init ----
-  showWrapper(0);
-  startAuto();
+  getInstanceByCategory(category) {
+    return this.instances.find(instance => instance.category === category) || null;
+  }
 
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) stopAuto();
-    else startAuto();
-  });
-});
+  async waitForContent() {
+    return new Promise((resolve) => {
+      const checkContent = () => {
+        const tabsComponents = document.querySelectorAll('.fs-tabs');
+        const collectionLists = document.querySelectorAll('.fs-dynamic-feed');
+        const tabContents = document.querySelectorAll('.fs-tab-content');
+        
+        if (tabsComponents.length > 0 && collectionLists.length > 0 && tabContents.length > 0) {
+          resolve();
+        } else {
+          setTimeout(checkContent, 100);
+        }
+      };
+      checkContent();
+    });
+  }
+}
+
+// Initialize tabs manager (from old working system)
+(function initializeTabsManager() {
+  if (window.tabsManager) return;
+  
+  let initAttempts = 0;
+  const maxAttempts = 10;
+  
+  const initTabs = () => {
+    initAttempts++;
+    
+    if (typeof FsLibrary !== 'undefined') {
+      try {
+        window.tabsManager = new MultiInstanceTabsManager();
+      } catch (error) {
+        console.error('Error initializing TabsManager:', error);
+      }
+    } else if (initAttempts < maxAttempts) {
+      setTimeout(initTabs, 1000);
+    }
+  };
+  
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initTabs);
+  } else {
+    initTabs();
+  }
+  
+  if (typeof Webflow !== 'undefined') {
+    Webflow.push(() => {
+      if (!window.tabsManager) {
+        initTabs();
+      }
+    });
+  }
+})();
