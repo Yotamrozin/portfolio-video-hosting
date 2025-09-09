@@ -432,6 +432,29 @@ class SwiperInspiredCategorySlider {
     this.slideTo(prevRealIndex);
   }
   
+  // Story navigation compatibility methods
+  nextCategory() {
+    this.slideNext();
+    // Dispatch category change event for story system
+    const currentCategory = this.getCurrentCategory();
+    if (currentCategory) {
+      document.dispatchEvent(new CustomEvent('categoryChanged', {
+        detail: { category: currentCategory }
+      }));
+    }
+  }
+  
+  previousCategory() {
+    this.slidePrev();
+    // Dispatch category change event for story system
+    const currentCategory = this.getCurrentCategory();
+    if (currentCategory) {
+      document.dispatchEvent(new CustomEvent('categoryChanged', {
+        detail: { category: currentCategory }
+      }));
+    }
+  }
+  
   // Public API methods
   setActiveCategory(category) {
     const targetSlide = this.originalSlides.find(slide => 

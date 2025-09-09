@@ -22,14 +22,14 @@ Webflow.push(function() {
   }
   
   // Navigation with proper scoping to visible tabs component
-  $('.tab-wrapper').on('click', '.tab_previous, .tab_next', function() {
+  $(document).on('click', '.fs-tabs.tabs-visible .tab_previous, .fs-tabs.tabs-visible .tab_next', function() {
     if (!$(".uui-navbar06_menu-button").hasClass("w--open")) {
       clearInterval(loop);
       
       // Find the closest tabs component to this button
       var closestTabsComponent = $(this).closest('.fs-tabs');
       
-      // Only proceed if this is the visible tabs component
+      // Ensure this is the visible tabs component
       if (!closestTabsComponent.hasClass('tabs-visible')) {
         console.log('⚠️ Ignoring click on hidden tabs component');
         return;
@@ -52,7 +52,7 @@ Webflow.push(function() {
       if (newIndex < 0) {
         // Go to previous category, last subcategory
         console.log('📱 Reached first tab - switching to previous category');
-        if (window.craftMenu) {
+        if (window.craftMenu && typeof window.craftMenu.previousCategory === 'function') {
           window.craftMenu.previousCategory();
           // After category change, navigate to last tab of the visible category
           setTimeout(() => {
@@ -62,12 +62,12 @@ Webflow.push(function() {
               visibleTablinks.find('.w-tab-link').eq(lastTabIndex).trigger('click');
               console.log(`🎯 Navigated to last tab (${lastTabIndex}) of previous category`);
             }
-          }, 150);
+          }, 200);
         }
       } else if (newIndex >= tablinks.children().length) {
         // Go to next category, first subcategory
         console.log('📱 Reached last tab - switching to next category');
-        if (window.craftMenu) {
+        if (window.craftMenu && typeof window.craftMenu.nextCategory === 'function') {
           window.craftMenu.nextCategory();
           // After category change, navigate to first tab of the visible category
           setTimeout(() => {
@@ -76,7 +76,7 @@ Webflow.push(function() {
               visibleTablinks.find('.w-tab-link').eq(0).trigger('click');
               console.log('🎯 Navigated to first tab of next category');
             }
-          }, 150);
+          }, 200);
         }
       } else {
         // Stay in same category, change subcategory
