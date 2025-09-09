@@ -26,6 +26,7 @@ class SwiperInspiredCategorySlider {
     this.activeIndex = 0; // Visual index in the slides array
     this.isTransitioning = false;
     this.loopedSlides = this.originalItems.length; // Number of clones on each side
+    this.slideWidth = 200; // Default slide width
     
     // Touch/swipe properties
     this.touchStartX = 0;
@@ -292,6 +293,48 @@ class SwiperInspiredCategorySlider {
     this.slideTo(prevRealIndex);
   }
   
+  // Add the missing slideTo method
+  slideTo(targetRealIndex) {
+    if (this.isTransitioning || targetRealIndex === this.realIndex) return;
+    
+    this.isTransitioning = true;
+    this.realIndex = targetRealIndex;
+    
+    // Find the closest slide with the target realIndex
+    let targetActiveIndex = -1;
+    let minDistance = Infinity;
+    
+    this.slides.forEach((slide, index) => {
+      if (slide.realIndex === targetRealIndex) {
+        const distance = Math.abs(index - this.activeIndex);
+        if (distance < minDistance) {
+          minDistance = distance;
+          targetActiveIndex = index;
+        }
+      }
+    });
+    
+    if (targetActiveIndex !== -1) {
+      this.activeIndex = targetActiveIndex;
+      this.updateSlidePositions();
+      this.updateActiveStates();
+    }
+    
+    // Reset transition flag after animation
+    setTimeout(() => {
+      this.isTransitioning = false;
+    }, 300);
+  }
+  
+  // Add the setInitialPosition method inside the class
+  setInitialPosition() {
+    // Set initial position to show the first real slide
+    this.activeIndex = this.loopedSlides; // Start at first original slide
+    this.realIndex = 0;
+    this.updateSlidePositions();
+    this.updateActiveStates();
+  }
+  
   // Story navigation compatibility methods
   nextCategory() {
     this.slideNext();
@@ -380,13 +423,13 @@ class SwiperInspiredCategorySlider {
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     window.categoryMenuSlider = new SwiperInspiredCategorySlider();
-    // NEW: Also expose as craftMenu for story navigation compatibility
     window.craftMenu = window.categoryMenuSlider;
+    console.log('🎛️ CraftMenu initialized:', window.craftMenu);
   });
 } else {
   window.categoryMenuSlider = new SwiperInspiredCategorySlider();
-  // NEW: Also expose as craftMenu for story navigation compatibility
   window.craftMenu = window.categoryMenuSlider;
+  console.log('🎛️ CraftMenu initialized:', window.craftMenu);
 }
 
 window.SwiperInspiredCategorySlider = SwiperInspiredCategorySlider;

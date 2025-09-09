@@ -126,7 +126,9 @@ Webflow.push(function() {
     });
     
     if (!$(".uui-navbar06_menu-button").hasClass("w--open")) {
-      clearInterval(loop);
+      if (typeof loop !== 'undefined') {
+        clearInterval(loop);
+      }
       
       // Only proceed if this is the visible tabs component
       if (!closestTabsComponent.hasClass('tabs-visible')) {
@@ -218,14 +220,16 @@ Webflow.push(function() {
         targetTab.trigger('click');
       }
       
+      // At the end, restart the loop
       loop = setInterval(nextTab, 5000);
     }
     
     console.groupEnd();
   });
   
+  // Initialize the loop
   if (!$(".uui-navbar06_menu-button").hasClass("w--open")) {
-    var loop = setInterval(nextTab, 5000);
+    loop = setInterval(nextTab, 5000);
   }
   
   // Enhanced category change event listener
