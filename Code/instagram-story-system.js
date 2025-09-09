@@ -29,20 +29,47 @@ Webflow.push(function() {
       var currentIndex = tablinks.find('.w--current').index();
       var newIndex = currentIndex + direction;
       
+      console.log('🎯 Story navigation:', {
+        direction: direction > 0 ? 'next' : 'previous',
+        currentIndex,
+        newIndex,
+        totalTabs: tablinks.children().length
+      });
+      
       // Check if we need to change category
       if (newIndex < 0) {
         // Go to previous category, last subcategory
+        console.log('📱 Reached first tab - switching to previous category');
         if (window.craftMenu) {
           window.craftMenu.previousCategory();
+          // After category change, navigate to last tab of new category
+          setTimeout(() => {
+            const newTablinks = $('.fs-tabs.tabs-visible .w-tab-menu');
+            if (newTablinks.length > 0) {
+              const lastTabIndex = newTablinks.children().length - 1;
+              newTablinks.find('.w-tab-link').eq(lastTabIndex).trigger('click');
+              console.log(`🎯 Navigated to last tab (${lastTabIndex}) of previous category`);
+            }
+          }, 100);
         }
       } else if (newIndex >= tablinks.children().length) {
         // Go to next category, first subcategory
+        console.log('📱 Reached last tab - switching to next category');
         if (window.craftMenu) {
           window.craftMenu.nextCategory();
+          // After category change, navigate to first tab of new category
+          setTimeout(() => {
+            const newTablinks = $('.fs-tabs.tabs-visible .w-tab-menu');
+            if (newTablinks.length > 0) {
+              newTablinks.find('.w-tab-link').eq(0).trigger('click');
+              console.log('🎯 Navigated to first tab of next category');
+            }
+          }, 100);
         }
       } else {
         // Stay in same category, change subcategory
         tablinks.find('.w-tab-link').eq(newIndex).trigger('click');
+        console.log(`🎯 Navigated to tab ${newIndex} within same category`);
       }
       
       loop = setInterval(nextTab, 5000);
@@ -53,13 +80,18 @@ Webflow.push(function() {
     var loop = setInterval(nextTab, 5000);
   }
   
-  // Add this to the categoryChanged event listener
+  // Enhanced category change event listener
   document.addEventListener('categoryChanged', (e) => {
+    console.log('📂 Category changed event received:', e.detail);
+    
     // Reset story to first visible subcategory when category changes
-    const firstVisibleTab = document.querySelector('.tab-button-demo:not([style*="display: none"])');
-    if (firstVisibleTab) {
-      firstVisibleTab.click();
-    }
+    setTimeout(() => {
+      const firstVisibleTab = document.querySelector('.fs-tabs.tabs-visible .w-tab-link');
+      if (firstVisibleTab) {
+        firstVisibleTab.click();
+        console.log('🎯 Reset to first tab of new category');
+      }
+    }, 50);
     
     // Reset any story timers
     if (typeof loop !== 'undefined') {

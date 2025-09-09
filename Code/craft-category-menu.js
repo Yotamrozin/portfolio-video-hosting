@@ -497,10 +497,13 @@ class SwiperInspiredCategorySlider {
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
     window.categoryMenuSlider = new SwiperInspiredCategorySlider();
+    // NEW: Also expose as craftMenu for story navigation compatibility
+    window.craftMenu = window.categoryMenuSlider;
   });
 } else {
   window.categoryMenuSlider = new SwiperInspiredCategorySlider();
+  // NEW: Also expose as craftMenu for story navigation compatibility
+  window.craftMenu = window.categoryMenuSlider;
 }
 
-// Export for external access
 window.SwiperInspiredCategorySlider = SwiperInspiredCategorySlider;
