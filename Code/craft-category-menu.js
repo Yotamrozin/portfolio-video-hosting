@@ -412,6 +412,13 @@ class SwiperInspiredCategorySlider {
         }
       }
     });
+    
+    // NEW: Integrate with Instagram Story System
+    const currentCategory = this.getCurrentCategory();
+    if (currentCategory && window.tabsManager) {
+      console.log(`🔄 Category changed to: "${currentCategory}" - updating tabs visibility`);
+      window.tabsManager.showCategory(currentCategory);
+    }
   }
   
   // Navigation methods (Swiper-style)
