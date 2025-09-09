@@ -183,6 +183,11 @@ class SwiperInspiredCategorySlider {
       this.touchStartX = e.touches[0].clientX;
       this.touchStartY = e.touches[0].clientY;
       this.isSwiping = true;
+      
+      console.log('👆 Touch start:', {
+        x: this.touchStartX,
+        y: this.touchStartY
+      });
     }, { passive: true });
     
     // Touch move (optional - for visual feedback)
@@ -209,11 +214,18 @@ class SwiperInspiredCategorySlider {
       
       this.handleSwipe();
       this.isSwiping = false;
+      
+      console.log('👆 Touch end:', {
+        startX: this.touchStartX,
+        endX: this.touchEndX,
+        deltaX: this.touchEndX - this.touchStartX
+      });
     }, { passive: true });
     
     // Touch cancel
     this.slider.addEventListener('touchcancel', () => {
       this.isSwiping = false;
+      console.log('👆 Touch cancelled');
     }, { passive: true });
   }
   
@@ -222,15 +234,133 @@ class SwiperInspiredCategorySlider {
     const deltaY = Math.abs(this.touchEndY - this.touchStartY);
     const absDeltaX = Math.abs(deltaX);
     
+    console.log('🔄 Swipe analysis:', {
+      deltaX,
+      deltaY,
+      absDeltaX,
+      minDistance: this.minSwipeDistance,
+      maxVertical: this.maxVerticalDistance,
+      isHorizontal: deltaY < this.maxVerticalDistance,
+      isLongEnough: absDeltaX > this.minSwipeDistance
+    });
+    
     // Check if it's a valid horizontal swipe
     if (deltaY < this.maxVerticalDistance && absDeltaX > this.minSwipeDistance) {
       if (deltaX > 0) {
         // Swipe right - go to previous category
+        console.log('👈 Swipe right detected - going to previous category');
         this.slidePrev();
       } else {
         // Swipe left - go to next category
+        console.log('👉 Swipe left detected - going to next category');
         this.slideNext();
       }
+    } else {
+      console.log('❌ Swipe not recognized - insufficient distance or too vertical');
+    }
+  }
+  
+  setInitialPosition() {
+    // Start at the first original slide (after the clones)
+    this.activeIndex = this.loopedSlides;
+    this.realIndex = 0; // This ensures first category (index 0) is active
+    this.updateSlidePositions();
+    
+    // Explicitly ensure first category has active class
+    console.log('🎯 Setting first category as active by default:', {
+      realIndex: this.realIndex,
+      activeIndex: this.activeIndex,
+      firstCategory: this.originalSlides[0]?.category
+    });
+  }
+  
+  slideTo(targetRealIndex, animate = true) {
+    if (this.isTransitioning && animate) return;
+    
+    const oldRealIndex = this.realIndex;
+    this.realIndex = targetRealIndex;
+    
+    // Find the best slide to transition to
+    const targetSlideIndex = this.findBestSlideIndex(targetRealIndex);
+    
+    if (animate) {
+      this.transitionTo(targetSlideIndex);
+    } else {
+      this.activeIndex = targetSlideIndex;
+      this.updateSlidePositions();
+      this.updateActiveStates();
+    }
+    
+    console.log('🎯 Slide transition:', {
+      from: { realIndex: oldRealIndex, activeIndex: this.activeIndex },
+      to: { realIndex: targetRealIndex, activeIndex: targetSlideIndex },
+      category: this.slides[targetSlideIndex]?.category
+    });
+  }
+  
+  findBestSlideIndex(targetRealIndex) {
+    // Find all slides that match this realIndex
+    const candidates = this.slides
+      .map((slide, index) => ({ slide, index }))
+      .filter(({ slide }) => slide.realIndex === targetRealIndex);
+    
+    if (candidates.length === 0) return this.activeIndex;
+    
+    // Prefer non-clones if possible
+    const nonCloneCandidate = candidates.find(({ slide }) => !slide.isClone);
+    if (nonCloneCandidate) {
+      return nonCloneCandidate.index;
+    }
+    
+    // Otherwise, find the closest candidate to current position
+    return candidates.reduce((best, current) => {
+      const currentDistance = Math.abs(current.index - this.activeIndex);
+      const bestDistance = Math.abs(best.index - this.activeIndex);
+      return currentDistance < bestDistance ? current : best;
+    }).index;
+  }
+  
+  transitionTo(targetIndex) {
+    this.isTransitioning = true;
+    this.activeIndex = targetIndex;
+    
+    // Apply smooth transition
+    this.slider.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
+    this.updateSlidePositions();
+    this.updateActiveStates();
+    
+    // Handle transition end
+    setTimeout(() => {
+      this.isTransitioning = false;
+      this.slider.style.transition = 'none';
+      this.checkLoopFix();
+    }, 400);
+  }
+  
+  checkLoopFix() {
+    // Swiper's loop fix logic - jump to equivalent position if needed
+    let needsLoopFix = false;
+    let newActiveIndex = this.activeIndex;
+    
+    if (this.activeIndex < this.loopedSlides / 2) {
+      // Too far left, jump to equivalent position on the right
+      newActiveIndex = this.activeIndex + this.originalSlides.length;
+      needsLoopFix = true;
+    } else if (this.activeIndex >= this.slides.length - this.loopedSlides / 2) {
+      // Too far right, jump to equivalent position on the left
+      newActiveIndex = this.activeIndex - this.originalSlides.length;
+      needsLoopFix = true;
+    }
+    
+    if (needsLoopFix) {
+      console.log('🔄 Loop fix applied:', {
+        from: this.activeIndex,
+        to: newActiveIndex,
+        realIndex: this.realIndex
+      });
+      
+      this.activeIndex = newActiveIndex;
+      this.updateSlidePositions();
     }
   }
   
@@ -255,6 +385,15 @@ class SwiperInspiredCategorySlider {
     const translateX = wrapperCenter - activeSlideCenter;
     
     this.slider.style.transform = `translateX(${translateX}px)`;
+    
+    console.log('📐 Position update:', {
+      activeIndex: this.activeIndex,
+      realIndex: this.realIndex,
+      activeSlideCenter,
+      wrapperCenter,
+      translateX,
+      category: activeSlide.category
+    });
   }
   
   updateActiveStates() {
@@ -274,9 +413,10 @@ class SwiperInspiredCategorySlider {
       }
     });
     
-    // Integrate with Instagram Story System
+    // NEW: Integrate with Instagram Story System
     const currentCategory = this.getCurrentCategory();
     if (currentCategory && window.tabsManager) {
+      console.log(`🔄 Category changed to: "${currentCategory}" - updating tabs visibility`);
       window.tabsManager.showCategory(currentCategory);
     }
   }
@@ -290,29 +430,6 @@ class SwiperInspiredCategorySlider {
   slidePrev() {
     const prevRealIndex = (this.realIndex - 1 + this.originalSlides.length) % this.originalSlides.length;
     this.slideTo(prevRealIndex);
-  }
-  
-  // Story navigation compatibility methods
-  nextCategory() {
-    this.slideNext();
-    // Dispatch category change event for story system
-    const currentCategory = this.getCurrentCategory();
-    if (currentCategory) {
-      document.dispatchEvent(new CustomEvent('categoryChanged', {
-        detail: { category: currentCategory }
-      }));
-    }
-  }
-  
-  previousCategory() {
-    this.slidePrev();
-    // Dispatch category change event for story system
-    const currentCategory = this.getCurrentCategory();
-    if (currentCategory) {
-      document.dispatchEvent(new CustomEvent('categoryChanged', {
-        detail: { category: currentCategory }
-      }));
-    }
   }
   
   // Public API methods
