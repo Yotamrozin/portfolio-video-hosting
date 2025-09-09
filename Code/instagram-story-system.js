@@ -73,6 +73,7 @@ Webflow.push(function() {
 class MultiInstanceTabsManager {
   constructor() {
     this.instances = [];
+    this.isInitialized = false;
     this.init();
   }
 
@@ -85,6 +86,50 @@ class MultiInstanceTabsManager {
     
     // Initialize all instances
     this.initializeInstances();
+    
+    // Set initial state - hide all tabs except first active category
+    this.setInitialVisibilityState();
+    
+    this.isInitialized = true;
+  }
+
+  setInitialVisibilityState() {
+    // Hide all tabs components initially
+    this.instances.forEach(instance => {
+      if (instance.tabsComponent) {
+        instance.tabsComponent.classList.remove('tabs-visible');
+      }
+    });
+    
+    // Show the first category's tabs component
+    if (this.instances.length > 0) {
+      const firstInstance = this.instances[0];
+      if (firstInstance.tabsComponent) {
+        firstInstance.tabsComponent.classList.add('tabs-visible');
+        console.log(`🎯 Initial state: Showing tabs for category "${firstInstance.category}"`);
+      }
+    }
+  }
+
+  showCategory(categoryName) {
+    const instance = this.getInstanceByCategory(categoryName);
+    if (instance && instance.tabsComponent) {
+      // Hide all tabs components
+      this.instances.forEach(otherInstance => {
+        if (otherInstance.tabsComponent) {
+          otherInstance.tabsComponent.classList.remove('tabs-visible');
+        }
+      });
+      
+      // Show the target tabs component
+      instance.tabsComponent.classList.add('tabs-visible');
+      
+      console.log(`🔄 Category switched: Showing tabs for "${categoryName}"`);
+      return true;
+    } else {
+      console.warn(`⚠️ No tabs component found for category: "${categoryName}"`);
+      return false;
+    }
   }
 
   createInstancesFromArrays() {
@@ -95,8 +140,12 @@ class MultiInstanceTabsManager {
     const minLength = Math.min(tabsComponents.length, collectionLists.length);
     
     if (minLength === 0) {
+      console.warn('⚠️ No matching tabs components and collection lists found');
       return;
     }
+    
+    // Track which tabs components get paired
+    const pairedTabsComponents = new Set();
     
     for (let i = 0; i < minLength; i++) {
       const tabsComponent = tabsComponents[i];
@@ -129,6 +178,7 @@ class MultiInstanceTabsManager {
       }
       
       tabsComponent.setAttribute('data-category', category);
+      pairedTabsComponents.add(tabsComponent);
       
       const instance = {
         index: i,
@@ -142,6 +192,19 @@ class MultiInstanceTabsManager {
       
       this.instances.push(instance);
     }
+    
+    // Handle orphaned tabs components
+    tabsComponents.forEach(tabsComponent => {
+      if (!pairedTabsComponents.has(tabsComponent)) {
+        console.warn('🔍 Orphaned tabs component found (hiding):', tabsComponent);
+        tabsComponent.style.display = 'none';
+      }
+    });
+    
+    console.log(`✅ Created ${this.instances.length} tabs instances`);
+    this.instances.forEach(instance => {
+      console.log(`   📂 Category: "${instance.category}" (${instance.tabContents.length} tab contents)`);
+    });
   }
 
   initializeInstances() {
@@ -176,24 +239,6 @@ class MultiInstanceTabsManager {
 
   getInstanceByTabComponent(tabComponent) {
     return this.instances.find(instance => instance.tabsComponent === tabComponent) || null;
-  }
-
-  showCategory(categoryName) {
-    const instance = this.getInstanceByCategory(categoryName);
-    if (instance && instance.tabsComponent) {
-      // Show the tabs component for this category
-      instance.tabsComponent.style.display = 'block';
-      
-      // Hide other categories
-      this.instances.forEach(otherInstance => {
-        if (otherInstance !== instance && otherInstance.tabsComponent) {
-          otherInstance.tabsComponent.style.display = 'none';
-        }
-      });
-      
-      return true;
-    }
-    return false;
   }
 
   navigateToTab(categoryName, tabIndex) {
@@ -272,7 +317,7 @@ class MultiInstanceTabsManager {
   }
 
   let initAttempts = 0;
-  const maxAttempts = 30; // Maximum 30 seconds
+  const maxAttempts = 10;
   
   const initTabs = () => {
     initAttempts++;
@@ -283,11 +328,15 @@ class MultiInstanceTabsManager {
         
         // Make debug method available globally
         window.debugMultiTabs = () => window.tabsManager.debugInstances();
+        
+        console.log('🎉 TabsManager initialized and available globally as window.tabsManager');
       } catch (error) {
-        // Silent error handling
+        console.error('❌ Error initializing TabsManager:', error);
       }
     } else if (initAttempts < maxAttempts) {
       setTimeout(initTabs, 1000);
+    } else {
+      console.error('❌ Failed to initialize TabsManager: FsLibrary not found after maximum attempts');
     }
   };
   
