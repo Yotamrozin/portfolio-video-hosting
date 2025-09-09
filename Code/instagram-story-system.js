@@ -537,3 +537,117 @@ class MultiInstanceTabsManager {
     });
   }
 })();
+
+// Navigation with proper DOM structure detection
+$(document).on('click', '.tab_previous, .tab_next', function(e) {
+  console.log('🎯 Button clicked:', this.className);
+  
+  if (!$(".uui-navbar06_menu-button").hasClass("w--open")) {
+    clearInterval(loop);
+    
+    // Find the visible tabs component (not necessarily a parent)
+    var visibleTabsComponent = $('.fs-tabs.tabs-visible');
+    
+    if (visibleTabsComponent.length === 0) {
+      console.log('⚠️ No visible tabs component found');
+      return;
+    }
+    
+    var direction = $(this).hasClass('tab_previous') ? -1 : 1;
+    var tablinks = visibleTabsComponent.find('.w-tab-menu');
+    var currentTab = tablinks.find('.w--current');
+    var currentIndex = currentTab.index();
+    var newIndex = currentIndex + direction;
+    var totalTabs = tablinks.children().length;
+    
+    console.log('🎯 Navigation:', {
+      direction: direction > 0 ? 'next' : 'previous',
+      currentIndex,
+      newIndex,
+      totalTabs,
+      category: visibleTabsComponent.attr('data-category')
+    });
+    
+    // Check if we need to change category
+    if (newIndex < 0) {
+      console.log('📱 Switching to previous category');
+      if (window.craftMenu && typeof window.craftMenu.previousCategory === 'function') {
+        window.craftMenu.previousCategory();
+        
+        setTimeout(() => {
+          const newVisibleTablinks = $('.fs-tabs.tabs-visible .w-tab-menu');
+          if (newVisibleTablinks.length > 0) {
+            const lastTabIndex = newVisibleTablinks.children().length - 1;
+            newVisibleTablinks.find('.w-tab-link').eq(lastTabIndex).trigger('click');
+            console.log(`🎯 Navigated to last tab (${lastTabIndex})`);
+          }
+        }, 200);
+      }
+    } else if (newIndex >= totalTabs) {
+      console.log('📱 Switching to next category');
+      if (window.craftMenu && typeof window.craftMenu.nextCategory === 'function') {
+        window.craftMenu.nextCategory();
+        
+        setTimeout(() => {
+          const newVisibleTablinks = $('.fs-tabs.tabs-visible .w-tab-menu');
+          if (newVisibleTablinks.length > 0) {
+            newVisibleTablinks.find('.w-tab-link').eq(0).trigger('click');
+            console.log('🎯 Navigated to first tab');
+          }
+        }, 200);
+      }
+    } else {
+      console.log('🎯 Staying in same category');
+      const targetTab = tablinks.find('.w-tab-link').eq(newIndex);
+      targetTab.trigger('click');
+      console.log(`🎯 Navigated to tab ${newIndex}`);
+    }
+    
+    loop = setInterval(nextTab, 5000);
+  }
+});
+
+// Add this at the end of the file, before the closing })();
+window.debugTabSystem = function() {
+  console.group('🔍 Complete Tab System Debug');
+  
+  // Check tabs manager
+  console.log('TabsManager:', {
+    available: !!window.tabsManager,
+    initialized: window.tabsManager ? window.tabsManager.isInitialized : false,
+    instances: window.tabsManager ? window.tabsManager.instances.length : 0
+  });
+  
+  // Check craft menu
+  console.log('CraftMenu:', {
+    available: !!window.craftMenu,
+    hasNextCategory: window.craftMenu && typeof window.craftMenu.nextCategory === 'function',
+    hasPreviousCategory: window.craftMenu && typeof window.craftMenu.previousCategory === 'function'
+  });
+  
+  // Check all tabs components
+  const allTabs = document.querySelectorAll('.fs-tabs');
+  allTabs.forEach((tab, index) => {
+    const buttons = {
+      prev: tab.querySelectorAll('.tab_previous').length,
+      next: tab.querySelectorAll('.tab_next').length
+    };
+    
+    console.log(`Tabs Component ${index + 1}:`, {
+      category: tab.getAttribute('data-category'),
+      visible: tab.classList.contains('tabs-visible'),
+      buttons,
+      tabCount: tab.querySelectorAll('.w-tab-link').length
+    });
+  });
+  
+  // Check button locations
+  const allPrevButtons = document.querySelectorAll('.tab_previous');
+  const allNextButtons = document.querySelectorAll('.tab_next');
+  console.log('Button locations:', {
+    prevButtons: allPrevButtons.length,
+    nextButtons: allNextButtons.length
+  });
+  
+  console.groupEnd();
+};

@@ -1,60 +1,73 @@
-window.categoryMenuSlider.debugCentering()
-craft-category-menu.js:141 🔍 Category Menu Debug Info
-craft-category-menu.js:142 📏 Container Measurements: {wrapperWidth: 368, wrapperHeight: 52, wrapperCenter: 184, sliderWidth: 1455, sliderHeight: 52}
-craft-category-menu.js:150 🎯 Active Item Info: {currentIndex: 0, itemText: 'Software + Tools', activeItemLeft: 0, activeItemWidth: 335, activeItemCenter: 167.5, …}
-craft-category-menu.js:159 📐 Positioning Calculations: {translateX: 16.5, boundedTranslateX: 0, maxTranslate: 0, minTranslate: -1087, currentTransform: 'translateX(0px)'}
-craft-category-menu.js:167 📍 Bounding Rectangles: {wrapper: {…}, slider: {…}, activeItem: {…}}
-craft-category-menu.js:173 🎨 CSS Styles: {wrapperPosition: 'relative', wrapperOverflow: 'visible', sliderPosition: 'relative', sliderTransform: 'matrix(1, 0, 0, 1, 0, 0)', itemPosition: 'relative'}
+instagram-story-system.js:111 🎯 Button Click Debug
+instagram-story-system.js:112 Button clicked: {element: a.arrow.tab_previous.w-inline-block, classes: 'arrow tab_previous w-inline-block', isPrevious: true, isNext: false, event: {…}}
+instagram-story-system.js:121 Closest tabs component: {found: false, isVisible: false, category: undefined, element: undefined}
+instagram-story-system.js:133 ⚠️ Ignoring click on hidden tabs component
+instagram-story-system.js:111 🎯 Button Click Debug
+instagram-story-system.js:112 Button clicked: {element: a.arrow.tab_previous.w-inline-block, classes: 'arrow tab_previous w-inline-block', isPrevious: true, isNext: false, event: {…}}
+instagram-story-system.js:121 Closest tabs component: {found: false, isVisible: false, category: undefined, element: undefined}
+instagram-story-system.js:133 ⚠️ Ignoring click on hidden tabs component
+instagram-story-system.js:111 🎯 Button Click Debug
+instagram-story-system.js:112 Button clicked: {element: a.arrow.tab_next.w-inline-block, classes: 'arrow tab_next w-inline-block', isPrevious: false, isNext: true, event: {…}}
+instagram-story-system.js:121 Closest tabs component: {found: false, isVisible: false, category: undefined, element: undefined}
+instagram-story-system.js:133 ⚠️ Ignoring click on hidden tabs component
+instagram-story-system.js:111 🎯 Button Click Debug
+instagram-story-system.js:112 Button clicked: {element: a.arrow.tab_next.w-inline-block, classes: 'arrow tab_next w-inline-block', isPrevious: false, isNext: true, event: {…}}
+instagram-story-system.js:121 Closest tabs component: {found: false, isVisible: false, category: undefined, element: undefined}
+instagram-story-system.js:133 ⚠️ Ignoring click on hidden tabs component
+instagram-story-system.js:111 🎯 Button Click Debug
+instagram-story-system.js:112 Button clicked: {element: a.arrow.tab_next.w-inline-block, classes: 'arrow tab_next w-inline-block', isPrevious: false, isNext: true, event: {…}}
+instagram-story-system.js:121 Closest tabs component: {found: false, isVisible: false, category: undefined, element: undefined}
+instagram-story-system.js:133 ⚠️ Ignoring click on hidden tabs component
+instagram-story-system.js:111 🎯 Button Click Debug
+instagram-story-system.js:112 Button clicked: {element: a.arrow.tab_next.w-inline-block, classes: 'arrow tab_next w-inline-block', isPrevious: false, isNext: true, event: {…}}
+instagram-story-system.js:121 Closest tabs component: {found: false, isVisible: false, category: undefined, element: undefined}
+instagram-story-system.js:133 ⚠️ Ignoring click on hidden tabs component
+instagram-story-system.js:111 🎯 Button Click Debug
+instagram-story-system.js:112 Button clicked: {element: a.arrow.tab_next.w-inline-block, classes: 'arrow tab_next w-inline-block', isPrevious: false, isNext: true, event: {…}}
+instagram-story-system.js:121 Closest tabs component: {found: false, isVisible: false, category: undefined, element: undefined}
+instagram-story-system.js:133 ⚠️ Ignoring click on hidden tabs component
+instagram-story-system.js:111 🎯 Button Click Debug
+instagram-story-system.js:112 Button clicked: {element: a.arrow.tab_next.w-inline-block, classes: 'arrow tab_next w-inline-block', isPrevious: false, isNext: true, event: {…}}
+instagram-story-system.js:121 Closest tabs component: {found: false, isVisible: false, category: undefined, element: undefined}
+instagram-story-system.js:133 ⚠️ Ignoring click on hidden tabs component
+window.debugTabSystem()
+VM751:1 Uncaught TypeError: window.debugTabSystem is not a function
+    at <anonymous>:1:8
+(anonymous) @ VM751:1
+window.debugMultiTabs()
+instagram-story-system.js:476 🔍 Multi-Instance Tabs Debug Info
+instagram-story-system.js:477 Total instances: 5
+instagram-story-system.js:480 Instance 1: Software + Tools
+instagram-story-system.js:481 Tabs Component: <div scroll-animte=​"slide-up" data-current=​"Motion Branding" data-easing=​"ease" data-duration-in=​"300" data-duration-out=​"300" class=​"fs-tabs _w-tab-menu w-tabs" data-tabs-id=​"tabs-instance-1" data-category=​"Software + Tools">​…​</div>​
+instagram-story-system.js:482 Collection List: <div role=​"list" class=​"subcategory-list fs-dynamic-feed w-dyn-items" data-tabs-id=​"tabs-instance-1">​…​</div>​
+instagram-story-system.js:483 Tab Content: undefined
+instagram-story-system.js:484 FsLibrary: E {cms_selector: '[data-tabs-id="tabs-instance-1"].fs-dynamic-feed', animation: {…}, isPaginated: false, itemsPerPage: 10, filterOn: false, …}
+instagram-story-system.js:485 Category: Software + Tools
+instagram-story-system.js:480 Instance 2: Web + Brand
+instagram-story-system.js:481 Tabs Component: <div data-current=​"Motion Branding" data-easing=​"ease" data-duration-in=​"300" data-duration-out=​"300" class=​"fs-tabs _w-tab-menu w-tabs" data-tabs-id=​"tabs-instance-2" data-category=​"Web + Brand">​…​</div>​
+instagram-story-system.js:482 Collection List: <div role=​"list" class=​"subcategory-list fs-dynamic-feed motion-tabs w-dyn-items" data-tabs-id=​"tabs-instance-2">​…​</div>​
+instagram-story-system.js:483 Tab Content: undefined
+instagram-story-system.js:484 FsLibrary: E {cms_selector: '[data-tabs-id="tabs-instance-2"].fs-dynamic-feed', animation: {…}, isPaginated: false, itemsPerPage: 10, filterOn: false, …}
+instagram-story-system.js:485 Category: Web + Brand
+instagram-story-system.js:480 Instance 3: Generative AI
+instagram-story-system.js:481 Tabs Component: <div data-current=​"Motion Branding" data-easing=​"ease" data-duration-in=​"300" data-duration-out=​"300" class=​"fs-tabs _w-tab-menu w-tabs" data-tabs-id=​"tabs-instance-3" data-category=​"Generative AI">​…​</div>​
+instagram-story-system.js:482 Collection List: <div role=​"list" class=​"subcategory-list fs-dynamic-feed motion-tabs w-dyn-items" data-tabs-id=​"tabs-instance-3">​…​</div>​
+instagram-story-system.js:483 Tab Content: undefined
+instagram-story-system.js:484 FsLibrary: E {cms_selector: '[data-tabs-id="tabs-instance-3"].fs-dynamic-feed', animation: {…}, isPaginated: false, itemsPerPage: 10, filterOn: false, …}
+instagram-story-system.js:485 Category: Generative AI
+instagram-story-system.js:480 Instance 4: Motion
+instagram-story-system.js:481 Tabs Component: <div data-current=​"Motion Branding" data-easing=​"ease" data-duration-in=​"300" data-duration-out=​"300" class=​"fs-tabs _w-tab-menu w-tabs" data-tabs-id=​"tabs-instance-4" data-category=​"Motion">​…​</div>​
+instagram-story-system.js:482 Collection List: <div role=​"list" class=​"subcategory-list fs-dynamic-feed motion-tabs w-dyn-items" data-tabs-id=​"tabs-instance-4">​…​</div>​
+instagram-story-system.js:483 Tab Content: undefined
+instagram-story-system.js:484 FsLibrary: E {cms_selector: '[data-tabs-id="tabs-instance-4"].fs-dynamic-feed', animation: {…}, isPaginated: false, itemsPerPage: 10, filterOn: false, …}
+instagram-story-system.js:485 Category: Motion
+instagram-story-system.js:480 Instance 5: Creative Lead
+instagram-story-system.js:481 Tabs Component: <div data-current=​"Motion Branding" data-easing=​"ease" data-duration-in=​"300" data-duration-out=​"300" class=​"fs-tabs _w-tab-menu w-tabs tabs-visible" data-tabs-id=​"tabs-instance-5" data-category=​"Creative Lead">​…​</div>​
+instagram-story-system.js:482 Collection List: <div role=​"list" class=​"subcategory-list fs-dynamic-feed motion-tabs w-dyn-items" data-tabs-id=​"tabs-instance-5">​…​</div>​
+instagram-story-system.js:483 Tab Content: undefined
+instagram-story-system.js:484 FsLibrary: E {cms_selector: '[data-tabs-id="tabs-instance-5"].fs-dynamic-feed', animation: {…}, isPaginated: false, itemsPerPage: 10, filterOn: false, …}
+instagram-story-system.js:485 Category: Creative Lead
 undefined
-
-For the visual debug: 
-Red line is great, set exactly in the middle of the screen.
-Blue line is no where to be seen
-
-window.categoryMenuSlider.debugAllItems()
-craft-category-menu.js:280 📋 All Items Debug
-craft-category-menu.js:283 Item 0: {text: 'Software + Tools', offsetLeft: 0, offsetWidth: 337, center: 168.5, boundingRect: {…}, …}
-craft-category-menu.js:283 Item 1: {text: 'Motion', offsetLeft: 354, offsetWidth: 195, center: 451.5, boundingRect: {…}, …}
-craft-category-menu.js:283 Item 2: {text: 'Generative AI', offsetLeft: 566, offsetWidth: 288, center: 710, boundingRect: {…}, …}
-craft-category-menu.js:283 Item 3: {text: 'Web + Brand', offsetLeft: 872, offsetWidth: 275, center: 1009.5, boundingRect: {…}, …}
-craft-category-menu.js:283 Item 4: {text: 'Creative Lead', offsetLeft: 1164, offsetWidth: 291, center: 1309.5, boundingRect: {…}, …}
-
-
-window.categoryMenuSlider.testCentering()
-craft-category-menu.js:297 🧪 Testing centering for all items...
-undefined
-craft-category-menu.js:300 Testing item 0: Software + Tools
-craft-category-menu.js:141 🔍 Category Menu Debug Info
-craft-category-menu.js:142 📏 Container Measurements: {wrapperWidth: 368, wrapperHeight: 52, wrapperCenter: 184, sliderWidth: 1455, sliderHeight: 52}
-craft-category-menu.js:150 🎯 Active Item Info: {currentIndex: 0, itemText: 'Software + Tools', activeItemLeft: 0, activeItemWidth: 335, activeItemCenter: 167.5, …}
-craft-category-menu.js:159 📐 Positioning Calculations: {translateX: 16.5, boundedTranslateX: 0, maxTranslate: 0, minTranslate: -1087, currentTransform: 'translateX(0px)'}
-craft-category-menu.js:167 📍 Bounding Rectangles: {wrapper: {…}, slider: {…}, activeItem: {…}}
-craft-category-menu.js:173 🎨 CSS Styles: {wrapperPosition: 'relative', wrapperOverflow: 'visible', sliderPosition: 'relative', sliderTransform: 'matrix(1, 0, 0, 1, 0, 0)', itemPosition: 'relative'}
-craft-category-menu.js:300 Testing item 1: Motion
-craft-category-menu.js:141 🔍 Category Menu Debug Info
-craft-category-menu.js:142 📏 Container Measurements: {wrapperWidth: 368, wrapperHeight: 52, wrapperCenter: 184, sliderWidth: 1455, sliderHeight: 52}
-craft-category-menu.js:150 🎯 Active Item Info: {currentIndex: 1, itemText: 'Motion', activeItemLeft: 354, activeItemWidth: 194, activeItemCenter: 451, …}
-craft-category-menu.js:159 📐 Positioning Calculations: {translateX: -267, boundedTranslateX: -267, maxTranslate: 0, minTranslate: -1087, currentTransform: 'translateX(-267px)'}
-craft-category-menu.js:167 📍 Bounding Rectangles: {wrapper: {…}, slider: {…}, activeItem: {…}}
-craft-category-menu.js:173 🎨 CSS Styles: {wrapperPosition: 'relative', wrapperOverflow: 'visible', sliderPosition: 'relative', sliderTransform: 'matrix(1, 0, 0, 1, 0, 0)', itemPosition: 'relative'}
-craft-category-menu.js:300 Testing item 2: Generative AI
-craft-category-menu.js:141 🔍 Category Menu Debug Info
-craft-category-menu.js:142 📏 Container Measurements: {wrapperWidth: 368, wrapperHeight: 52, wrapperCenter: 184, sliderWidth: 1455, sliderHeight: 52}
-craft-category-menu.js:150 🎯 Active Item Info: {currentIndex: 2, itemText: 'Generative AI', activeItemLeft: 566, activeItemWidth: 287, activeItemCenter: 709.5, …}
-craft-category-menu.js:159 📐 Positioning Calculations: {translateX: -525.5, boundedTranslateX: -525.5, maxTranslate: 0, minTranslate: -1087, currentTransform: 'translateX(-525.5px)'}
-craft-category-menu.js:167 📍 Bounding Rectangles: {wrapper: {…}, slider: {…}, activeItem: {…}}
-craft-category-menu.js:173 🎨 CSS Styles: {wrapperPosition: 'relative', wrapperOverflow: 'visible', sliderPosition: 'relative', sliderTransform: 'matrix(1, 0, 0, 1, 0, 0)', itemPosition: 'relative'}
-craft-category-menu.js:300 Testing item 3: Web + Brand
-craft-category-menu.js:141 🔍 Category Menu Debug Info
-craft-category-menu.js:142 📏 Container Measurements: {wrapperWidth: 368, wrapperHeight: 52, wrapperCenter: 184, sliderWidth: 1455, sliderHeight: 52}
-craft-category-menu.js:150 🎯 Active Item Info: {currentIndex: 3, itemText: 'Web + Brand', activeItemLeft: 872, activeItemWidth: 275, activeItemCenter: 1009.5, …}
-craft-category-menu.js:159 📐 Positioning Calculations: {translateX: -825.5, boundedTranslateX: -825.5, maxTranslate: 0, minTranslate: -1087, currentTransform: 'translateX(-825.5px)'}
-craft-category-menu.js:167 📍 Bounding Rectangles: {wrapper: {…}, slider: {…}, activeItem: {…}}
-craft-category-menu.js:173 🎨 CSS Styles: {wrapperPosition: 'relative', wrapperOverflow: 'visible', sliderPosition: 'relative', sliderTransform: 'matrix(1, 0, 0, 1, 0, 0)', itemPosition: 'relative'}
-craft-category-menu.js:300 Testing item 4: Creative Lead
-craft-category-menu.js:141 🔍 Category Menu Debug Info
-craft-category-menu.js:142 📏 Container Measurements: {wrapperWidth: 368, wrapperHeight: 52, wrapperCenter: 184, sliderWidth: 1455, sliderHeight: 52}
-craft-category-menu.js:150 🎯 Active Item Info: {currentIndex: 4, itemText: 'Creative Lead', activeItemLeft: 1166, activeItemWidth: 290, activeItemCenter: 1311, …}
-craft-category-menu.js:159 📐 Positioning Calculations: {translateX: -1127, boundedTranslateX: -1087, maxTranslate: 0, minTranslate: -1087, currentTransform: 'translateX(-1087px)'}
-craft-category-menu.js:167 📍 Bounding Rectangles: {wrapper: {…}, slider: {…}, activeItem: {…}}
-craft-category-menu.js:173 🎨 CSS Styles: {wrapperPosition: 'relative', wrapperOverflow: 'visible', sliderPosition: 'relative', sliderTransform: 'matrix(1, 0, 0, 1, 0, 0)', itemPosition: 'relative'}
+window.debugTabSystem()
+VM763:1 Uncaught TypeError: window.debugTabSystem is not a function
+    at <anonymous>:1:8
