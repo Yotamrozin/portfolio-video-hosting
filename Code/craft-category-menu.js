@@ -1,9 +1,9 @@
 /**
- * Infinite Category Slider
- * Professional infinite loop slider with proper centering
+ * Swiper.js-Inspired Infinite Category Slider
+ * Based on Swiper's loop implementation with proper clone management
  */
 
-class InfiniteCategorySlider {
+class SwiperInspiredCategorySlider {
   constructor(wrapperSelector = '.category-slider-wrapper') {
     this.wrapper = document.querySelector(wrapperSelector);
     
@@ -20,301 +20,341 @@ class InfiniteCategorySlider {
       return;
     }
     
-    this.currentIndex = 0;
-    this.isAnimating = false;
-    this.cloneCount = Math.ceil(this.wrapper.offsetWidth / 200) + 2; // Adaptive clone count
+    // Swiper-inspired properties
+    this.slides = [];
+    this.realIndex = 0; // Actual logical index (0 to originalItems.length - 1)
+    this.activeIndex = 0; // Visual index in the slides array
+    this.isTransitioning = false;
+    this.loopedSlides = this.originalItems.length; // Number of clones on each side
     
     this.init();
   }
   
   init() {
-    this.createInfiniteSlider();
-    this.setActiveItem(0);
+    this.createLoopedSlides();
     this.setupEventListeners();
-    this.centerActiveItem();
+    this.setInitialPosition();
+    this.updateActiveStates();
   }
   
-  createInfiniteSlider() {
-    // Store original items data
-    this.itemsData = Array.from(this.originalItems).map(item => ({
+  createLoopedSlides() {
+    // Store original slide data
+    this.originalSlides = Array.from(this.originalItems).map((item, index) => ({
+      index: index,
+      element: item,
       text: item.textContent.trim(),
       category: item.dataset.category || item.textContent.trim(),
       color: item.dataset.color || '',
-      html: item.outerHTML
+      width: 0 // Will be calculated
     }));
     
-    // Create new slider structure
+    // Create new slider container
     this.slider = document.createElement('div');
     this.slider.className = this.originalSlider.className;
-    this.slider.style.display = 'flex';
-    this.slider.style.transition = 'none';
-    this.slider.style.willChange = 'transform';
+    this.slider.style.cssText = `
+      display: flex;
+      transition: none;
+      will-change: transform;
+      transform: translateX(0px);
+    `;
     
-    // Create infinite loop: [clones] + [original] + [clones]
-    this.allItems = [];
-    this.totalItems = this.itemsData.length;
+    this.slides = [];
     
-    // Left clones (for seamless loop)
-    for (let i = 0; i < this.cloneCount; i++) {
-      const dataIndex = (this.totalItems - this.cloneCount + i) % this.totalItems;
-      const clone = this.createItem(this.itemsData[dataIndex], `clone-left-${i}`);
+    // Left clones (exact copy of Swiper's approach)
+    for (let i = 0; i < this.loopedSlides; i++) {
+      const originalIndex = this.originalSlides.length - this.loopedSlides + i;
+      const slideData = this.originalSlides[originalIndex];
+      const clone = this.createSlide(slideData, `clone-before-${i}`, true);
       this.slider.appendChild(clone);
-      this.allItems.push(clone);
+      this.slides.push({
+        ...slideData,
+        element: clone,
+        realIndex: slideData.index,
+        isClone: true,
+        clonePosition: 'before'
+      });
     }
     
-    // Original items
-    this.itemsData.forEach((itemData, index) => {
-      const item = this.createItem(itemData, `original-${index}`);
-      this.slider.appendChild(item);
-      this.allItems.push(item);
+    // Original slides
+    this.originalSlides.forEach((slideData, index) => {
+      const slide = this.createSlide(slideData, `original-${index}`, false);
+      this.slider.appendChild(slide);
+      this.slides.push({
+        ...slideData,
+        element: slide,
+        realIndex: slideData.index,
+        isClone: false
+      });
     });
     
-    // Right clones (for seamless loop)
-    for (let i = 0; i < this.cloneCount; i++) {
-      const dataIndex = i % this.totalItems;
-      const clone = this.createItem(this.itemsData[dataIndex], `clone-right-${i}`);
+    // Right clones
+    for (let i = 0; i < this.loopedSlides; i++) {
+      const originalIndex = i;
+      const slideData = this.originalSlides[originalIndex];
+      const clone = this.createSlide(slideData, `clone-after-${i}`, true);
       this.slider.appendChild(clone);
-      this.allItems.push(clone);
+      this.slides.push({
+        ...slideData,
+        element: clone,
+        realIndex: slideData.index,
+        isClone: true,
+        clonePosition: 'after'
+      });
     }
     
     // Replace original slider
     this.originalSlider.parentNode.replaceChild(this.slider, this.originalSlider);
     
-    // Set initial position to first original item
-    this.realIndex = this.cloneCount;
-    this.setPosition(this.realIndex);
-    
-    console.log('🔧 Infinite slider created:', {
-      totalOriginalItems: this.totalItems,
-      cloneCount: this.cloneCount,
-      totalVisualItems: this.allItems.length,
-      startPosition: this.realIndex
+    console.log('🔧 Swiper-style loop created:', {
+      originalSlides: this.originalSlides.length,
+      loopedSlides: this.loopedSlides,
+      totalSlides: this.slides.length,
+      structure: `${this.loopedSlides} clones + ${this.originalSlides.length} originals + ${this.loopedSlides} clones`
     });
   }
   
-  createItem(itemData, id) {
-    const item = document.createElement('div');
-    item.className = 'category-item';
-    item.textContent = itemData.text;
-    item.dataset.category = itemData.category;
-    item.dataset.itemId = id;
-    if (itemData.color) item.dataset.color = itemData.color;
+  createSlide(slideData, id, isClone) {
+    const slide = document.createElement('div');
+    slide.className = 'category-item';
+    slide.textContent = slideData.text;
+    slide.dataset.category = slideData.category;
+    slide.dataset.slideId = id;
+    slide.dataset.realIndex = slideData.index;
+    if (slideData.color) slide.dataset.color = slideData.color;
+    if (isClone) slide.dataset.isClone = 'true';
     
     // Copy styles from original
-    const originalItem = this.originalItems[0];
-    if (originalItem) {
-      const computedStyles = window.getComputedStyle(originalItem);
-      item.style.padding = computedStyles.padding;
-      item.style.margin = computedStyles.margin;
-      item.style.fontSize = computedStyles.fontSize;
-      item.style.fontWeight = computedStyles.fontWeight;
-      item.style.borderRadius = computedStyles.borderRadius;
-      item.style.backgroundColor = computedStyles.backgroundColor;
-      item.style.color = computedStyles.color;
-      item.style.flexShrink = '0';
-      item.style.cursor = 'pointer';
-      item.style.whiteSpace = 'nowrap';
-    }
+    const originalItem = slideData.element;
+    const computedStyles = window.getComputedStyle(originalItem);
+    slide.style.cssText = `
+      flex-shrink: 0;
+      cursor: pointer;
+      white-space: nowrap;
+      padding: ${computedStyles.padding};
+      margin: ${computedStyles.margin};
+      font-size: ${computedStyles.fontSize};
+      font-weight: ${computedStyles.fontWeight};
+      border-radius: ${computedStyles.borderRadius};
+      background-color: ${computedStyles.backgroundColor};
+      color: ${computedStyles.color};
+    `;
     
-    return item;
+    return slide;
   }
   
   setupEventListeners() {
-    // Click handlers
-    this.allItems.forEach((item, visualIndex) => {
-      item.addEventListener('click', (e) => {
+    this.slides.forEach((slideInfo, index) => {
+      slideInfo.element.addEventListener('click', (e) => {
         e.preventDefault();
-        this.handleItemClick(visualIndex);
+        if (this.isTransitioning) return;
+        
+        this.slideTo(slideInfo.realIndex);
+        
+        // Integrate with existing tabs system
+        if (window.MultiInstanceTabsManager) {
+          window.MultiInstanceTabsManager.showCategory(slideInfo.category);
+        }
       });
     });
     
     // Resize handler
     this.resizeHandler = this.debounce(() => {
-      this.centerActiveItem();
+      this.updateSlidePositions();
     }, 100);
     
     window.addEventListener('resize', this.resizeHandler);
   }
   
-  handleItemClick(visualIndex) {
-    if (this.isAnimating) return;
-    
-    // Calculate the logical index (0 to totalItems-1)
-    const logicalIndex = this.getLogicalIndex(visualIndex);
-    
-    // Move to clicked item
-    this.goToItem(logicalIndex);
-    
-    // Integrate with existing tabs system
-    const category = this.itemsData[logicalIndex].category;
-    if (window.MultiInstanceTabsManager) {
-      window.MultiInstanceTabsManager.showCategory(category);
-    }
+  setInitialPosition() {
+    // Start at the first original slide (after the clones)
+    this.activeIndex = this.loopedSlides;
+    this.realIndex = 0;
+    this.updateSlidePositions();
   }
   
-  goToItem(logicalIndex, animate = true) {
-    if (this.isAnimating && animate) return;
+  slideTo(targetRealIndex, animate = true) {
+    if (this.isTransitioning && animate) return;
     
-    this.currentIndex = logicalIndex;
+    const oldRealIndex = this.realIndex;
+    this.realIndex = targetRealIndex;
     
-    // Find the best visual position for this logical index
-    const targetVisualIndex = this.findBestVisualIndex(logicalIndex);
+    // Find the best slide to transition to
+    const targetSlideIndex = this.findBestSlideIndex(targetRealIndex);
     
     if (animate) {
-      this.animateToPosition(targetVisualIndex);
+      this.transitionTo(targetSlideIndex);
     } else {
-      this.setPosition(targetVisualIndex);
+      this.activeIndex = targetSlideIndex;
+      this.updateSlidePositions();
       this.updateActiveStates();
     }
-  }
-  
-  findBestVisualIndex(logicalIndex) {
-    // Find all visual indices that represent this logical index
-    const candidates = [];
     
-    this.allItems.forEach((item, visualIndex) => {
-      const itemLogicalIndex = this.getLogicalIndex(visualIndex);
-      if (itemLogicalIndex === logicalIndex) {
-        candidates.push(visualIndex);
-      }
-    });
-    
-    // Choose the candidate closest to center
-    const centerPosition = this.allItems.length / 2;
-    return candidates.reduce((best, current) => {
-      return Math.abs(current - centerPosition) < Math.abs(best - centerPosition) ? current : best;
+    console.log('🎯 Slide transition:', {
+      from: { realIndex: oldRealIndex, activeIndex: this.activeIndex },
+      to: { realIndex: targetRealIndex, activeIndex: targetSlideIndex },
+      category: this.slides[targetSlideIndex]?.category
     });
   }
   
-  getLogicalIndex(visualIndex) {
-    if (visualIndex < this.cloneCount) {
-      // Left clones
-      return (this.totalItems - this.cloneCount + visualIndex) % this.totalItems;
-    } else if (visualIndex >= this.cloneCount + this.totalItems) {
-      // Right clones
-      return (visualIndex - this.cloneCount - this.totalItems) % this.totalItems;
-    } else {
-      // Original items
-      return visualIndex - this.cloneCount;
+  findBestSlideIndex(targetRealIndex) {
+    // Find all slides that match this realIndex
+    const candidates = this.slides
+      .map((slide, index) => ({ slide, index }))
+      .filter(({ slide }) => slide.realIndex === targetRealIndex);
+    
+    if (candidates.length === 0) return this.activeIndex;
+    
+    // Prefer non-clones if possible
+    const nonCloneCandidate = candidates.find(({ slide }) => !slide.isClone);
+    if (nonCloneCandidate) {
+      return nonCloneCandidate.index;
     }
+    
+    // Otherwise, find the closest candidate to current position
+    return candidates.reduce((best, current) => {
+      const currentDistance = Math.abs(current.index - this.activeIndex);
+      const bestDistance = Math.abs(best.index - this.activeIndex);
+      return currentDistance < bestDistance ? current : best;
+    }).index;
   }
   
-  setPosition(visualIndex) {
-    this.realIndex = visualIndex;
-    const item = this.allItems[visualIndex];
-    if (!item) return;
+  transitionTo(targetIndex) {
+    this.isTransitioning = true;
+    this.activeIndex = targetIndex;
     
-    const wrapperWidth = this.wrapper.offsetWidth;
-    const itemLeft = item.offsetLeft;
-    const itemWidth = item.offsetWidth;
-    const itemCenter = itemLeft + (itemWidth / 2);
-    const wrapperCenter = wrapperWidth / 2;
-    
-    const translateX = wrapperCenter - itemCenter;
-    this.slider.style.transform = `translateX(${translateX}px)`;
-    
-    console.log('📍 Position set:', {
-      visualIndex,
-      logicalIndex: this.getLogicalIndex(visualIndex),
-      itemText: item.textContent.trim(),
-      translateX
-    });
-  }
-  
-  animateToPosition(targetVisualIndex) {
-    this.isAnimating = true;
+    // Apply smooth transition
     this.slider.style.transition = 'transform 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94)';
-    
-    this.setPosition(targetVisualIndex);
+    this.updateSlidePositions();
     this.updateActiveStates();
     
+    // Handle transition end
     setTimeout(() => {
-      this.isAnimating = false;
+      this.isTransitioning = false;
       this.slider.style.transition = 'none';
-      this.checkLoopReset();
+      this.checkLoopFix();
     }, 400);
   }
   
-  checkLoopReset() {
-    // If we're too far left or right, jump to equivalent position
-    if (this.realIndex < this.cloneCount / 2) {
-      const equivalentIndex = this.realIndex + this.totalItems;
-      this.setPosition(equivalentIndex);
-    } else if (this.realIndex >= this.allItems.length - this.cloneCount / 2) {
-      const equivalentIndex = this.realIndex - this.totalItems;
-      this.setPosition(equivalentIndex);
+  checkLoopFix() {
+    // Swiper's loop fix logic - jump to equivalent position if needed
+    let needsLoopFix = false;
+    let newActiveIndex = this.activeIndex;
+    
+    if (this.activeIndex < this.loopedSlides / 2) {
+      // Too far left, jump to equivalent position on the right
+      newActiveIndex = this.activeIndex + this.originalSlides.length;
+      needsLoopFix = true;
+    } else if (this.activeIndex >= this.slides.length - this.loopedSlides / 2) {
+      // Too far right, jump to equivalent position on the left
+      newActiveIndex = this.activeIndex - this.originalSlides.length;
+      needsLoopFix = true;
+    }
+    
+    if (needsLoopFix) {
+      console.log('🔄 Loop fix applied:', {
+        from: this.activeIndex,
+        to: newActiveIndex,
+        realIndex: this.realIndex
+      });
+      
+      this.activeIndex = newActiveIndex;
+      this.updateSlidePositions();
     }
   }
   
-  setActiveItem(logicalIndex) {
-    this.currentIndex = logicalIndex;
-    this.goToItem(logicalIndex, false);
-    this.updateActiveStates();
+  updateSlidePositions() {
+    const wrapperWidth = this.wrapper.offsetWidth;
+    const activeSlide = this.slides[this.activeIndex];
+    
+    if (!activeSlide) return;
+    
+    // Calculate slide positions
+    let currentLeft = 0;
+    this.slides.forEach((slide, index) => {
+      const slideWidth = slide.element.offsetWidth || 200; // Fallback width
+      slide.left = currentLeft;
+      slide.width = slideWidth;
+      currentLeft += slideWidth;
+    });
+    
+    // Center the active slide
+    const activeSlideCenter = activeSlide.left + (activeSlide.width / 2);
+    const wrapperCenter = wrapperWidth / 2;
+    const translateX = wrapperCenter - activeSlideCenter;
+    
+    this.slider.style.transform = `translateX(${translateX}px)`;
+    
+    console.log('📐 Position update:', {
+      activeIndex: this.activeIndex,
+      realIndex: this.realIndex,
+      activeSlideCenter,
+      wrapperCenter,
+      translateX,
+      category: activeSlide.category
+    });
   }
   
   updateActiveStates() {
-    // Remove active from all items
-    this.allItems.forEach(item => {
-      item.classList.remove('active');
-      item.style.backgroundColor = '';
+    // Remove active from all slides
+    this.slides.forEach(slide => {
+      slide.element.classList.remove('active');
+      slide.element.style.backgroundColor = '';
     });
     
-    // Add active to all items representing current logical index
-    this.allItems.forEach((item, visualIndex) => {
-      const itemLogicalIndex = this.getLogicalIndex(visualIndex);
-      if (itemLogicalIndex === this.currentIndex) {
-        item.classList.add('active');
-        const customColor = item.dataset.color;
-        if (customColor) {
-          item.style.backgroundColor = customColor;
+    // Add active to all slides with current realIndex
+    this.slides.forEach(slide => {
+      if (slide.realIndex === this.realIndex) {
+        slide.element.classList.add('active');
+        if (slide.color) {
+          slide.element.style.backgroundColor = slide.color;
         }
       }
     });
   }
   
-  centerActiveItem() {
-    if (this.realIndex !== undefined) {
-      this.setPosition(this.realIndex);
-    }
+  // Navigation methods (Swiper-style)
+  slideNext() {
+    const nextRealIndex = (this.realIndex + 1) % this.originalSlides.length;
+    this.slideTo(nextRealIndex);
   }
   
-  // Navigation methods
-  next() {
-    const nextIndex = (this.currentIndex + 1) % this.totalItems;
-    this.goToItem(nextIndex);
-  }
-  
-  prev() {
-    const prevIndex = (this.currentIndex - 1 + this.totalItems) % this.totalItems;
-    this.goToItem(prevIndex);
+  slidePrev() {
+    const prevRealIndex = (this.realIndex - 1 + this.originalSlides.length) % this.originalSlides.length;
+    this.slideTo(prevRealIndex);
   }
   
   // Public API methods
   setActiveCategory(category) {
-    const targetIndex = this.itemsData.findIndex(item => 
-      item.category.toLowerCase() === category.toLowerCase()
+    const targetSlide = this.originalSlides.find(slide => 
+      slide.category.toLowerCase() === category.toLowerCase()
     );
     
-    if (targetIndex !== -1) {
-      this.goToItem(targetIndex);
+    if (targetSlide) {
+      this.slideTo(targetSlide.index);
     }
   }
   
   getCurrentCategory() {
-    return this.itemsData[this.currentIndex]?.category || null;
+    const currentSlide = this.originalSlides[this.realIndex];
+    return currentSlide ? currentSlide.category : null;
   }
   
   // Debug methods
   debug() {
-    console.group('🔍 Infinite Slider Debug');
+    console.group('🔍 Swiper-Style Slider Debug');
     console.log('Current State:', {
-      logicalIndex: this.currentIndex,
-      visualIndex: this.realIndex,
+      realIndex: this.realIndex,
+      activeIndex: this.activeIndex,
       currentCategory: this.getCurrentCategory(),
-      totalOriginalItems: this.totalItems,
-      totalVisualItems: this.allItems.length
+      isTransitioning: this.isTransitioning
     });
-    console.log('Transform:', this.slider.style.transform);
+    console.log('Slide Structure:', {
+      totalSlides: this.slides.length,
+      originalSlides: this.originalSlides.length,
+      loopedSlides: this.loopedSlides
+    });
+    console.log('Current Transform:', this.slider.style.transform);
+    console.log('Active Slide:', this.slides[this.activeIndex]);
     console.groupEnd();
   }
   
@@ -341,11 +381,10 @@ class InfiniteCategorySlider {
 // Initialize when DOM is ready
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => {
-    window.categoryMenuSlider = new InfiniteCategorySlider();
+    window.categoryMenuSlider = new SwiperInspiredCategorySlider();
   });
 } else {
-  window.categoryMenuSlider = new InfiniteCategorySlider();
+  window.categoryMenuSlider = new SwiperInspiredCategorySlider();
 }
-
 // Export for external access
-window.InfiniteCategorySlider = InfiniteCategorySlider;
+window.SwiperInspiredCategorySlider = SwiperInspiredCategorySlider;
