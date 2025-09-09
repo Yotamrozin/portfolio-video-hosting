@@ -86,7 +86,6 @@ Webflow.push(function() {
   function nextTab() {
     if (!$(".uui-navbar06_menu-button").hasClass("w--open")) {
       console.log('⏭️ Auto nextTab triggered');
-      // Only trigger next button in the visible tabs component
       $('.fs-tabs.tabs-visible .tab_next').trigger("click");
     }
   }
