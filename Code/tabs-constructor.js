@@ -168,7 +168,7 @@ class TabsConstructor {
         if (tabsComponents.length > 0 && collectionLists.length > 0 && tabContents.length > 0) {
           resolve();
         } else {
-          setTimeout(checkContent, 100);
+          setTimeout(checkContent, 250); // Changed from 100ms to 250ms
         }
       };
       
