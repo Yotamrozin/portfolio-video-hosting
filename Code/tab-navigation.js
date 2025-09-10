@@ -83,16 +83,15 @@
 
             this.tabInstances.set(wrapper, instanceData);
 
-            // Event listener for tab clicks (to sync currentIndex)
-            const tabClickListener = (e) => {
-                if (e.target.matches('.w-tab-link')) {
-                    const clickedIndex = Array.from(tabLinks).indexOf(e.target);
+                // Event listener for tab changes
+                const tabChangeListener = (e) => {
+                    const tab = e.target; // The newly activated tab link
+                    const clickedIndex = Array.from(tabLinks).indexOf(tab);
                     if (clickedIndex !== -1) {
                         instanceData.currentIndex = clickedIndex;
-                        console.log(`🎯 Tab clicked: ${clickedIndex + 1} of ${instanceData.totalTabs}`);
+                        console.log(`🎯 Tab changed: ${clickedIndex + 1} of ${instanceData.totalTabs}`);
                     }
-                }
-            };
+                };
             
 
             // Navigation button listeners
@@ -107,7 +106,6 @@
             };
 
             // Add event listeners
-            tabsElement.addEventListener('click', tabClickListener);
             nextButton.addEventListener('click', nextClickListener);
             prevButton.addEventListener('click', prevClickListener);
 
