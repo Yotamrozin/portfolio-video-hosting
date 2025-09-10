@@ -192,7 +192,8 @@ class CategoryTabsController {
             window.TabNavigationManager.resumeAutoAdvanceForTabsElement(tabsElement);
         }
         
-        console.log('CategoryTabsController: 👁 Showing tabs element:', tabsElement);
+        // Remove excessive logging
+        // console.log('CategoryTabsController: 👁 Showing tabs element:', tabsElement);
     }
 
     hideTabsElement(tabsElement) {
@@ -204,7 +205,8 @@ class CategoryTabsController {
             window.TabNavigationManager.pauseAutoAdvanceForTabsElement(tabsElement);
         }
         
-        console.log('CategoryTabsController: 🙈 Hiding tabs element:', tabsElement);
+        // Remove excessive logging
+        // console.log('CategoryTabsController: 🙈 Hiding tabs element:', tabsElement);
     }
 
     addActiveState(button) {

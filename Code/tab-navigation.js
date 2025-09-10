@@ -117,10 +117,11 @@
                 this.navigateNext(wrapper); // Same functionality as Next button
             };
 
-            // Auto-advance functionality - change tab every 5 seconds
-            instanceData.autoAdvanceTimer = setInterval(() => {
-                this.navigateNext(wrapper);
-            }, 5000); // 5 seconds
+            // Don't start auto-advance immediately - let category controller manage it
+            // instanceData.autoAdvanceTimer = setInterval(() => {
+            //     this.navigateNext(wrapper);
+            // }, 5000); // 5 seconds
+            instanceData.autoAdvanceTimer = null; // Initialize as null
 
             // Add event listeners
             tabsElement.addEventListener('w-tab-change', tabChangeListener);
@@ -165,11 +166,12 @@
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
 
-            console.log(`🔍 Current index before next: ${instance.currentIndex}, total: ${instance.totalTabs}`);
+            // Remove excessive debugging
+            // console.log('🔍 Current index before next:', instance.currentIndex, 'total:', instance.totalTabs);
 
-            // Check if we can go to next tab
             if (instance.currentIndex >= instance.totalTabs - 1) {
-                console.log('🚫 Already at last tab, cannot go next');
+                // Remove this log as it's too frequent
+                // console.log('🚫 Already at last tab, cannot go next');
                 return;
             }
 
@@ -282,7 +284,8 @@
             if (instance.autoAdvanceTimer) {
                 clearInterval(instance.autoAdvanceTimer);
                 instance.autoAdvanceTimer = null;
-                console.log('⏸️ Auto-advance paused for tab wrapper');
+                // Remove excessive logging
+                // console.log('⏸️ Auto-advance paused for tab wrapper');
             }
         }
 
@@ -295,7 +298,8 @@
                 instance.autoAdvanceTimer = setInterval(() => {
                     this.navigateNext(wrapper);
                 }, 5000); // 5 seconds
-                console.log('▶️ Auto-advance resumed for tab wrapper');
+                // Remove excessive logging
+                // console.log('▶️ Auto-advance resumed for tab wrapper');
             }
         }
 
