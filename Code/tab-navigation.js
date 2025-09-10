@@ -111,7 +111,6 @@
 
             // Store listeners for cleanup
             instanceData.listeners = [
-                { element: tabsElement, event: 'click', listener: tabClickListener },
                 { element: nextButton, event: 'click', listener: nextClickListener },
                 { element: prevButton, event: 'click', listener: prevClickListener }
             ];
