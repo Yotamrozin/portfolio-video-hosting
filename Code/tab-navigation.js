@@ -56,14 +56,15 @@
                 return;
             }
 
-            // Store instance data
+            // Store instance data with event listeners for cleanup
             const instanceData = {
                 wrapper,
                 tabsElement,
                 nextButton,
                 prevButton,
                 currentIndex: 0,
-                totalTabs: 0
+                totalTabs: 0,
+                listeners: [] // Store listeners for cleanup
             };
 
             // Get total number of tabs
@@ -76,31 +77,57 @@
             }
 
             // Find currently active tab
-            const activeTab = tabsElement.querySelector('[data-tabs="link"].w--current');
+            this.updateCurrentIndex(instanceData);
+
+            this.tabInstances.set(wrapper, instanceData);
+
+            // Event listener for tab clicks (to sync currentIndex)
+            const tabClickListener = (e) => {
+                if (e.target.matches('[data-tabs="link"]')) {
+                    const clickedIndex = Array.from(tabLinks).indexOf(e.target);
+                    if (clickedIndex !== -1) {
+                        instanceData.currentIndex = clickedIndex;
+                        console.log(`🎯 Tab clicked: ${clickedIndex + 1} of ${instanceData.totalTabs}`);
+                    }
+                }
+            };
+
+            // Navigation button listeners
+            const nextClickListener = (e) => {
+                e.preventDefault();
+                this.navigateNext(wrapper);
+            };
+
+            const prevClickListener = (e) => {
+                e.preventDefault();
+                this.navigatePrevious(wrapper);
+            };
+
+            // Add event listeners
+            tabsElement.addEventListener('click', tabClickListener);
+            nextButton.addEventListener('click', nextClickListener);
+            prevButton.addEventListener('click', prevClickListener);
+
+            // Store listeners for cleanup
+            instanceData.listeners = [
+                { element: tabsElement, event: 'click', listener: tabClickListener },
+                { element: nextButton, event: 'click', listener: nextClickListener },
+                { element: prevButton, event: 'click', listener: prevClickListener }
+            ];
+
+            console.log(`✅ Initialized tab wrapper ${index} with ${instanceData.totalTabs} tabs`);
+        }
+
+        updateCurrentIndex(instanceData) {
+            const tabLinks = instanceData.tabsElement.querySelectorAll('[data-tabs="link"]');
+            const activeTab = instanceData.tabsElement.querySelector('[data-tabs="link"].w--current');
+            
             if (activeTab) {
                 const activeIndex = Array.from(tabLinks).indexOf(activeTab);
                 if (activeIndex !== -1) {
                     instanceData.currentIndex = activeIndex;
                 }
             }
-
-            this.tabInstances.set(wrapper, instanceData);
-
-            // Add event listeners
-            nextButton.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.navigateNext(wrapper);
-            });
-
-            prevButton.addEventListener('click', (e) => {
-                e.preventDefault();
-                this.navigatePrevious(wrapper);
-            });
-
-            // Update button states initially
-            this.updateButtonStates(wrapper);
-
-            console.log(`✅ Initialized tab wrapper ${index} with ${instanceData.totalTabs} tabs`);
         }
 
         navigateNext(wrapper) {
@@ -143,41 +170,33 @@
                 return;
             }
 
-            // Update current index
-            instance.currentIndex = targetIndex;
-
-            // Trigger click on the target tab
+            // Trigger click on the target tab (this will trigger our click listener)
             targetTab.click();
-
-            // Update button states
-            this.updateButtonStates(wrapper);
 
             console.log(`🎯 Navigated to tab ${targetIndex + 1} of ${instance.totalTabs}`);
         }
 
-        updateButtonStates(wrapper) {
+        // Cleanup method for defensive programming
+        destroy(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
 
-            const { nextButton, prevButton, currentIndex, totalTabs } = instance;
+            // Remove all event listeners
+            instance.listeners.forEach(({ element, event, listener }) => {
+                element.removeEventListener(event, listener);
+            });
 
-            // Update Previous button state
-            if (currentIndex <= 0) {
-                prevButton.style.opacity = '0.5';
-                prevButton.style.pointerEvents = 'none';
-            } else {
-                prevButton.style.opacity = '1';
-                prevButton.style.pointerEvents = 'auto';
-            }
+            // Remove from instances map
+            this.tabInstances.delete(wrapper);
 
-            // Update Next button state
-            if (currentIndex >= totalTabs - 1) {
-                nextButton.style.opacity = '0.5';
-                nextButton.style.pointerEvents = 'none';
-            } else {
-                nextButton.style.opacity = '1';
-                nextButton.style.pointerEvents = 'auto';
-            }
+            console.log('🧹 Tab navigation instance cleaned up');
+        }
+
+        // Destroy all instances
+        destroyAll() {
+            const wrappers = Array.from(this.tabInstances.keys());
+            wrappers.forEach(wrapper => this.destroy(wrapper));
+            console.log('🧹 All tab navigation instances cleaned up');
         }
 
         // Public method to get current tab info for debugging
@@ -203,7 +222,7 @@
     // Initialize the navigation manager
     const navigationManager = new TabNavigationManager();
 
-    // Make it globally accessible for debugging
+    // Make it globally accessible for debugging and cleanup
     window.TabNavigationManager = navigationManager;
 
     console.log('📱 Tab Navigation script loaded');
