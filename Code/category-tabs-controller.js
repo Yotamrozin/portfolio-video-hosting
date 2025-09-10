@@ -13,8 +13,9 @@ class CategoryTabsController {
     createCategoryMapping() {
         // Find all tabs components
         const tabsComponents = document.querySelectorAll('.fs-tabs');
+        console.log(`Found ${tabsComponents.length} tabs components:`, tabsComponents);
         
-        tabsComponents.forEach(tabsComponent => {
+        tabsComponents.forEach((tabsComponent, index) => {
             // Get category from data attribute or tab content
             let category = tabsComponent.getAttribute('data-category');
             
@@ -27,20 +28,40 @@ class CategoryTabsController {
             
             if (category) {
                 this.categoryMapping.set(category, tabsComponent);
-                console.log(`Mapped category "${category}" to tabs component`);
+                console.log(`Mapped category "${category}" to tabs component #${index}:`, {
+                    element: tabsComponent,
+                    id: tabsComponent.id || 'no-id',
+                    classes: tabsComponent.className,
+                    currentVisibility: getComputedStyle(tabsComponent).visibility,
+                    currentDisplay: getComputedStyle(tabsComponent).display
+                });
             } else {
-                console.warn('Tabs component found without category:', tabsComponent);
+                console.warn(`Tabs component #${index} found without category:`, tabsComponent);
             }
         });
+        
+        console.log('Final category mapping:', this.categoryMapping);
     }
 
     showCategory(categoryName) {
+        console.log(`\n=== showCategory called with: "${categoryName}" ===`);
         const tabsComponent = this.categoryMapping.get(categoryName);
         
         if (!tabsComponent) {
             console.warn(`No tabs component found for category: '${categoryName}'`);
+            console.log('Available categories:', Array.from(this.categoryMapping.keys()));
             return;
         }
+
+        console.log('Found tabs component for category:', {
+            category: categoryName,
+            element: tabsComponent,
+            beforeStyles: {
+                visibility: getComputedStyle(tabsComponent).visibility,
+                pointerEvents: getComputedStyle(tabsComponent).pointerEvents,
+                position: getComputedStyle(tabsComponent).position
+            }
+        });
 
         // Hide all tabs components
         this.hideAllTabs();
@@ -48,12 +69,22 @@ class CategoryTabsController {
         // Show the target tabs component
         this.showTabsComponent(tabsComponent);
         
-        console.log(`Showing category: ${categoryName}`);
+        console.log('After showing tabs component:', {
+            afterStyles: {
+                visibility: getComputedStyle(tabsComponent).visibility,
+                pointerEvents: getComputedStyle(tabsComponent).pointerEvents,
+                position: getComputedStyle(tabsComponent).position
+            }
+        });
+        
+        console.log(`=== End showCategory for "${categoryName}" ===\n`);
     }
 
     hideAllTabs() {
-        this.categoryMapping.forEach(tabsComponent => {
+        console.log('Hiding all tabs components...');
+        this.categoryMapping.forEach((tabsComponent, category) => {
             this.hideTabsComponent(tabsComponent);
+            console.log(`Hidden category "${category}"`);
         });
     }
 
@@ -61,6 +92,7 @@ class CategoryTabsController {
         tabsComponent.style.visibility = 'visible';
         tabsComponent.style.pointerEvents = 'auto';
         tabsComponent.style.position = 'relative';
+        console.log('Applied show styles to tabs component');
     }
 
     hideTabsComponent(tabsComponent) {
@@ -73,6 +105,7 @@ class CategoryTabsController {
         // Show the first category by default
         const firstCategory = this.categoryMapping.keys().next().value;
         if (firstCategory) {
+            console.log(`Setting initial category to: "${firstCategory}"`);
             this.showCategory(firstCategory);
         }
     }
@@ -90,4 +123,11 @@ class CategoryTabsController {
 // Initialize and expose globally
 const categoryTabsController = new CategoryTabsController();
 window.CategoryTabsController = categoryTabsController;
-window.tabsManager = categoryTabsController; // For compatibility with craft-category-menu.js
+window.tabsManager = categoryTabsController;
+window.MultiInstanceTabsManager = categoryTabsController;
+
+// Add debug function to test manually
+window.debugShowCategory = (categoryName) => {
+    console.log(`\n=== Manual Debug Test for "${categoryName}" ===`);
+    categoryTabsController.showCategory(categoryName);
+};
