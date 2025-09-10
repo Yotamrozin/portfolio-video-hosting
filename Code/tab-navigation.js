@@ -139,6 +139,8 @@
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
 
+            console.log(`🔍 Current index before next: ${instance.currentIndex}, total: ${instance.totalTabs}`);
+
             // Check if we can go to next tab
             if (instance.currentIndex >= instance.totalTabs - 1) {
                 console.log('🚫 Already at last tab, cannot go next');
@@ -152,6 +154,8 @@
         navigatePrevious(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
+
+            console.log(`🔍 Current index before previous: ${instance.currentIndex}, total: ${instance.totalTabs}`);
 
             // Check if we can go to previous tab
             if (instance.currentIndex <= 0) {
@@ -175,10 +179,14 @@
                 return;
             }
 
-            // Just trigger the click
+            // Update the index immediately before clicking
+            const oldIndex = instance.currentIndex;
+            instance.currentIndex = targetIndex;
+
+            // Trigger the click
             targetTab.click();
 
-            console.log(`🎯 Navigated to tab ${targetIndex + 1} of ${instance.totalTabs}`);
+            console.log(`🎯 Navigated from tab ${oldIndex + 1} to tab ${targetIndex + 1} of ${instance.totalTabs}`);
         }
 
 
