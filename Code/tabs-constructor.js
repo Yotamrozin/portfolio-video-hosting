@@ -21,6 +21,16 @@ class TabsConstructor {
     
     this.isInitialized = true;
     console.log('✅ Tabs Constructor initialized yes!');
+    
+    // Dispatch custom event to notify other systems
+    const event = new CustomEvent('tabsConstructorReady', {
+      detail: {
+        instances: this.instances,
+        tabsConstructor: this
+      }
+    });
+    document.dispatchEvent(event);
+    console.log('📢 Dispatched tabsConstructorReady event');
   }
 
   createInstancesFromArrays() {

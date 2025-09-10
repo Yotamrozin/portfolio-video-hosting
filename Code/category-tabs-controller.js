@@ -1,11 +1,35 @@
 class CategoryTabsController {
     constructor() {
         this.categoryTabsPairs = new Map();
+        this.isTabsConstructorReady = false;
         this.init();
     }
 
     init() {
         this.setupCategoryButtonListeners();
+        this.waitForTabsConstructor();
+    }
+
+    waitForTabsConstructor() {
+        // Check if tabs constructor is already ready
+        if (window.tabsConstructor && window.tabsConstructor.isInitialized) {
+            console.log('🎯 Tabs constructor already ready, proceeding with pairing');
+            this.onTabsConstructorReady();
+            return;
+        }
+
+        // Listen for the custom event
+        document.addEventListener('tabsConstructorReady', (event) => {
+            console.log('🎯 Received tabsConstructorReady event:', event.detail);
+            this.isTabsConstructorReady = true;
+            this.onTabsConstructorReady();
+        }, { once: true }); // Use once: true to automatically remove listener
+
+        console.log('⏳ Waiting for tabs constructor to finish...');
+    }
+
+    onTabsConstructorReady() {
+        console.log('🚀 Tabs constructor is ready, starting category-tabs pairing');
         this.findAndPairTabsWithCategories();
     }
 
@@ -37,11 +61,13 @@ class CategoryTabsController {
             if (category) {
                 button.addEventListener('click', (e) => {
                     console.log(`\n=== Category button clicked: "${category}" ===`);
+                    this.showCategory(category);
                     e.preventDefault();
                 });
                 
                 button.addEventListener('touchstart', (e) => {
                     console.log(`\n=== Category button tapped: "${category}" ===`);
+                    this.showCategory(category);
                 });
             } else {
                 console.warn(`Button #${index} in menu has no data-category attribute:`, button);
@@ -133,6 +159,21 @@ class CategoryTabsController {
                     console.warn(`  - "${category}"`);
                 }
             });
+        }
+    }
+
+    showCategory(category) {
+        if (!this.isTabsConstructorReady) {
+            console.warn(`Cannot show category "${category}" - tabs constructor not ready yet`);
+            return;
+        }
+
+        const pair = this.categoryTabsPairs.get(category);
+        if (pair && pair.tabsElement) {
+            console.log(`🎯 Showing category: "${category}"`);
+            // Add your visibility logic here
+        } else {
+            console.warn(`No tabs found for category: "${category}"`);
         }
     }
 }
