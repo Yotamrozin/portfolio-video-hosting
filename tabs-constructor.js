@@ -1,6 +1,6 @@
 /**
  * Standalone Tabs Constructor
- * Handles pairing CMS collections with tabs components and Finsweet initialization
+ * Handles pairing CMS collections with tabs components and Finsweet initialization independently
  */
 
 class TabsConstructor {
@@ -20,7 +20,7 @@ class TabsConstructor {
     this.initializeInstances();
     
     this.isInitialized = true;
-    console.log('✅ Tabs Constructor initialized');
+    console.log('✅ Tabs Constructor initialized yes!');
   }
 
   createInstancesFromArrays() {
