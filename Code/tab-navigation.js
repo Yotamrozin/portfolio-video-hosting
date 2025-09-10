@@ -179,10 +179,9 @@
                 return;
             }
 
-            // Update the index immediately before clicking
+            // Don't update index here - let w-tab-change event handle it
             const oldIndex = instance.currentIndex;
-            instance.currentIndex = targetIndex;
-
+            
             // Trigger the click
             targetTab.click();
 
