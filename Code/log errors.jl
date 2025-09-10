@@ -1,40 +1,7 @@
-Hiding all tabs components...
-category-tabs-controller.js:87 Hidden category "Software + Tools"
-category-tabs-controller.js:87 Hidden category "Web + Brand"
-category-tabs-controller.js:87 Hidden category "Generative AI"
-category-tabs-controller.js:87 Hidden category "Motion"
-category-tabs-controller.js:87 Hidden category "Creative Lead"
-category-tabs-controller.js:108 Setting initial category to: "Software + Tools"
-category-tabs-controller.js:47 
-=== showCategory called with: "Software + Tools" ===
-category-tabs-controller.js:56 Found tabs component for category: {category: 'Software + Tools', element: div.fs-tabs._w-tab-menu.tabs-visible.w-tabs, beforeStyles: {…}}
-category-tabs-controller.js:84 Hiding all tabs components...
-category-tabs-controller.js:87 Hidden category "Software + Tools"
-category-tabs-controller.js:87 Hidden category "Web + Brand"
-category-tabs-controller.js:87 Hidden category "Generative AI"
-category-tabs-controller.js:87 Hidden category "Motion"
-category-tabs-controller.js:87 Hidden category "Creative Lead"
-category-tabs-controller.js:95 Applied show styles to tabs component
-category-tabs-controller.js:72 After showing tabs component: {afterStyles: {…}}afterStyles: {visibility: 'visible', pointerEvents: 'auto', position: 'relative'}[[Prototype]]: Object
-category-tabs-controller.js:80 === End showCategory for "Software + Tools" ===
-
-(index):247 Dark variant not found, skipping color application
-(index):1454 Total logo groups found: 5
-(index):1540 Dark variant not found, skipping color application
-
-debugShowCategory('Motion')
-category-tabs-controller.js:131 
-=== Manual Debug Test for "Motion" ===
-category-tabs-controller.js:47 
-=== showCategory called with: "Motion" ===
-category-tabs-controller.js:56 Found tabs component for category: {category: 'Motion', element: div.fs-tabs._w-tab-menu.tabs-visible.w-tabs, beforeStyles: {…}}
-category-tabs-controller.js:84 Hiding all tabs components...
-category-tabs-controller.js:87 Hidden category "Software + Tools"
-category-tabs-controller.js:87 Hidden category "Web + Brand"
-category-tabs-controller.js:87 Hidden category "Generative AI"
-category-tabs-controller.js:87 Hidden category "Motion"
-category-tabs-controller.js:87 Hidden category "Creative Lead"
-category-tabs-controller.js:95 Applied show styles to tabs component
-category-tabs-controller.js:72 After showing tabs component: {afterStyles: {…}}
-category-tabs-controller.js:80 === End showCategory for "Motion" ===
-
+Found menu container: div.category-slider.w-dyn-items
+category-tabs-controller.js:24 Found 5 category buttons within menu: NodeList(5) [div.category-item.w-dyn-item, div.category-item.w-dyn-item, div.category-item.w-dyn-item, div.category-item.w-dyn-item, div.category-item.w-dyn-item]
+category-tabs-controller.js:29 Button #0 in menu: {element: div.category-item.w-dyn-item, category: 'Software + Tools', textContent: 'Software + Tools'}
+category-tabs-controller.js:29 Button #1 in menu: {element: div.category-item.w-dyn-item, category: 'Motion', textContent: 'Motion'}
+category-tabs-controller.js:29 Button #2 in menu: {element: div.category-item.w-dyn-item, category: 'Generative AI', textContent: 'Generative AI'}
+category-tabs-controller.js:29 Button #3 in menu: {element: div.category-item.w-dyn-item, category: 'Web + Brand', textContent: 'Web + Brand'}
+category-tabs-controller.js:29 Button #4 in menu: {element: div.category-item.w-dyn-item, category: 'Creative Lead', textContent: 'Creative Lead'}
