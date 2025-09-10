@@ -69,7 +69,8 @@
                 middleButton,
                 currentIndex: 0,
                 totalTabs: 0,
-                listeners: [] // Store listeners for cleanup
+                listeners: [], // Store listeners for cleanup
+                autoAdvanceTimer: null // Store timer for cleanup
             };
 
             // Get total number of tabs
@@ -116,12 +117,59 @@
                 this.navigateNext(wrapper); // Same functionality as Next button
             };
 
-            // Add event listeners - using Webflow's tab events
+            // Auto-advance functionality - change tab every 5 seconds
+            const startAutoAdvance = () => {
+                instanceData.autoAdvanceTimer = setInterval(() => {
+                    this.navigateNext(wrapper);
+                }, 5000); // 5 seconds
+            };
+
+            // Start auto-advance
+            startAutoAdvance();
+
+            // Pause auto-advance only during hold interactions
+            const pauseAutoAdvance = () => {
+                if (instanceData.autoAdvanceTimer) {
+                    clearInterval(instanceData.autoAdvanceTimer);
+                    instanceData.autoAdvanceTimer = null;
+                }
+            };
+
+            const resumeAutoAdvance = () => {
+                if (!instanceData.autoAdvanceTimer) {
+                    startAutoAdvance();
+                }
+            };
+
+            // Hold listeners for pausing auto-advance
+            const createHoldListeners = (button) => {
+                const mouseDownListener = () => pauseAutoAdvance();
+                const mouseUpListener = () => resumeAutoAdvance();
+                const touchStartListener = () => pauseAutoAdvance();
+                const touchEndListener = () => resumeAutoAdvance();
+
+                button.addEventListener('mousedown', mouseDownListener);
+                button.addEventListener('mouseup', mouseUpListener);
+                button.addEventListener('mouseleave', mouseUpListener); // Resume if mouse leaves while held
+                button.addEventListener('touchstart', touchStartListener);
+                button.addEventListener('touchend', touchEndListener);
+                button.addEventListener('touchcancel', touchEndListener); // Resume if touch is cancelled
+
+                return [
+                    { element: button, event: 'mousedown', listener: mouseDownListener },
+                    { element: button, event: 'mouseup', listener: mouseUpListener },
+                    { element: button, event: 'mouseleave', listener: mouseUpListener },
+                    { element: button, event: 'touchstart', listener: touchStartListener },
+                    { element: button, event: 'touchend', listener: touchEndListener },
+                    { element: button, event: 'touchcancel', listener: touchEndListener }
+                ];
+            };
+
+            // Add event listeners
             tabsElement.addEventListener('w-tab-change', tabChangeListener);
             nextButton.addEventListener('click', nextClickListener);
             prevButton.addEventListener('click', prevClickListener);
             
-            // Add middle button listener if it exists
             if (middleButton) {
                 middleButton.addEventListener('click', middleClickListener);
             }
@@ -130,12 +178,16 @@
             const listeners = [
                 { element: tabsElement, event: 'w-tab-change', listener: tabChangeListener },
                 { element: nextButton, event: 'click', listener: nextClickListener },
-                { element: prevButton, event: 'click', listener: prevClickListener }
+                { element: prevButton, event: 'click', listener: prevClickListener },
+                ...createHoldListeners(nextButton),
+                ...createHoldListeners(prevButton)
             ];
             
-            // Add middle button listener to cleanup array if it exists
             if (middleButton) {
-                listeners.push({ element: middleButton, event: 'click', listener: middleClickListener });
+                listeners.push(
+                    { element: middleButton, event: 'click', listener: middleClickListener },
+                    ...createHoldListeners(middleButton)
+                );
             }
             
             instanceData.listeners = listeners;
@@ -224,6 +276,12 @@
         destroy(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
+
+            // Clear auto-advance timer
+            if (instance.autoAdvanceTimer) {
+                clearInterval(instance.autoAdvanceTimer);
+                instance.autoAdvanceTimer = null;
+            }
 
             // Remove all event listeners
             instance.listeners.forEach(({ element, event, listener }) => {
