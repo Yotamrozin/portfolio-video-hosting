@@ -26,13 +26,13 @@ class CategoryTabsController {
         }
         
         // Remove this redundant 2-second fallback timeout
-        // setTimeout(() => {
-        //     if (this.categoryTabsPairs.size === 0) {
-        //         console.log('CategoryTabsController: 🔄 No pairs found, trying fallback pairing...');
-        //         this.pairCategoryTabsWithButtons();
-        //         this.initializeVisibility();
-        //     }
-        // }, 2000);
+        setTimeout(() => {
+            if (this.categoryTabsPairs.size === 0) {
+                console.log('CategoryTabsController: 🔄 No pairs found, trying fallback pairing...');
+                this.pairCategoryTabsWithButtons();
+                this.initializeVisibility();
+            }
+        }, 2000);
     }
 
     setupCategoryButtonListeners() {
