@@ -1,18 +1,40 @@
-tab-navigation.js:31 ⚠️ No tab-wrapper elements found
-setupNavigation @ tab-navigation.js:31
-(anonymous) @ tab-navigation.js:16
-S @ webflow.schunk.a3caa2a8e765e6e0.js:1
-(anonymous) @ webflow.schunk.a3caa2a8e765e6e0.js:1
-(anonymous) @ webflow.schunk.a3caa2a8e765e6e0.js:1
-e @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-(anonymous) @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-setTimeout
-(anonymous) @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-c @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-fireWith @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-fire @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-c @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-fireWith @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-ready @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-B @ jquery-3.5.1.min.dc5e7f18c8.js?site=686fe533f545b4826346b826:2
-tab-navigation.js:31 ⚠️ No tab-wrapper elements found
+Hiding all tabs components...
+category-tabs-controller.js:87 Hidden category "Software + Tools"
+category-tabs-controller.js:87 Hidden category "Web + Brand"
+category-tabs-controller.js:87 Hidden category "Generative AI"
+category-tabs-controller.js:87 Hidden category "Motion"
+category-tabs-controller.js:87 Hidden category "Creative Lead"
+category-tabs-controller.js:108 Setting initial category to: "Software + Tools"
+category-tabs-controller.js:47 
+=== showCategory called with: "Software + Tools" ===
+category-tabs-controller.js:56 Found tabs component for category: {category: 'Software + Tools', element: div.fs-tabs._w-tab-menu.tabs-visible.w-tabs, beforeStyles: {…}}
+category-tabs-controller.js:84 Hiding all tabs components...
+category-tabs-controller.js:87 Hidden category "Software + Tools"
+category-tabs-controller.js:87 Hidden category "Web + Brand"
+category-tabs-controller.js:87 Hidden category "Generative AI"
+category-tabs-controller.js:87 Hidden category "Motion"
+category-tabs-controller.js:87 Hidden category "Creative Lead"
+category-tabs-controller.js:95 Applied show styles to tabs component
+category-tabs-controller.js:72 After showing tabs component: {afterStyles: {…}}afterStyles: {visibility: 'visible', pointerEvents: 'auto', position: 'relative'}[[Prototype]]: Object
+category-tabs-controller.js:80 === End showCategory for "Software + Tools" ===
+
+(index):247 Dark variant not found, skipping color application
+(index):1454 Total logo groups found: 5
+(index):1540 Dark variant not found, skipping color application
+
+debugShowCategory('Motion')
+category-tabs-controller.js:131 
+=== Manual Debug Test for "Motion" ===
+category-tabs-controller.js:47 
+=== showCategory called with: "Motion" ===
+category-tabs-controller.js:56 Found tabs component for category: {category: 'Motion', element: div.fs-tabs._w-tab-menu.tabs-visible.w-tabs, beforeStyles: {…}}
+category-tabs-controller.js:84 Hiding all tabs components...
+category-tabs-controller.js:87 Hidden category "Software + Tools"
+category-tabs-controller.js:87 Hidden category "Web + Brand"
+category-tabs-controller.js:87 Hidden category "Generative AI"
+category-tabs-controller.js:87 Hidden category "Motion"
+category-tabs-controller.js:87 Hidden category "Creative Lead"
+category-tabs-controller.js:95 Applied show styles to tabs component
+category-tabs-controller.js:72 After showing tabs component: {afterStyles: {…}}
+category-tabs-controller.js:80 === End showCategory for "Motion" ===
+

@@ -6,6 +6,7 @@ class CategoryTabsController {
 
     init() {
         this.createCategoryMapping();
+        this.setupCategoryButtonListeners();
         this.hideAllTabs();
         this.showInitialCategory();
     }
@@ -31,9 +32,7 @@ class CategoryTabsController {
                 console.log(`Mapped category "${category}" to tabs component #${index}:`, {
                     element: tabsComponent,
                     id: tabsComponent.id || 'no-id',
-                    classes: tabsComponent.className,
-                    currentVisibility: getComputedStyle(tabsComponent).visibility,
-                    currentDisplay: getComputedStyle(tabsComponent).display
+                    classes: tabsComponent.className
                 });
             } else {
                 console.warn(`Tabs component #${index} found without category:`, tabsComponent);
@@ -41,6 +40,34 @@ class CategoryTabsController {
         });
         
         console.log('Final category mapping:', this.categoryMapping);
+    }
+
+    setupCategoryButtonListeners() {
+        // Find all category buttons/slides in the slider
+        const categorySlides = document.querySelectorAll('.category-slider-wrapper .swiper-slide, .category-slider-wrapper .category-slide');
+        
+        console.log(`Found ${categorySlides.length} category buttons:`, categorySlides);
+        
+        categorySlides.forEach((slide, index) => {
+            // Try to get category from various possible attributes
+            let category = slide.getAttribute('data-category') || 
+                          slide.textContent.trim() ||
+                          slide.querySelector('[data-category]')?.getAttribute('data-category');
+            
+            console.log(`Category button #${index}:`, {
+                element: slide,
+                category: category,
+                textContent: slide.textContent.trim()
+            });
+            
+            if (category) {
+                slide.addEventListener('click', (e) => {
+                    console.log(`\n=== Category button clicked: "${category}" ===`);
+                    e.preventDefault();
+                    this.showCategory(category);
+                });
+            }
+        });
     }
 
     showCategory(categoryName) {
@@ -55,12 +82,7 @@ class CategoryTabsController {
 
         console.log('Found tabs component for category:', {
             category: categoryName,
-            element: tabsComponent,
-            beforeStyles: {
-                visibility: getComputedStyle(tabsComponent).visibility,
-                pointerEvents: getComputedStyle(tabsComponent).pointerEvents,
-                position: getComputedStyle(tabsComponent).position
-            }
+            element: tabsComponent
         });
 
         // Hide all tabs components
@@ -69,14 +91,6 @@ class CategoryTabsController {
         // Show the target tabs component
         this.showTabsComponent(tabsComponent);
         
-        console.log('After showing tabs component:', {
-            afterStyles: {
-                visibility: getComputedStyle(tabsComponent).visibility,
-                pointerEvents: getComputedStyle(tabsComponent).pointerEvents,
-                position: getComputedStyle(tabsComponent).position
-            }
-        });
-        
         console.log(`=== End showCategory for "${categoryName}" ===\n`);
     }
 
@@ -84,7 +98,6 @@ class CategoryTabsController {
         console.log('Hiding all tabs components...');
         this.categoryMapping.forEach((tabsComponent, category) => {
             this.hideTabsComponent(tabsComponent);
-            console.log(`Hidden category "${category}"`);
         });
     }
 
