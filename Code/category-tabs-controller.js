@@ -146,12 +146,12 @@ class CategoryTabsController {
             return;
         }
         
-        // Hide all tabs initially
+        // Hide all tabs initially (this will pause their auto-advance)
         this.categoryTabsPairs.forEach((pair, category) => {
             this.hideTabsElement(pair.tabsElement);
         });
         
-        // Show the first category if available
+        // Show the first category if available (this will resume its auto-advance)
         const firstCategory = this.categoryTabsPairs.keys().next().value;
         if (firstCategory) {
             this.showCategory(firstCategory);
@@ -186,12 +186,24 @@ class CategoryTabsController {
     showTabsElement(tabsElement) {
         tabsElement.style.visibility = 'visible';
         tabsElement.style.position = 'static';
+        
+        // Resume auto-advance for this tabs element
+        if (window.TabNavigationManager) {
+            window.TabNavigationManager.resumeAutoAdvanceForTabsElement(tabsElement);
+        }
+        
         console.log('CategoryTabsController: 👁 Showing tabs element:', tabsElement);
     }
 
     hideTabsElement(tabsElement) {
         tabsElement.style.visibility = 'hidden';
         tabsElement.style.position = 'absolute';
+        
+        // Pause auto-advance for this tabs element
+        if (window.TabNavigationManager) {
+            window.TabNavigationManager.pauseAutoAdvanceForTabsElement(tabsElement);
+        }
+        
         console.log('CategoryTabsController: 🙈 Hiding tabs element:', tabsElement);
     }
 

@@ -273,6 +273,69 @@
                 canGoPrevious: instance.currentIndex > 0
             };
         }
+
+        // New methods for pausing/resuming auto-advance
+        pauseAutoAdvance(wrapper) {
+            const instance = this.tabInstances.get(wrapper);
+            if (!instance) return;
+
+            if (instance.autoAdvanceTimer) {
+                clearInterval(instance.autoAdvanceTimer);
+                instance.autoAdvanceTimer = null;
+                console.log('⏸️ Auto-advance paused for tab wrapper');
+            }
+        }
+
+        resumeAutoAdvance(wrapper) {
+            const instance = this.tabInstances.get(wrapper);
+            if (!instance) return;
+
+            // Only resume if not already running
+            if (!instance.autoAdvanceTimer) {
+                instance.autoAdvanceTimer = setInterval(() => {
+                    this.navigateNext(wrapper);
+                }, 5000); // 5 seconds
+                console.log('▶️ Auto-advance resumed for tab wrapper');
+            }
+        }
+
+        // Pause all auto-advance timers
+        pauseAllAutoAdvance() {
+            this.tabInstances.forEach((instance, wrapper) => {
+                this.pauseAutoAdvance(wrapper);
+            });
+            console.log('⏸️ All auto-advance timers paused');
+        }
+
+        // Resume all auto-advance timers
+        resumeAllAutoAdvance() {
+            this.tabInstances.forEach((instance, wrapper) => {
+                this.resumeAutoAdvance(wrapper);
+            });
+            console.log('▶️ All auto-advance timers resumed');
+        }
+
+        // Pause auto-advance for specific tabs element
+        pauseAutoAdvanceForTabsElement(tabsElement) {
+            // Find the wrapper that contains this tabs element
+            for (const [wrapper, instance] of this.tabInstances) {
+                if (instance.tabsElement === tabsElement) {
+                    this.pauseAutoAdvance(wrapper);
+                    return;
+                }
+            }
+        }
+
+        // Resume auto-advance for specific tabs element
+        resumeAutoAdvanceForTabsElement(tabsElement) {
+            // Find the wrapper that contains this tabs element
+            for (const [wrapper, instance] of this.tabInstances) {
+                if (instance.tabsElement === tabsElement) {
+                    this.resumeAutoAdvance(wrapper);
+                    return;
+                }
+            }
+        }
     }
 
     // Initialize the navigation manager
