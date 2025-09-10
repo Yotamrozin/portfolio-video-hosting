@@ -85,8 +85,7 @@
 
             // Event listener for tab clicks (to sync currentIndex)
             const tabClickListener = (e) => {
-                // Only handle direct user clicks, not programmatic ones
-                if (e.isTrusted && e.target.matches('.w-tab-link')) {
+                if (e.target.matches('.w-tab-link')) {
                     const clickedIndex = Array.from(tabLinks).indexOf(e.target);
                     if (clickedIndex !== -1) {
                         instanceData.currentIndex = clickedIndex;
@@ -94,6 +93,7 @@
                     }
                 }
             };
+            
 
             // Navigation button listeners
             const nextClickListener = (e) => {
@@ -173,14 +173,12 @@
                 return;
             }
 
-            // Update index before clicking to prevent race conditions
-            instance.currentIndex = targetIndex;
-
-            // Trigger click on the target tab
+            // Just trigger the click
             targetTab.click();
 
             console.log(`🎯 Navigated to tab ${targetIndex + 1} of ${instance.totalTabs}`);
         }
+
 
         // Cleanup method for defensive programming
         destroy(wrapper) {
