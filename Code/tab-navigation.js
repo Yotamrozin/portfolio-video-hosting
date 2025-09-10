@@ -43,8 +43,8 @@
 
         initializeTabWrapper(wrapper, index) {
             const tabsElement = wrapper.querySelector('[data-tabs="tabs"]');
-            const nextButton = wrapper.querySelector('.arrow.tab_next');
-            const prevButton = wrapper.querySelector('.arrow.tab_previous');
+            const nextButton = wrapper.querySelector('[data-tabs="next"]');
+            const prevButton = wrapper.querySelector('[data-tabs="previous"]');
 
             if (!tabsElement) {
                 console.warn(`⚠️ No tabs element found in wrapper ${index}`);
@@ -53,6 +53,8 @@
 
             if (!nextButton || !prevButton) {
                 console.warn(`⚠️ Navigation buttons not found in wrapper ${index}`);
+                console.warn(`   Next button: ${nextButton ? 'found' : 'missing'}`);
+                console.warn(`   Previous button: ${prevButton ? 'found' : 'missing'}`);
                 return;
             }
 
