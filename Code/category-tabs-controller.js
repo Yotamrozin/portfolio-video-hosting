@@ -2,6 +2,7 @@ class CategoryTabsController {
     constructor() {
         this.categoryTabsPairs = new Map();
         this.categoryButtons = new Map();
+        this.currentActiveCategory = null;
     }
 
     init() {
@@ -12,12 +13,14 @@ class CategoryTabsController {
         document.addEventListener('tabsConstructorReady', () => {
             console.log('CategoryTabsController: Tabs constructor ready, starting pairing process');
             this.pairCategoryTabsWithButtons();
+            this.initializeVisibility();
         });
         
         // Fallback: if tabs are already ready
         if (window.tabsConstructorComplete) {
             console.log('CategoryTabsController: Tabs already ready, starting pairing process');
             this.pairCategoryTabsWithButtons();
+            this.initializeVisibility();
         }
     }
 
@@ -43,6 +46,7 @@ class CategoryTabsController {
                     button.addEventListener(eventType, (e) => {
                         e.preventDefault();
                         console.log(`CategoryTabsController: ${eventType} on category button "${category}"`);
+                        this.showCategory(category);
                     });
                 });
             }
@@ -96,6 +100,64 @@ class CategoryTabsController {
                 tabsElement: pair.tabsElement
             });
         });
+    }
+
+    initializeVisibility() {
+        // Hide all tabs initially
+        this.categoryTabsPairs.forEach((pair, category) => {
+            this.hideTabsElement(pair.tabsElement);
+        });
+        
+        // Show the first category if available
+        const firstCategory = this.categoryTabsPairs.keys().next().value;
+        if (firstCategory) {
+            this.showCategory(firstCategory);
+            console.log(`CategoryTabsController: Initialized with first category "${firstCategory}" visible`);
+        }
+    }
+
+    showCategory(category) {
+        console.log(`CategoryTabsController: Showing category "${category}"`);
+        
+        // Hide current active category
+        if (this.currentActiveCategory && this.categoryTabsPairs.has(this.currentActiveCategory)) {
+            const currentPair = this.categoryTabsPairs.get(this.currentActiveCategory);
+            this.hideTabsElement(currentPair.tabsElement);
+            this.removeActiveState(currentPair.button);
+        }
+        
+        // Show new category
+        if (this.categoryTabsPairs.has(category)) {
+            const pair = this.categoryTabsPairs.get(category);
+            this.showTabsElement(pair.tabsElement);
+            this.addActiveState(pair.button);
+            this.currentActiveCategory = category;
+            console.log(`CategoryTabsController: ✓ Successfully switched to category "${category}"`);
+        } else {
+            console.warn(`CategoryTabsController: ⚠ Category "${category}" not found in pairs`);
+        }
+    }
+
+    showTabsElement(tabsElement) {
+        tabsElement.style.visibility = 'visible';
+        tabsElement.style.position = 'static';
+        console.log('CategoryTabsController: Showing tabs element:', tabsElement);
+    }
+
+    hideTabsElement(tabsElement) {
+        tabsElement.style.visibility = 'hidden';
+        tabsElement.style.position = 'absolute';
+        console.log('CategoryTabsController: Hiding tabs element:', tabsElement);
+    }
+
+    addActiveState(button) {
+        button.classList.add('active');
+        console.log('CategoryTabsController: Added active state to button:', button);
+    }
+
+    removeActiveState(button) {
+        button.classList.remove('active');
+        console.log('CategoryTabsController: Removed active state from button:', button);
     }
 }
 

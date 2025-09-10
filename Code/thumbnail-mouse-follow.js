@@ -148,7 +148,7 @@ document.addEventListener("DOMContentLoaded", function() {
 
   // Optimized: Cache selectors and use more specific query
   const thumbnails = document.querySelectorAll('[hover-mouse-follow="thumbnail"]');
-  
+
   if (thumbnails.length === 0) {
     return;
   }
