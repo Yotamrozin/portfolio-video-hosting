@@ -1,180 +1,101 @@
 class CategoryTabsController {
     constructor() {
         this.categoryTabsPairs = new Map();
-        this.isTabsConstructorReady = false;
-        this.init();
+        this.categoryButtons = new Map();
     }
 
     init() {
+        console.log('CategoryTabsController: Initializing...');
         this.setupCategoryButtonListeners();
-        this.waitForTabsConstructor();
-    }
-
-    waitForTabsConstructor() {
-        // Check if tabs constructor is already ready
-        if (window.tabsConstructor && window.tabsConstructor.isInitialized) {
-            console.log('🎯 Tabs constructor already ready, proceeding with pairing');
-            this.onTabsConstructorReady();
-            return;
+        
+        // Listen for tabs constructor completion
+        document.addEventListener('tabsConstructorReady', () => {
+            console.log('CategoryTabsController: Tabs constructor ready, starting pairing process');
+            this.pairCategoryTabsWithButtons();
+        });
+        
+        // Fallback: if tabs are already ready
+        if (window.tabsConstructorComplete) {
+            console.log('CategoryTabsController: Tabs already ready, starting pairing process');
+            this.pairCategoryTabsWithButtons();
         }
-
-        // Listen for the custom event
-        document.addEventListener('tabsConstructorReady', (event) => {
-            console.log('🎯 Received tabsConstructorReady event:', event.detail);
-            this.isTabsConstructorReady = true;
-            this.onTabsConstructorReady();
-        }, { once: true }); // Use once: true to automatically remove listener
-
-        console.log('⏳ Waiting for tabs constructor to finish...');
-    }
-
-    onTabsConstructorReady() {
-        console.log('🚀 Tabs constructor is ready, starting category-tabs pairing');
-        this.findAndPairTabsWithCategories();
     }
 
     setupCategoryButtonListeners() {
-        // First, find the menu container
         const menuContainer = document.querySelector('[data-category="menu"]');
-        
         if (!menuContainer) {
-            console.error('Menu container with data-category="menu" not found!');
+            console.error('CategoryTabsController: Menu container with data-category="menu" not found');
             return;
         }
-        
-        console.log('Found menu container:', menuContainer);
-        
-        // Now search for category buttons only within the menu
+
         const categoryButtons = menuContainer.querySelectorAll('.category-item');
-        
-        console.log(`Found ${categoryButtons.length} category buttons within menu:`, categoryButtons);
-        
+        console.log(`CategoryTabsController: Found ${categoryButtons.length} category buttons in menu`);
+
         categoryButtons.forEach((button, index) => {
             const category = button.getAttribute('data-category');
-            
-            console.log(`Button #${index} in menu:`, {
-                element: button,
-                category: category,
-                textContent: button.textContent.trim()
-            });
+            console.log(`CategoryTabsController: Button ${index + 1}: category="${category}", text="${button.textContent.trim()}", element:`, button);
             
             if (category) {
-                button.addEventListener('click', (e) => {
-                    console.log(`\n=== Category button clicked: "${category}" ===`);
-                    this.showCategory(category);
-                    e.preventDefault();
-                });
+                this.categoryButtons.set(category, button);
                 
-                button.addEventListener('touchstart', (e) => {
-                    console.log(`\n=== Category button tapped: "${category}" ===`);
-                    this.showCategory(category);
-                });
-            } else {
-                console.warn(`Button #${index} in menu has no data-category attribute:`, button);
-            }
-        });
-        
-        if (categoryButtons.length === 0) {
-            console.warn('No .category-item elements found within the menu container');
-            console.log('Menu container contents:', menuContainer.innerHTML);
-        }
-    }
-
-    findAndPairTabsWithCategories() {
-        console.log('\n=== Finding and pairing tabs with categories ===');
-        
-        // Find all .fs-tabs elements
-        const allTabsElements = document.querySelectorAll('.fs-tabs');
-        console.log(`Found ${allTabsElements.length} .fs-tabs elements:`, allTabsElements);
-        
-        allTabsElements.forEach((tabsElement, index) => {
-            console.log(`\nProcessing .fs-tabs #${index}:`, tabsElement);
-            
-            // Look for the first .fs-tab-content within this .fs-tabs
-            const firstTabContent = tabsElement.querySelector('.fs-tab-content');
-            
-            if (firstTabContent) {
-                const category = firstTabContent.getAttribute('data-category');
-                console.log(`  First .fs-tab-content found with category: "${category}"`, firstTabContent);
-                
-                if (category) {
-                    // Give the parent .fs-tabs the same data-category attribute
-                    tabsElement.setAttribute('data-category', category);
-                    console.log(`  ✓ Assigned data-category="${category}" to .fs-tabs #${index}`);
-                    
-                    // Store the pair
-                    this.categoryTabsPairs.set(category, {
-                        categoryButton: null, // Will be filled when we find matching button
-                        tabsElement: tabsElement,
-                        tabContent: firstTabContent
+                // Add click and touch event listeners
+                ['click', 'touchend'].forEach(eventType => {
+                    button.addEventListener(eventType, (e) => {
+                        e.preventDefault();
+                        console.log(`CategoryTabsController: ${eventType} on category button "${category}"`);
                     });
-                } else {
-                    console.warn(`  ⚠ First .fs-tab-content has no data-category attribute`);
-                }
-            } else {
-                console.warn(`  ⚠ No .fs-tab-content found in .fs-tabs #${index}`);
+                });
             }
         });
-        
-        // Now match category buttons with tabs
-        const menuContainer = document.querySelector('[data-category="menu"]');
-        if (menuContainer) {
-            const categoryButtons = menuContainer.querySelectorAll('.category-item');
-            
-            categoryButtons.forEach(button => {
-                const category = button.getAttribute('data-category');
-                if (category && this.categoryTabsPairs.has(category)) {
-                    const pair = this.categoryTabsPairs.get(category);
-                    pair.categoryButton = button;
-                    console.log(`  ✓ Matched category button "${category}" with tabs element`);
-                }
-            });
-        }
-        
-        // Log all pairs found
-        console.log('\n=== All Category-Tabs Pairs Found ===');
-        console.log(`Total pairs: ${this.categoryTabsPairs.size}`);
-        
-        this.categoryTabsPairs.forEach((pair, category) => {
-            console.log(`\nCategory: "${category}"`, {
-                categoryButton: pair.categoryButton,
-                tabsElement: pair.tabsElement,
-                tabContent: pair.tabContent,
-                hasMatchingButton: !!pair.categoryButton
-            });
-        });
-        
-        // Log summary
-        const categoriesWithButtons = Array.from(this.categoryTabsPairs.values()).filter(pair => pair.categoryButton).length;
-        const categoriesWithoutButtons = this.categoryTabsPairs.size - categoriesWithButtons;
-        
-        console.log(`\n=== Summary ===`);
-        console.log(`Categories with matching buttons: ${categoriesWithButtons}`);
-        console.log(`Categories without matching buttons: ${categoriesWithoutButtons}`);
-        
-        if (categoriesWithoutButtons > 0) {
-            console.warn('Some tabs have no matching category buttons:');
-            this.categoryTabsPairs.forEach((pair, category) => {
-                if (!pair.categoryButton) {
-                    console.warn(`  - "${category}"`);
-                }
-            });
-        }
     }
 
-    showCategory(category) {
-        if (!this.isTabsConstructorReady) {
-            console.warn(`Cannot show category "${category}" - tabs constructor not ready yet`);
-            return;
-        }
+    pairCategoryTabsWithButtons() {
+        // Find all .fs-tabs elements
+        const tabsElements = document.querySelectorAll('.fs-tabs');
+        console.log(`CategoryTabsController: Found ${tabsElements.length} .fs-tabs elements`);
 
-        const pair = this.categoryTabsPairs.get(category);
-        if (pair && pair.tabsElement) {
-            console.log(`🎯 Showing category: "${category}"`);
-            // Add your visibility logic here
-        } else {
-            console.warn(`No tabs found for category: "${category}"`);
-        }
+        tabsElements.forEach((tabsElement, index) => {
+            // Read data-category directly from .fs-tabs element
+            const category = tabsElement.getAttribute('data-category');
+            console.log(`CategoryTabsController: .fs-tabs ${index + 1}: category="${category}", element:`, tabsElement);
+            
+            if (category) {
+                // Find matching category button
+                const matchingButton = this.categoryButtons.get(category);
+                
+                if (matchingButton) {
+                    this.categoryTabsPairs.set(category, {
+                        tabsElement: tabsElement,
+                        button: matchingButton
+                    });
+                    console.log(`CategoryTabsController: ✓ Paired category "${category}" with tabs and button`);
+                } else {
+                    console.warn(`CategoryTabsController: ⚠ No matching button found for tabs category "${category}"`);
+                }
+            } else {
+                console.warn(`CategoryTabsController: ⚠ .fs-tabs element has no data-category attribute:`, tabsElement);
+            }
+        });
+
+        // Summary
+        const pairedCategories = Array.from(this.categoryTabsPairs.keys());
+        const buttonCategories = Array.from(this.categoryButtons.keys());
+        const orphanedButtons = buttonCategories.filter(cat => !this.categoryTabsPairs.has(cat));
+        
+        console.log(`CategoryTabsController: Summary:`);
+        console.log(`  - Total .fs-tabs found: ${tabsElements.length}`);
+        console.log(`  - Total category buttons: ${buttonCategories.length}`);
+        console.log(`  - Successfully paired: ${pairedCategories.length}`);
+        console.log(`  - Categories with matching buttons: ${pairedCategories}`);
+        console.log(`  - Categories without matching buttons: ${orphanedButtons}`);
+        
+        // Log all pairs
+        this.categoryTabsPairs.forEach((pair, category) => {
+            console.log(`CategoryTabsController: Pair "${category}":`, {
+                button: pair.button,
+                tabsElement: pair.tabsElement
+            });
+        });
     }
 }
 
@@ -182,7 +103,9 @@ class CategoryTabsController {
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         window.CategoryTabsController = new CategoryTabsController();
+        window.CategoryTabsController.init();
     });
 } else {
     window.CategoryTabsController = new CategoryTabsController();
+    window.CategoryTabsController.init();
 }
