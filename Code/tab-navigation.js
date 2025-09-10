@@ -179,11 +179,22 @@
                 return;
             }
 
-            // Don't update index here - let w-tab-change event handle it
             const oldIndex = instance.currentIndex;
             
             // Trigger the click
             targetTab.click();
+
+            // Fallback: Update index after a short delay if w-tab-change doesn't fire
+            setTimeout(() => {
+                const activeTab = instance.tabsElement.querySelector('.w-tab-link.w--current');
+                if (activeTab) {
+                    const activeIndex = Array.from(tabLinks).indexOf(activeTab);
+                    if (activeIndex !== -1 && activeIndex !== instance.currentIndex) {
+                        instance.currentIndex = activeIndex;
+                        console.log(`🔄 Fallback: Updated index to ${activeIndex + 1}`);
+                    }
+                }
+            }, 50);
 
             console.log(`🎯 Navigated from tab ${oldIndex + 1} to tab ${targetIndex + 1} of ${instance.totalTabs}`);
         }
