@@ -83,18 +83,21 @@
 
             this.tabInstances.set(wrapper, instanceData);
 
-                // Event listener for tab changes
-                const tabChangeListener = (e) => {
-                    const tab = e.target; // The newly activated tab link
-                    const clickedIndex = Array.from(tabLinks).indexOf(tab);
-                    if (clickedIndex !== -1) {
-                        instanceData.currentIndex = clickedIndex;
-                        console.log(`🎯 Tab changed: ${clickedIndex + 1} of ${instanceData.totalTabs}`);
+            // Event listener for tab clicks (to sync currentIndex)
+            // Listen for Webflow's tab change events instead of raw clicks
+            const tabChangeListener = (e) => {
+                // Find which tab is now active
+                const activeTab = instanceData.tabsElement.querySelector('.w-tab-link.w--current');
+                if (activeTab) {
+                    const activeIndex = Array.from(tabLinks).indexOf(activeTab);
+                    if (activeIndex !== -1) {
+                        instanceData.currentIndex = activeIndex;
+                        console.log(`🎯 Tab changed to: ${activeIndex + 1} of ${instanceData.totalTabs}`);
                     }
-                };
-            
+                }
+            };
 
-            // Navigation button listeners
+            // Navigation button listeners (unchanged)
             const nextClickListener = (e) => {
                 e.preventDefault();
                 this.navigateNext(wrapper);
@@ -105,12 +108,14 @@
                 this.navigatePrevious(wrapper);
             };
 
-            // Add event listeners
+            // Add event listeners - using Webflow's tab events
+            tabsElement.addEventListener('w-tab-change', tabChangeListener);
             nextButton.addEventListener('click', nextClickListener);
             prevButton.addEventListener('click', prevClickListener);
 
             // Store listeners for cleanup
             instanceData.listeners = [
+                { element: tabsElement, event: 'w-tab-change', listener: tabChangeListener },
                 { element: nextButton, event: 'click', listener: nextClickListener },
                 { element: prevButton, event: 'click', listener: prevClickListener }
             ];
