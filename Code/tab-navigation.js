@@ -118,52 +118,9 @@
             };
 
             // Auto-advance functionality - change tab every 5 seconds
-            const startAutoAdvance = () => {
-                instanceData.autoAdvanceTimer = setInterval(() => {
-                    this.navigateNext(wrapper);
-                }, 5000); // 5 seconds
-            };
-
-            // Start auto-advance
-            startAutoAdvance();
-
-            // Pause auto-advance only during hold interactions
-            const pauseAutoAdvance = () => {
-                if (instanceData.autoAdvanceTimer) {
-                    clearInterval(instanceData.autoAdvanceTimer);
-                    instanceData.autoAdvanceTimer = null;
-                }
-            };
-
-            const resumeAutoAdvance = () => {
-                if (!instanceData.autoAdvanceTimer) {
-                    startAutoAdvance();
-                }
-            };
-
-            // Hold listeners for pausing auto-advance
-            const createHoldListeners = (button) => {
-                const mouseDownListener = () => pauseAutoAdvance();
-                const mouseUpListener = () => resumeAutoAdvance();
-                const touchStartListener = () => pauseAutoAdvance();
-                const touchEndListener = () => resumeAutoAdvance();
-
-                button.addEventListener('mousedown', mouseDownListener);
-                button.addEventListener('mouseup', mouseUpListener);
-                button.addEventListener('mouseleave', mouseUpListener); // Resume if mouse leaves while held
-                button.addEventListener('touchstart', touchStartListener);
-                button.addEventListener('touchend', touchEndListener);
-                button.addEventListener('touchcancel', touchEndListener); // Resume if touch is cancelled
-
-                return [
-                    { element: button, event: 'mousedown', listener: mouseDownListener },
-                    { element: button, event: 'mouseup', listener: mouseUpListener },
-                    { element: button, event: 'mouseleave', listener: mouseUpListener },
-                    { element: button, event: 'touchstart', listener: touchStartListener },
-                    { element: button, event: 'touchend', listener: touchEndListener },
-                    { element: button, event: 'touchcancel', listener: touchEndListener }
-                ];
-            };
+            instanceData.autoAdvanceTimer = setInterval(() => {
+                this.navigateNext(wrapper);
+            }, 5000); // 5 seconds
 
             // Add event listeners
             tabsElement.addEventListener('w-tab-change', tabChangeListener);
@@ -178,15 +135,12 @@
             const listeners = [
                 { element: tabsElement, event: 'w-tab-change', listener: tabChangeListener },
                 { element: nextButton, event: 'click', listener: nextClickListener },
-                { element: prevButton, event: 'click', listener: prevClickListener },
-                ...createHoldListeners(nextButton),
-                ...createHoldListeners(prevButton)
+                { element: prevButton, event: 'click', listener: prevClickListener }
             ];
             
             if (middleButton) {
                 listeners.push(
-                    { element: middleButton, event: 'click', listener: middleClickListener },
-                    ...createHoldListeners(middleButton)
+                    { element: middleButton, event: 'click', listener: middleClickListener }
                 );
             }
             
