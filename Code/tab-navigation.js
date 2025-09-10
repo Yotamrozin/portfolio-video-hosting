@@ -70,7 +70,7 @@
             };
 
             // Get total number of tabs
-            const tabLinks = tabsElement.querySelectorAll('[data-tabs="link"]');
+            const tabLinks = tabsElement.querySelectorAll('.w-tab-link');
             instanceData.totalTabs = tabLinks.length;
 
             if (instanceData.totalTabs === 0) {
@@ -85,7 +85,7 @@
 
             // Event listener for tab clicks (to sync currentIndex)
             const tabClickListener = (e) => {
-                if (e.target.matches('[data-tabs="link"]')) {
+                if (e.target.matches('.w-tab-link')) {
                     const clickedIndex = Array.from(tabLinks).indexOf(e.target);
                     if (clickedIndex !== -1) {
                         instanceData.currentIndex = clickedIndex;
@@ -121,8 +121,8 @@
         }
 
         updateCurrentIndex(instanceData) {
-            const tabLinks = instanceData.tabsElement.querySelectorAll('[data-tabs="link"]');
-            const activeTab = instanceData.tabsElement.querySelector('[data-tabs="link"].w--current');
+            const tabLinks = instanceData.tabsElement.querySelectorAll('.w-tab-link');
+            const activeTab = instanceData.tabsElement.querySelector('.w-tab-link.w--current');
             
             if (activeTab) {
                 const activeIndex = Array.from(tabLinks).indexOf(activeTab);
@@ -164,7 +164,7 @@
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
 
-            const tabLinks = instance.tabsElement.querySelectorAll('[data-tabs="link"]');
+            const tabLinks = instance.tabsElement.querySelectorAll('.w-tab-link');
             const targetTab = tabLinks[targetIndex];
 
             if (!targetTab) {
