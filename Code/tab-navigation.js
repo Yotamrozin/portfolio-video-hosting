@@ -45,6 +45,7 @@
             const tabsElement = wrapper.querySelector('[data-tabs="tabs"]');
             const nextButton = wrapper.querySelector('[data-tabs="next"]');
             const prevButton = wrapper.querySelector('[data-tabs="previous"]');
+            const middleButton = wrapper.querySelector('[data-tabs="middle"]');
 
             if (!tabsElement) {
                 console.warn(`⚠️ No tabs element found in wrapper ${index}`);
@@ -55,6 +56,7 @@
                 console.warn(`⚠️ Navigation buttons not found in wrapper ${index}`);
                 console.warn(`   Next button: ${nextButton ? 'found' : 'missing'}`);
                 console.warn(`   Previous button: ${prevButton ? 'found' : 'missing'}`);
+                console.warn(`   Middle button: ${middleButton ? 'found' : 'missing'}`);
                 return;
             }
 
@@ -64,6 +66,7 @@
                 tabsElement,
                 nextButton,
                 prevButton,
+                middleButton,
                 currentIndex: 0,
                 totalTabs: 0,
                 listeners: [] // Store listeners for cleanup
@@ -97,7 +100,7 @@
                 }
             };
 
-            // Navigation button listeners (unchanged)
+            // Navigation button listeners
             const nextClickListener = (e) => {
                 e.preventDefault();
                 this.navigateNext(wrapper);
@@ -108,17 +111,34 @@
                 this.navigatePrevious(wrapper);
             };
 
+            const middleClickListener = (e) => {
+                e.preventDefault();
+                this.navigateNext(wrapper); // Same functionality as Next button
+            };
+
             // Add event listeners - using Webflow's tab events
             tabsElement.addEventListener('w-tab-change', tabChangeListener);
             nextButton.addEventListener('click', nextClickListener);
             prevButton.addEventListener('click', prevClickListener);
+            
+            // Add middle button listener if it exists
+            if (middleButton) {
+                middleButton.addEventListener('click', middleClickListener);
+            }
 
             // Store listeners for cleanup
-            instanceData.listeners = [
+            const listeners = [
                 { element: tabsElement, event: 'w-tab-change', listener: tabChangeListener },
                 { element: nextButton, event: 'click', listener: nextClickListener },
                 { element: prevButton, event: 'click', listener: prevClickListener }
             ];
+            
+            // Add middle button listener to cleanup array if it exists
+            if (middleButton) {
+                listeners.push({ element: middleButton, event: 'click', listener: middleClickListener });
+            }
+            
+            instanceData.listeners = listeners;
 
             console.log(`✅ Initialized tab wrapper ${index} with ${instanceData.totalTabs} tabs`);
         }
