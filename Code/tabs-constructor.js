@@ -24,56 +24,36 @@ class TabsConstructor {
   }
 
   async _performInit() {
-    const initStartTime = this._startPerformanceTimer('total-init');
-    
     try {
       console.log('TabsConstructor: Starting initialization...');
       
       // Enhanced ready check with timeout
-      const readyStartTime = this._startPerformanceTimer('webflow-ready');
       await this.waitForWebflowReady();
-      this._endPerformanceTimer('webflow-ready', readyStartTime);
-      
-      const contentStartTime = this._startPerformanceTimer('content-wait');
       await this.waitForContent();
-      this._endPerformanceTimer('content-wait', contentStartTime);
       
-      const createStartTime = this._startPerformanceTimer('create-instances');
       this.createInstancesFromArrays();
-      this._endPerformanceTimer('create-instances', createStartTime);
-      
-      const initInstancesStartTime = this._startPerformanceTimer('init-instances');
       await this.initializeInstances();
-      this._endPerformanceTimer('init-instances', initInstancesStartTime);
       
       // Set global flag and dispatch enhanced event
       window.tabsConstructorComplete = true;
       this.isInitialized = true;
       
-      const totalDuration = this._endPerformanceTimer('total-init', initStartTime);
-      
       const event = new CustomEvent('tabsConstructorReady', {
         detail: {
           instanceCount: this.instances.length,
           categories: this.instances.map(i => i.category),
-          timestamp: Date.now(),
-          performanceMetrics: {
-            totalDuration,
-            hasObserver: typeof MutationObserver !== 'undefined'
-          }
+          timestamp: Date.now()
         }
       });
       document.dispatchEvent(event);
       
       console.log('TabsConstructor: ✅ Initialization complete!', {
         instances: this.instances.length,
-        categories: this.instances.map(i => i.category),
-        duration: `${totalDuration}ms`
+        categories: this.instances.map(i => i.category)
       });
       
       return true;
     } catch (error) {
-      this._endPerformanceTimer('total-init', initStartTime);
       console.error('❌ TabsConstructor initialization failed:', error);
       
       // Single retry with enhanced error handling
