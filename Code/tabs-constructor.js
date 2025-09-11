@@ -10,27 +10,39 @@ class TabsConstructor {
   }
 
   async init() {
-    // Wait for content to load
+    console.log('TabsConstructor: Starting initialization...');
+    
+    // Simplified ready check - remove redundant waiting
+    if (document.readyState === 'complete' || window.Webflow) {
+      console.log('TabsConstructor: Page already ready, proceeding immediately');
+    } else {
+      console.log('TabsConstructor: Waiting for page readiness...');
+      await this.waitForWebflowReady();
+    }
+    
     await this.waitForContent();
-    
-    // Create instances from CMS collections and tabs components
     this.createInstancesFromArrays();
-    
-    // Initialize Finsweet for all instances
     this.initializeInstances();
     
-    this.isInitialized = true;
-    console.log('✅ Tabs Constructor initialized yes!');
-    
-    // Dispatch custom event to notify other systems
-    const event = new CustomEvent('tabsConstructorReady', {
-      detail: {
-        instances: this.instances,
-        tabsConstructor: this
+    // Set global flag and dispatch event
+    window.tabsConstructorComplete = true;
+    document.dispatchEvent(new CustomEvent('tabsConstructorReady'));
+    console.log('TabsConstructor: ✅ Initialization complete!');
+  }
+
+  waitForWebflowReady() {
+    return new Promise((resolve) => {
+      if (window.Webflow) {
+        resolve();
+      } else {
+        // Single event listener instead of multiple checks
+        const onReady = () => {
+          document.removeEventListener('DOMContentLoaded', onReady);
+          resolve();
+        };
+        document.addEventListener('DOMContentLoaded', onReady);
       }
     });
-    document.dispatchEvent(event);
-    console.log('📢 Dispatched tabsConstructorReady event');
   }
 
   createInstancesFromArrays() {
