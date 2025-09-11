@@ -1,4 +1,4 @@
- var swiperNodes = "";
+var swiperNodes = "";
   var pagination = '<div class=swiper-pagination></div>';
   var next_prev_buttons = '<div class="swiper-button-prev"></div><div class="swiper-button-next"></div>'; 
   var scrollbar = '<div class="swiper-scrollbar"></div>';
@@ -9,7 +9,7 @@
   });
 
 // swiper JS Initialize
-  var mySwiper = new Swiper ('.first-swiper', {
+  var mySwiper = new Swiper ('.category-slider-wrapper', {
   	mousewheel: {
     invert: true,
   	},
