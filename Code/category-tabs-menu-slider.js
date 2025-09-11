@@ -15,7 +15,7 @@
   	},
   // Optional parameters
     slidesPerView: 3,
-    spaceBetween: 30,
+    spaceBetween: 5,
     loop: true,
     speed: 1000,
     centeredSlides: true,
