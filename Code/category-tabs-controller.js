@@ -3,6 +3,7 @@ class CategoryTabsController {
         this.categoryTabsPairs = new Map();
         this.categoryButtons = new Map();
         this.currentActiveCategory = null;
+        this.categoryOrder = []; // Track button order for Swiper sync
     }
 
     init() {
@@ -25,7 +26,7 @@ class CategoryTabsController {
             console.log('CategoryTabsController: ⏳ Waiting for tabsConstructorReady event...');
         }
         
-        // Remove this redundant 2-second fallback timeout
+        // Enhanced fallback with retry mechanism
         setTimeout(() => {
             if (this.categoryTabsPairs.size === 0) {
                 console.log('CategoryTabsController: 🔄 No pairs found, trying fallback pairing...');
@@ -45,23 +46,62 @@ class CategoryTabsController {
         const categoryButtons = menuContainer.querySelectorAll('.category-item');
         console.log(`CategoryTabsController: Found ${categoryButtons.length} category buttons in menu`);
 
+        // Build category order array for Swiper synchronization
+        this.categoryOrder = [];
+        
         categoryButtons.forEach((button, index) => {
             const category = button.getAttribute('data-category');
             console.log(`CategoryTabsController: Button ${index + 1}: category="${category}", text="${button.textContent.trim()}", element:`, button);
             
             if (category) {
                 this.categoryButtons.set(category, button);
+                this.categoryOrder.push(category); // Track order for Swiper sync
                 
-                // Add click and touch event listeners
-                ['click', 'touchend'].forEach(eventType => {
-                    button.addEventListener(eventType, (e) => {
-                        e.preventDefault();
-                        console.log(`CategoryTabsController: ${eventType} on category button "${category}"`);
-                        this.showCategory(category);
-                    });
+                // Use only click events to avoid touch conflicts
+                button.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    console.log(`CategoryTabsController: click on category button "${category}"`);
+                    
+                    // Find the slide index for this category using our order array
+                    const slideIndex = this.categoryOrder.indexOf(category);
+                    
+                    // Move Swiper to this slide
+                    if (window.mySwiper && slideIndex !== -1) {
+                        console.log(`CategoryTabsController: Moving Swiper to slide ${slideIndex} for category "${category}"`);
+                        window.mySwiper.slideTo(slideIndex);
+                    }
+                    
+                    this.showCategory(category);
                 });
+                
+                // Add passive touch listeners for better performance
+                button.addEventListener('touchstart', (e) => {
+                    // Just track touch start, don't prevent default
+                    console.log(`CategoryTabsController: touchstart on category button "${category}"`);
+                }, { passive: true });
             }
         });
+        
+        console.log('CategoryTabsController: Category order for Swiper sync:', this.categoryOrder);
+    }
+
+    // Method to be called by Swiper slideChange event
+    handleSwiperSlideChange(realIndex) {
+        console.log(`CategoryTabsController: Swiper slide changed to realIndex ${realIndex}`);
+        
+        if (realIndex >= 0 && realIndex < this.categoryOrder.length) {
+            const category = this.categoryOrder[realIndex];
+            console.log(`CategoryTabsController: Swiper realIndex ${realIndex} maps to category "${category}"`);
+            
+            if (category && this.categoryTabsPairs.has(category)) {
+                this.showCategory(category);
+            } else {
+                console.warn(`CategoryTabsController: Category "${category}" not found in pairs`);
+            }
+        } else {
+            console.warn(`CategoryTabsController: Invalid realIndex ${realIndex}, categoryOrder length: ${this.categoryOrder.length}`);
+        }
     }
 
     pairCategoryTabsWithButtons() {
@@ -191,9 +231,6 @@ class CategoryTabsController {
         if (window.TabNavigationManager) {
             window.TabNavigationManager.resumeAutoAdvanceForTabsElement(tabsElement);
         }
-        
-        // Remove excessive logging
-        // console.log('CategoryTabsController: 👁 Showing tabs element:', tabsElement);
     }
 
     hideTabsElement(tabsElement) {
@@ -204,19 +241,14 @@ class CategoryTabsController {
         if (window.TabNavigationManager) {
             window.TabNavigationManager.pauseAutoAdvanceForTabsElement(tabsElement);
         }
-        
-        // Remove excessive logging
-        // console.log('CategoryTabsController: 🙈 Hiding tabs element:', tabsElement);
     }
 
     addActiveState(button) {
-        button.classList.add('active');
-        console.log('CategoryTabsController: ✨ Added active state to button:', button);
+        button.classList.add('active', 'w--current');
     }
 
     removeActiveState(button) {
-        button.classList.remove('active');
-        console.log('CategoryTabsController: 💫 Removed active state from button:', button);
+        button.classList.remove('active', 'w--current');
     }
 }
 
