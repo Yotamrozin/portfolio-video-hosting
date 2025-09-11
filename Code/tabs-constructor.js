@@ -24,36 +24,57 @@ class TabsConstructor {
   }
 
   async _performInit() {
+    const initStartTime = Date.now();
+    
     try {
       console.log('TabsConstructor: Starting initialization...');
       
       // Enhanced ready check with timeout
+      const readyStartTime = Date.now();
       await this.waitForWebflowReady();
-      await this.waitForContent();
+      console.log(`⏱️ TabsConstructor webflow-ready: ${Date.now() - readyStartTime}ms`);
       
+      const contentStartTime = Date.now();
+      await this.waitForContent();
+      console.log(`⏱️ TabsConstructor content-wait: ${Date.now() - contentStartTime}ms`);
+      
+      const createStartTime = Date.now();
       this.createInstancesFromArrays();
+      console.log(`⏱️ TabsConstructor create-instances: ${Date.now() - createStartTime}ms`);
+      
+      const initInstancesStartTime = Date.now();
       await this.initializeInstances();
+      console.log(`⏱️ TabsConstructor init-instances: ${Date.now() - initInstancesStartTime}ms`);
       
       // Set global flag and dispatch enhanced event
       window.tabsConstructorComplete = true;
       this.isInitialized = true;
       
+      const totalDuration = Date.now() - initStartTime;
+      
       const event = new CustomEvent('tabsConstructorReady', {
         detail: {
           instanceCount: this.instances.length,
           categories: this.instances.map(i => i.category),
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          performanceMetrics: {
+            totalDuration,
+            hasObserver: typeof MutationObserver !== 'undefined'
+          }
         }
       });
       document.dispatchEvent(event);
       
       console.log('TabsConstructor: ✅ Initialization complete!', {
         instances: this.instances.length,
-        categories: this.instances.map(i => i.category)
+        categories: this.instances.map(i => i.category),
+        duration: `${totalDuration}ms`
       });
       
       return true;
     } catch (error) {
+      const totalDuration = Date.now() - initStartTime;
+      console.log(`⏱️ TabsConstructor total-init (failed): ${totalDuration}ms`);
       console.error('❌ TabsConstructor initialization failed:', error);
       
       // Single retry with enhanced error handling
@@ -103,7 +124,10 @@ class TabsConstructor {
     return new Promise((resolve, reject) => {
       let attempts = 0;
       const maxAttempts = 40; // 6 seconds max (40 * 150ms)
+      let observer = null;
+      
       const timeout = setTimeout(() => {
+        if (observer) observer.disconnect();
         reject(new Error('Timeout waiting for content'));
       }, 15000); // 15 second absolute timeout
       
@@ -115,23 +139,78 @@ class TabsConstructor {
           
           if (tabsComponents.length > 0 && collectionLists.length > 0 && tabContents.length > 0) {
             clearTimeout(timeout);
+            if (observer) observer.disconnect();
             console.log(`TabsConstructor: ✅ Content ready after ${attempts * 150}ms`);
             resolve();
-          } else if (attempts >= maxAttempts) {
-            clearTimeout(timeout);
-            console.warn('TabsConstructor: ⚠ Timeout waiting for content, proceeding anyway');
-            resolve(); // Proceed even if not all content is ready
-          } else {
-            attempts++;
-            setTimeout(checkContent, 150);
+            return true;
           }
+          return false;
         } catch (error) {
           clearTimeout(timeout);
+          if (observer) observer.disconnect();
           reject(error);
+          return true;
         }
       };
       
-      checkContent();
+      // Initial check
+      if (checkContent()) return;
+      
+      // Set up MutationObserver for efficient DOM change detection
+      if (typeof MutationObserver !== 'undefined') {
+        observer = new MutationObserver((mutations) => {
+          // Only check if relevant changes occurred
+          const hasRelevantChanges = mutations.some(mutation => {
+            if (mutation.type === 'childList') {
+              // Check if added nodes contain our target classes
+              return Array.from(mutation.addedNodes).some(node => {
+                if (node.nodeType === Node.ELEMENT_NODE) {
+                  return node.classList?.contains('fs-tabs') ||
+                         node.classList?.contains('fs-dynamic-feed') ||
+                         node.classList?.contains('fs-tab-content') ||
+                         node.querySelector?.('.fs-tabs, .fs-dynamic-feed, .fs-tab-content');
+                }
+                return false;
+              });
+            }
+            return false;
+          });
+          
+          if (hasRelevantChanges) {
+            checkContent();
+          }
+        });
+        
+        // Observe with optimized settings
+        observer.observe(document.body, {
+          childList: true,
+          subtree: true,
+          attributes: false, // Don't watch attribute changes for performance
+          characterData: false // Don't watch text changes for performance
+        });
+        
+        console.log('TabsConstructor: 👁️ MutationObserver active for DOM changes');
+      }
+      
+      // Fallback polling with reduced frequency since we have MutationObserver
+      const pollInterval = observer ? 500 : 150; // Less frequent polling when observer is active
+      
+      const pollContent = () => {
+        if (checkContent()) return;
+        
+        attempts++;
+        if (attempts >= maxAttempts) {
+          clearTimeout(timeout);
+          if (observer) observer.disconnect();
+          console.warn('TabsConstructor: ⚠ Timeout waiting for content, proceeding anyway');
+          resolve(); // Proceed even if not all content is ready
+        } else {
+          setTimeout(pollContent, pollInterval);
+        }
+      };
+      
+      // Start polling
+      setTimeout(pollContent, pollInterval);
     });
   }
 
