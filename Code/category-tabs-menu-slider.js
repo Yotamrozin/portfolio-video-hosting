@@ -14,10 +14,10 @@
     invert: true,
   	},
   // Optional parameters
-    slidesPerView: 1,
+    slidesPerView: 3,
     spaceBetween: 30,
     loop: true,
-    speed: 1200,
+    speed: 1000,
     centeredSlides: true,
     // Enable lazy loading
     lazy: true,
