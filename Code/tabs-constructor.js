@@ -1,396 +1,227 @@
 /**
- * Standalone Tabs Constructor
- * Handles pairing CMS collections with tabs components and Finsweet initialization independently
+ * Optimized TabsConstructor
+ * - Promise-based ready() API
+ * - MutationObserver instead of polling
+ * - Single-retry fallback
+ * - Exposes window.tabsConstructorReadyPromise and dispatches 'tabsConstructorReady' event
  */
 
 class TabsConstructor {
-  constructor() {
-    this.instances = [];
-    this.isInitialized = false;
+  constructor(options = {}) {
+    this.instances = new Map(); // key: uniqueId -> instance object
+    this._isInitialized = false;
+    this._resolveReady = null;
+    this._rejectReady = null;
+    this._readyPromise = null;
+
+    // options
+    this.observerTimeout = options.observerTimeout ?? 3000; // ms
+    this.retryTimeout = options.retryTimeout ?? 6000; // ms for retry if first attempt fails
+    this.selector = options.selector ?? '[data-tabs="constructor"], .fs-tabs, [data-tabs-component]';
+    this._observer = null;
+    this._retryAttempted = false;
+
+    // create ready promise
+    this._readyPromise = new Promise((resolve, reject) => {
+      this._resolveReady = resolve;
+      this._rejectReady = reject;
+    });
+
+    // expose for older code
+    window.tabsConstructorReadyPromise = this._readyPromise;
   }
 
+  // public awaitable API
+  ready() {
+    return this._readyPromise;
+  }
+
+  // the main initialization entry; returns the same ready promise
   async init() {
-    console.log('TabsConstructor: Starting initialization...');
-    
-    // Simplified ready check - remove redundant waiting
-    if (document.readyState === 'complete' || window.Webflow) {
-      console.log('TabsConstructor: Page already ready, proceeding immediately');
-    } else {
-      console.log('TabsConstructor: Waiting for page readiness...');
-      await this.waitForWebflowReady();
+    if (this._isInitialized) return this._readyPromise;
+
+    try {
+      // "fast path" - if the DOM already contains our selector, initialize immediately
+      const found = document.querySelectorAll(this.selector);
+      if (found && found.length) {
+        this._initializeFromElements(found);
+        this._finishInit();
+        return this._readyPromise;
+      }
+
+      // Otherwise observe the document for insertion of relevant nodes
+      await this._observeForSelector(this.selector, this.observerTimeout);
+
+      // If observer triggered, elements should now be present
+      const nodes = document.querySelectorAll(this.selector);
+      if (nodes && nodes.length) {
+        this._initializeFromElements(nodes);
+        this._finishInit();
+        return this._readyPromise;
+      }
+
+      // If nothing found, attempt a single retry (longer timeout)
+      if (!this._retryAttempted) {
+        console.warn('TabsConstructor: nothing found. Attempting single retry...');
+        this._retryAttempted = true;
+        await this._observeForSelector(this.selector, this.retryTimeout);
+        const retryNodes = document.querySelectorAll(this.selector);
+        if (retryNodes && retryNodes.length) {
+          this._initializeFromElements(retryNodes);
+          this._finishInit();
+          return this._readyPromise;
+        }
+      }
+
+      // Give up gracefully
+      const msg = 'TabsConstructor: Initialization failed — no tabs components found.';
+      console.warn(msg);
+      this._rejectReady(new Error(msg));
+      return this._readyPromise;
+    } catch (err) {
+      console.error('TabsConstructor: unexpected error during init', err);
+      this._rejectReady(err);
+      return this._readyPromise;
     }
-    
-    await this.waitForContent();
-    this.createInstancesFromArrays();
-    this.initializeInstances();
-    
-    // Set global flag and dispatch event
-    window.tabsConstructorComplete = true;
-    document.dispatchEvent(new CustomEvent('tabsConstructorReady'));
-    console.log('TabsConstructor: ✅ Initialization complete!');
   }
 
-  waitForWebflowReady() {
-    return new Promise((resolve) => {
-      if (window.Webflow) {
+  _observeForSelector(selector, timeout = 3000) {
+    return new Promise((resolve, reject) => {
+      let resolved = false;
+      const start = performance.now();
+      const root = document.documentElement || document.body || document;
+
+      // quick check
+      if (document.querySelector(selector)) {
+        resolved = true;
         resolve();
-      } else {
-        // Single event listener instead of multiple checks
-        const onReady = () => {
-          document.removeEventListener('DOMContentLoaded', onReady);
+        return;
+      }
+
+      const mo = new MutationObserver((mutations) => {
+        if (document.querySelector(selector)) {
+          resolved = true;
+          mo.disconnect();
           resolve();
-        };
-        document.addEventListener('DOMContentLoaded', onReady);
-      }
-    });
-  }
-
-  createInstancesFromArrays() {
-    const tabsComponents = Array.from(document.querySelectorAll('.fs-tabs'));
-    const collectionLists = Array.from(document.querySelectorAll('.fs-dynamic-feed'));
-    const allTabContents = Array.from(document.querySelectorAll('.fs-tab-content'));
-    
-    const minLength = Math.min(tabsComponents.length, collectionLists.length);
-    
-    if (minLength === 0) {
-      console.warn('⚠️ No matching tabs components and collection lists found');
-      return;
-    }
-    
-    // Track which tabs components get paired
-    const pairedTabsComponents = new Set();
-    
-    for (let i = 0; i < minLength; i++) {
-      const tabsComponent = tabsComponents[i];
-      const collectionList = collectionLists[i];
-      
-      // Add unique IDs for reliable targeting
-      const uniqueId = `tabs-instance-${i + 1}`;
-      tabsComponent.setAttribute('data-tabs-id', uniqueId);
-      collectionList.setAttribute('data-tabs-id', uniqueId);
-      
-      // Find all tab contents that belong to this collection list
-      const tabContentsForThisList = allTabContents.filter(content => {
-        return collectionList.contains(content);
+        }
       });
-      
-      // Extract category from data attributes or class names
-      let category = collectionList.getAttribute('data-category');
-      if (!category && tabContentsForThisList.length > 0) {
-        category = tabContentsForThisList[0].getAttribute('data-category');
-      }
-      if (!category) {
-        const classList = Array.from(collectionList.classList);
-        const categoryClass = classList.find(cls => cls.includes('category-') || cls.includes('cat-'));
-        if (categoryClass) {
-          category = categoryClass.replace(/^(category-|cat-)/, '').replace(/-/g, ' ');
+
+      mo.observe(root, { childList: true, subtree: true });
+
+      // fallback timeout
+      const to = setTimeout(() => {
+        if (!resolved) {
+          mo.disconnect();
+          resolve(); // resolve so caller can decide to retry
         }
-      }
-      if (!category) {
-        category = `Category ${i + 1}`;
-      }
-      
-      // Set category attribute on tabs component
-      tabsComponent.setAttribute('data-category', category);
-      pairedTabsComponents.add(tabsComponent);
-      
-      const instance = {
-        index: i,
-        category: category,
-        uniqueId: uniqueId,
-        tabsComponent,
-        collectionList,
-        tabContents: tabContentsForThisList,
-        fsLibrary: null
-      };
-      
-      this.instances.push(instance);
-    }
-    
-    // Handle orphaned tabs components
-    tabsComponents.forEach(tabsComponent => {
-      if (!pairedTabsComponents.has(tabsComponent)) {
-        console.warn('🔍 Orphaned tabs component found (hiding):', tabsComponent);
-        tabsComponent.style.display = 'none';
-      }
-    });
-    
-    console.log(`✅ Created ${this.instances.length} tabs instances`);
-    this.instances.forEach(instance => {
-      console.log(`   📂 Category: "${instance.category}" (${instance.tabContents.length} tab contents)`);
+      }, timeout);
     });
   }
 
-  async initializeInstances() {
-    const initPromises = this.instances.map(async (instance, index) => {
-      try {
-        const collectionListSelector = `[data-tabs-id="${instance.uniqueId}"].fs-dynamic-feed`;
-        const tabsComponentSelector = `[data-tabs-id="${instance.uniqueId}"].fs-tabs`;
-        
-        // Create FsLibrary instance
-        instance.fsLibrary = new FsLibrary(collectionListSelector);
-        
-        // Wait for tabs initialization to complete
-        await instance.fsLibrary.tabs({
-          tabComponent: tabsComponentSelector,
-          tabContent: '.fs-tab-content',
-          resetIx: false // Skip expensive Webflow reinitialization
-        });
-        
-        console.log(`✅ Initialized Finsweet for: ${instance.category}`);
-        return true;
-      } catch (error) {
-        console.warn(`⚠️ Failed to initialize tabs for ${instance.category}:`, error);
-        return false;
-      }
-    });
-    
-    // Wait for all instances to complete
-    await Promise.all(initPromises);
-    console.log('🎯 All Finsweet instances initialized');
-  }
+  _initializeFromElements(nodeList) {
+    try {
+      // convert NodeList to array and dedupe by element
+      const uniqueNodes = Array.from(new Set(Array.from(nodeList)));
 
-  // Utility methods for external access
-  getInstance(index) {
-    return this.instances[index] || null;
-  }
-
-  getInstanceByCategory(category) {
-    return this.instances.find(instance => instance.category === category) || null;
-  }
-
-  getAllInstances() {
-    return this.instances;
-  }
-
-  refreshAllInstances() {
-    this.instances.forEach((instance, index) => {
-      if (instance.fsLibrary && typeof instance.fsLibrary.refresh === 'function') {
+      uniqueNodes.forEach((el, idx) => {
         try {
-          instance.fsLibrary.refresh();
-          console.log(`🔄 Refreshed: ${instance.category}`);
-        } catch (error) {
-          console.warn(`⚠️ Failed to refresh ${instance.category}:`, error);
-        }
-      }
-    });
-  }
+          // derive a stable unique ID per instance (prefer data attribute)
+          const idAttr = el.getAttribute('data-tabs-id') || el.id || `tabs-inst-${idx}-${Date.now()}`;
+          const uniqueId = idAttr;
 
-  async waitForContent() {
-    return new Promise((resolve) => {
-      let attempts = 0;
-      const maxAttempts = 40; // 6 seconds max (40 * 150ms)
-      
-      const checkContent = () => {
-        const tabsComponents = document.querySelectorAll('.fs-tabs');
-        const collectionLists = document.querySelectorAll('.fs-dynamic-feed');
-        const tabContents = document.querySelectorAll('.fs-tab-content');
-        
-        if (tabsComponents.length > 0 && collectionLists.length > 0 && tabContents.length > 0) {
-          console.log(`TabsConstructor: ✅ Content ready after ${attempts * 150}ms`);
-          resolve();
-        } else if (attempts >= maxAttempts) {
-          console.warn('TabsConstructor: ⚠ Timeout waiting for content, proceeding anyway');
-          resolve(); // Proceed even if not all content is ready
-        } else {
-          attempts++;
-          setTimeout(checkContent, 150);
-        }
-      };
-      
-      checkContent();
-    });
-  }
+          // Avoid reinitializing same element
+          if (this.instances.has(uniqueId)) return;
 
-  createInstancesFromArrays() {
-    // Single query set at the start of method
-    const tabsComponents = Array.from(document.querySelectorAll('.fs-tabs'));
-    const collectionLists = Array.from(document.querySelectorAll('.fs-dynamic-feed'));
-    const allTabContents = Array.from(document.querySelectorAll('.fs-tab-content'));
-    
-    const minLength = Math.min(tabsComponents.length, collectionLists.length);
-    
-    if (minLength === 0) {
-      console.warn('⚠️ No matching tabs components and collection lists found');
-      return;
-    }
-    
-    // Track which tabs components get paired
-    const pairedTabsComponents = new Set();
-    
-    for (let i = 0; i < minLength; i++) {
-      const tabsComponent = tabsComponents[i];
-      const collectionList = collectionLists[i];
-      
-      // Add unique IDs for reliable targeting
-      const uniqueId = `tabs-instance-${i + 1}`;
-      tabsComponent.setAttribute('data-tabs-id', uniqueId);
-      collectionList.setAttribute('data-tabs-id', uniqueId);
-      
-      // Find all tab contents that belong to this collection list
-      const tabContentsForThisList = allTabContents.filter(content => {
-        return collectionList.contains(content);
+          const instance = {
+            uniqueId,
+            rootElement: el,
+            index: this.instances.size,
+            createdAt: Date.now(),
+            // cached query collections for this instance
+            cache: new Map()
+          };
+
+          // Minimal initial caching: tab buttons and panel containers, if present
+          try {
+            instance.cache.set('buttons', el.querySelectorAll('[data-tab-button], .tab-button, [role="tab"]') || []);
+            instance.cache.set('panels', el.querySelectorAll('[data-tab-panel], .tab-panel, [role="tabpanel"]') || []);
+          } catch (errInner) {
+            // non-fatal
+          }
+
+          this.instances.set(uniqueId, instance);
+        } catch (perElErr) {
+          console.warn('TabsConstructor: element init error', perElErr);
+        }
       });
-      
-      // Extract category from data attributes or class names
-      let category = collectionList.getAttribute('data-category');
-      if (!category && tabContentsForThisList.length > 0) {
-        category = tabContentsForThisList[0].getAttribute('data-category');
-      }
-      if (!category) {
-        const classList = Array.from(collectionList.classList);
-        const categoryClass = classList.find(cls => cls.includes('category-') || cls.includes('cat-'));
-        if (categoryClass) {
-          category = categoryClass.replace(/^(category-|cat-)/, '').replace(/-/g, ' ');
-        }
-      }
-      if (!category) {
-        category = `Category ${i + 1}`;
-      }
-      
-      // Set category attribute on tabs component
-      tabsComponent.setAttribute('data-category', category);
-      pairedTabsComponents.add(tabsComponent);
-      
-      const instance = {
-        index: i,
-        category: category,
-        uniqueId: uniqueId,
-        tabsComponent,
-        collectionList,
-        tabContents: tabContentsForThisList,
-        fsLibrary: null
-      };
-      
-      this.instances.push(instance);
+    } catch (err) {
+      console.error('TabsConstructor: error while enumerating elements', err);
     }
-    
-    // Handle orphaned tabs components
-    tabsComponents.forEach(tabsComponent => {
-      if (!pairedTabsComponents.has(tabsComponent)) {
-        console.warn('🔍 Orphaned tabs component found (hiding):', tabsComponent);
-        tabsComponent.style.display = 'none';
-      }
-    });
-    
-    console.log(`✅ Created ${this.instances.length} tabs instances`);
-    this.instances.forEach(instance => {
-      console.log(`   📂 Category: "${instance.category}" (${instance.tabContents.length} tab contents)`);
-    });
   }
 
-  initializeInstances() {
-    this.instances.forEach((instance, index) => {
-      try {
-        // Use unique ID selectors for reliable targeting
-        const collectionListSelector = `[data-tabs-id="${instance.uniqueId}"].fs-dynamic-feed`;
-        const tabsComponentSelector = `[data-tabs-id="${instance.uniqueId}"].fs-tabs`;
-        
-        // Create FsLibrary instance with CSS selector string
-        instance.fsLibrary = new FsLibrary(collectionListSelector);
-        
-        // Call tabs method with CSS selectors
-        instance.fsLibrary.tabs({
-          tabComponent: tabsComponentSelector,
-          tabContent: '.fs-tab-content'
-        });
-        
-        console.log(`✅ Initialized Finsweet for: ${instance.category}`);
-      } catch (error) {
-        console.warn(`⚠️ Failed to initialize tabs for ${instance.category}:`, error);
-      }
-    });
-  }
+  _finishInit() {
+    this._isInitialized = true;
 
-  // Utility methods for external access
-  getInstance(index) {
-    return this.instances[index] || null;
-  }
+    // set a global flag for legacy code
+    window.tabsConstructorComplete = true;
 
-  getInstanceByCategory(category) {
-    return this.instances.find(instance => instance.category === category) || null;
-  }
-
-  getAllInstances() {
-    return this.instances;
-  }
-
-  refreshAllInstances() {
-    this.instances.forEach((instance, index) => {
-      if (instance.fsLibrary && typeof instance.fsLibrary.refresh === 'function') {
-        try {
-          instance.fsLibrary.refresh();
-          console.log(`🔄 Refreshed: ${instance.category}`);
-        } catch (error) {
-          console.warn(`⚠️ Failed to refresh ${instance.category}:`, error);
+    // dispatch event for backwards compatibility
+    try {
+      const ev = new CustomEvent('tabsConstructorReady', {
+        detail: {
+          timestamp: Date.now(),
+          count: this.instances.size
         }
-      }
+      });
+      document.dispatchEvent(ev);
+    } catch (err) {
+      // ignore
+    }
+
+    // resolve the ready promise
+    this._resolveReady({
+      count: this.instances.size,
+      instances: this.instances
     });
   }
 
-  debugInstances() {
-    console.group('🔍 Tabs Constructor Debug Info');
-    console.log(`Total instances: ${this.instances.length}`);
-    
-    this.instances.forEach((instance, index) => {
-      console.group(`Instance ${index + 1}: ${instance.category}`);
-      console.log('Tabs Component:', instance.tabsComponent);
-      console.log('Collection List:', instance.collectionList);
-      console.log('Tab Contents:', instance.tabContents);
-      console.log('FsLibrary:', instance.fsLibrary);
-      console.log('Unique ID:', instance.uniqueId);
-      console.groupEnd();
-    });
-    
-    console.groupEnd();
+  // helper: get instance by uniqueId or fallback to first
+  getInstance(uniqueId) {
+    if (!this._isInitialized) {
+      console.warn('TabsConstructor.getInstance called before initialization complete');
+      return null;
+    }
+    if (!uniqueId) return this.instances.values().next().value || null;
+    return this.instances.get(uniqueId) || null;
+  }
+
+  // exposes a fast cached query for an instance
+  query(instanceUniqueId, selector) {
+    const inst = this.getInstance(instanceUniqueId);
+    if (!inst) return null;
+    const cacheKey = `q:${selector}`;
+    if (inst.cache.has(cacheKey)) return inst.cache.get(cacheKey);
+    const res = inst.rootElement.querySelectorAll(selector);
+    inst.cache.set(cacheKey, res);
+    return res;
   }
 }
 
-// Initialize the tabs constructor
-(function initializeTabsConstructor() {
-  // Prevent multiple initializations
-  if (window.tabsConstructor) {
-    return;
+// instantiate and initialize on DOMContentLoaded (or immediately if ready)
+(function bootstrapTabsConstructor() {
+  const tc = new TabsConstructor();
+  window.TabsConstructor = tc;
+
+  function start() {
+    // start init but do not block page rendering
+    tc.init().catch((err) => {
+      console.warn('TabsConstructor bootstrap: init rejected', err && err.message);
+    });
   }
 
-  let initAttempts = 0;
-  const maxAttempts = 10;
-  
-  const initTabs = () => {
-    initAttempts++;
-    
-    if (typeof FsLibrary !== 'undefined') {
-      try {
-        window.tabsConstructor = new TabsConstructor();
-        window.tabsConstructor.init();
-        
-        // Make debug method available globally
-        window.debugTabsConstructor = () => window.tabsConstructor.debugInstances();
-        
-        console.log('🎉 TabsConstructor initialized and available globally as window.tabsConstructor');
-      } catch (error) {
-        console.error('❌ Error initializing TabsConstructor:', error);
-      }
-    } else if (initAttempts < maxAttempts) {
-      setTimeout(initTabs, 1000);
-    } else {
-      console.error('❌ Failed to initialize TabsConstructor: FsLibrary not found after maximum attempts');
-    }
-  };
-  
-  // Initialize immediately if DOM is ready, otherwise wait
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', initTabs);
+    document.addEventListener('DOMContentLoaded', start, { once: true });
   } else {
-    initTabs();
-  }
-  
-  // Also try on Webflow ready as backup
-  if (typeof Webflow !== 'undefined') {
-    Webflow.push(() => {
-      if (!window.tabsConstructor) {
-        initTabs();
-      }
-    });
+    start();
   }
 })();
