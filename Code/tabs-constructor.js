@@ -121,27 +121,33 @@ class TabsConstructor {
     });
   }
 
-  initializeInstances() {
-    this.instances.forEach((instance, index) => {
+  async initializeInstances() {
+    const initPromises = this.instances.map(async (instance, index) => {
       try {
-        // Use unique ID selectors for reliable targeting
         const collectionListSelector = `[data-tabs-id="${instance.uniqueId}"].fs-dynamic-feed`;
         const tabsComponentSelector = `[data-tabs-id="${instance.uniqueId}"].fs-tabs`;
         
-        // Create FsLibrary instance with CSS selector string
+        // Create FsLibrary instance
         instance.fsLibrary = new FsLibrary(collectionListSelector);
         
-        // Call tabs method with CSS selectors
-        instance.fsLibrary.tabs({
+        // Wait for tabs initialization to complete
+        await instance.fsLibrary.tabs({
           tabComponent: tabsComponentSelector,
-          tabContent: '.fs-tab-content'
+          tabContent: '.fs-tab-content',
+          resetIx: false // Skip expensive Webflow reinitialization
         });
         
         console.log(`✅ Initialized Finsweet for: ${instance.category}`);
+        return true;
       } catch (error) {
         console.warn(`⚠️ Failed to initialize tabs for ${instance.category}:`, error);
+        return false;
       }
     });
+    
+    // Wait for all instances to complete
+    await Promise.all(initPromises);
+    console.log('🎯 All Finsweet instances initialized');
   }
 
   // Utility methods for external access
@@ -172,16 +178,23 @@ class TabsConstructor {
 
   async waitForContent() {
     return new Promise((resolve) => {
+      let attempts = 0;
+      const maxAttempts = 40; // 6 seconds max (40 * 150ms)
+      
       const checkContent = () => {
-        // Fresh queries each time - but with longer intervals
         const tabsComponents = document.querySelectorAll('.fs-tabs');
         const collectionLists = document.querySelectorAll('.fs-dynamic-feed');
         const tabContents = document.querySelectorAll('.fs-tab-content');
         
         if (tabsComponents.length > 0 && collectionLists.length > 0 && tabContents.length > 0) {
+          console.log(`TabsConstructor: ✅ Content ready after ${attempts * 150}ms`);
           resolve();
+        } else if (attempts >= maxAttempts) {
+          console.warn('TabsConstructor: ⚠ Timeout waiting for content, proceeding anyway');
+          resolve(); // Proceed even if not all content is ready
         } else {
-          setTimeout(checkContent, 250); // Keep the reduced polling frequency
+          attempts++;
+          setTimeout(checkContent, 150);
         }
       };
       
