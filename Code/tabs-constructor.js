@@ -160,16 +160,23 @@ class TabsConstructor {
 
   async waitForContent() {
     return new Promise((resolve) => {
+      let attempts = 0;
+      const maxAttempts = 40; // 6 seconds max (40 * 150ms)
+      
       const checkContent = () => {
-        // Fresh queries each time - but with longer intervals
         const tabsComponents = document.querySelectorAll('.fs-tabs');
         const collectionLists = document.querySelectorAll('.fs-dynamic-feed');
         const tabContents = document.querySelectorAll('.fs-tab-content');
         
         if (tabsComponents.length > 0 && collectionLists.length > 0 && tabContents.length > 0) {
+          console.log(`TabsConstructor: ✅ Content ready after ${attempts * 150}ms`);
           resolve();
+        } else if (attempts >= maxAttempts) {
+          console.warn('TabsConstructor: ⚠ Timeout waiting for content, proceeding anyway');
+          resolve(); // Proceed even if not all content is ready
         } else {
-          setTimeout(checkContent, 250); // Keep the reduced polling frequency
+          attempts++;
+          setTimeout(checkContent, 150);
         }
       };
       
