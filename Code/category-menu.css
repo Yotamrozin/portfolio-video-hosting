@@ -1,0 +1,18 @@
+
+	.swiper-button-next, .swiper-button-prev {
+      display: none;
+  }
+  .arrow-next:focus, .arrow-previous:focus {
+    outline: none;
+  }
+  .swiper-slide.swiper-slide-active .card{
+  	opacity: 100%;
+  }
+  .submit-button:focus {
+		outline: none;
+  }
+  .text-field {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  }
