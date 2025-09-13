@@ -1,6 +1,9 @@
 (function() {
     'use strict';
-
+    
+    // Configuration - Easy to adjust timer duration
+    const AUTO_ADVANCE_DURATION = 5000; // 5 seconds (adjust this value as needed)
+    
     class TabNavigationManager {
         constructor() {
             this.tabInstances = new Map();
@@ -145,7 +148,7 @@
             // Don't start auto-advance immediately - let category controller manage it
             // instanceData.autoAdvanceTimer = setInterval(() => {
             //     this.navigateNext(wrapper);
-            // }, 5000); // 5 seconds
+            // }, AUTO_ADVANCE_DURATION); // Use configurable duration
             instanceData.autoAdvanceTimer = null; // Initialize as null
 
             // Add event listeners
@@ -336,7 +339,7 @@
             // Start fresh timer
             instance.autoAdvanceTimer = setInterval(() => {
                 this.navigateNext(wrapper);
-            }, 5000); // 5 seconds
+            }, AUTO_ADVANCE_DURATION); // Use configurable duration
         }
 
         // New methods for pausing/resuming auto-advance
@@ -414,42 +417,42 @@
             const deltaY = Math.abs(instance.touchEndY - instance.touchStartY);
             const absDeltaX = Math.abs(deltaX);
 
-            console.log('🔍 Swipe analysis:', {
-                deltaX,
-                deltaY,
-                absDeltaX,
-                minSwipeDistance: instance.minSwipeDistance,
-                maxVerticalDistance: instance.maxVerticalDistance,
-                swiperAvailable: !!window.mySwiper
-            });
+                // console.log('🔍 Swipe analysis:', {
+                //     deltaX,
+                //     deltaY, 
+                //     absDeltaX,
+                //     minSwipeDistance: instance.minSwipeDistance,
+                //     maxVerticalDistance: instance.maxVerticalDistance,
+                //     swiperAvailable: !!window.mySwiper
+                // });
 
             // Check if this is a valid horizontal swipe
             if (absDeltaX >= instance.minSwipeDistance && deltaY <= instance.maxVerticalDistance) {
                 if (deltaX > 0) {
                     // Swipe right - go to previous Swiper category
                     if (window.mySwiper && typeof window.mySwiper.slidePrev === 'function') {
-                        console.log('👆 Swipe right detected - moving to previous Swiper category');
+                        // console.log('👆 Swipe right detected - moving to previous Swiper category');
                         window.mySwiper.slidePrev(300, true);
                         
                         // Reset auto-advance timer after swipe navigation
                         this.resetAutoAdvanceTimer(wrapper);
                     } else {
-                        console.log('🚫 Swiper not available for slidePrev');
+                        //console.log('🚫 Swiper not available for slidePrev');
                     }
                 } else {
                     // Swipe left - go to next Swiper category
                     if (window.mySwiper && typeof window.mySwiper.slideNext === 'function') {
-                        console.log('👆 Swipe left detected - moving to next Swiper category');
+                        //console.log('👆 Swipe left detected - moving to next Swiper category');
                         window.mySwiper.slideNext(300, true);
                         
                         // Reset auto-advance timer after swipe navigation
                         this.resetAutoAdvanceTimer(wrapper);
                     } else {
-                        console.log('🚫 Swiper not available for slideNext');
+                        //console.log('🚫 Swiper not available for slideNext');
                     }
                 }
             } else {
-                console.log('🚫 Swipe did not meet criteria for horizontal swipe');
+                //console.log('🚫 Swipe did not meet criteria for horizontal swipe');
             }
         }
     }
