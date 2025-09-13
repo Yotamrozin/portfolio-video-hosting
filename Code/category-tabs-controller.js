@@ -3,17 +3,19 @@ class CategoryTabsController {
         this.categoryTabsPairs = new Map();
         this.categoryButtons = new Map();
         this.currentActiveCategory = null;
+        this.swiperObserver = null;
     }
 
     init() {
         console.log('CategoryTabsController: Initializing...');
-        this.setupCategoryButtonListeners();
+        this.setupCategoryButtons();
         
         // Listen for tabs constructor completion
         document.addEventListener('tabsConstructorReady', () => {
             console.log('CategoryTabsController: 🎯 Received tabsConstructorReady event!');
             this.pairCategoryTabsWithButtons();
             this.initializeVisibility();
+            this.setupSwiperActiveObserver();
         });
         
         // Fallback: if tabs are already ready
@@ -21,21 +23,23 @@ class CategoryTabsController {
             console.log('CategoryTabsController: 🎯 Tabs already ready, starting pairing process');
             this.pairCategoryTabsWithButtons();
             this.initializeVisibility();
+            this.setupSwiperActiveObserver();
         } else {
             console.log('CategoryTabsController: ⏳ Waiting for tabsConstructorReady event...');
         }
         
-        // Remove this redundant 2-second fallback timeout
+        // Fallback timeout
         setTimeout(() => {
             if (this.categoryTabsPairs.size === 0) {
                 console.log('CategoryTabsController: 🔄 No pairs found, trying fallback pairing...');
                 this.pairCategoryTabsWithButtons();
                 this.initializeVisibility();
+                this.setupSwiperActiveObserver();
             }
         }, 2000);
     }
 
-    setupCategoryButtonListeners() {
+    setupCategoryButtons() {
         const menuContainer = document.querySelector('[data-category="menu"]');
         if (!menuContainer) {
             console.error('CategoryTabsController: Menu container with data-category="menu" not found');
@@ -51,26 +55,61 @@ class CategoryTabsController {
             
             if (category) {
                 this.categoryButtons.set(category, button);
-                
-                // Add click and touch event listeners
-                ['click', 'touchend'].forEach(eventType => {
-                    button.addEventListener(eventType, (e) => {
-                        e.preventDefault();
-                        console.log(`CategoryTabsController: ${eventType} on category button "${category}"`);
-                        
-                        // Find the slide index for this category
-                        const slideIndex = Array.from(categoryButtons).indexOf(button);
-                        
-                        // Move Swiper to this slide
-                        if (window.mySwiper) {
-                            window.mySwiper.slideTo(slideIndex);
-                        }
-                        
-                        this.showCategory(category);
-                    });
-                });
             }
         });
+    }
+
+    setupSwiperActiveObserver() {
+        console.log('CategoryTabsController: 🔍 Setting up Swiper active slide observer...');
+        
+        const swiperContainer = document.querySelector('.swiper-menu');
+        if (!swiperContainer) {
+            console.warn('CategoryTabsController: ⚠ Swiper container not found');
+            return;
+        }
+
+        // Create MutationObserver to watch for class changes on slides
+        this.swiperObserver = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    const slide = mutation.target;
+                    
+                    // Check if this slide became active
+                    if (slide.classList.contains('swiper-slide-active')) {
+                        const category = slide.getAttribute('data-category');
+                        if (category && category !== this.currentActiveCategory) {
+                            console.log(`CategoryTabsController: 🎯 Swiper active slide changed to category "${category}"`);
+                            this.showCategory(category);
+                        }
+                    }
+                }
+            });
+        });
+
+        // Observe all slides for class changes
+        const slides = swiperContainer.querySelectorAll('.swiper-slide');
+        slides.forEach(slide => {
+            this.swiperObserver.observe(slide, {
+                attributes: true,
+                attributeFilter: ['class']
+            });
+        });
+
+        console.log(`CategoryTabsController: ✅ Observing ${slides.length} slides for active state changes`);
+        
+        // Also check current active slide on setup
+        this.checkCurrentActiveSlide();
+    }
+
+    checkCurrentActiveSlide() {
+        const activeSlide = document.querySelector('.swiper-slide-active');
+        if (activeSlide) {
+            const category = activeSlide.getAttribute('data-category');
+            if (category) {
+                console.log(`CategoryTabsController: 🎯 Initial active slide category: "${category}"`);
+                this.showCategory(category);
+            }
+        }
     }
 
     pairCategoryTabsWithButtons() {
@@ -160,12 +199,7 @@ class CategoryTabsController {
             this.hideTabsElement(pair.tabsElement);
         });
         
-        // Show the first category if available (this will resume its auto-advance)
-        const firstCategory = this.categoryTabsPairs.keys().next().value;
-        if (firstCategory) {
-            this.showCategory(firstCategory);
-            console.log(`CategoryTabsController: ✅ Initialized with first category "${firstCategory}" visible`);
-        }
+        console.log(`CategoryTabsController: ✅ Initialized visibility system`);
     }
 
     showCategory(category) {
@@ -200,9 +234,6 @@ class CategoryTabsController {
         if (window.TabNavigationManager) {
             window.TabNavigationManager.resumeAutoAdvanceForTabsElement(tabsElement);
         }
-        
-        // Remove excessive logging
-        // console.log('CategoryTabsController: 👁 Showing tabs element:', tabsElement);
     }
 
     hideTabsElement(tabsElement) {
@@ -213,9 +244,6 @@ class CategoryTabsController {
         if (window.TabNavigationManager) {
             window.TabNavigationManager.pauseAutoAdvanceForTabsElement(tabsElement);
         }
-        
-        // Remove excessive logging
-        // console.log('CategoryTabsController: 🙈 Hiding tabs element:', tabsElement);
     }
 
     addActiveState(button) {
@@ -226,6 +254,13 @@ class CategoryTabsController {
     removeActiveState(button) {
         button.classList.remove('active');
         console.log('CategoryTabsController: 💫 Removed active state from button:', button);
+    }
+
+    destroy() {
+        if (this.swiperObserver) {
+            this.swiperObserver.disconnect();
+            console.log('CategoryTabsController: 🧹 Cleaned up Swiper observer');
+        }
     }
 }
 
