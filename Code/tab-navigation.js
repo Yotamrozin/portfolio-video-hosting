@@ -35,8 +35,6 @@
                 return;
             }
 
-            // Removed: console.log(`📋 Found ${tabWrappers.length} tab wrapper(s)`);
-
             tabWrappers.forEach((wrapper, index) => {
                 this.initializeTabWrapper(wrapper, index);
             });
@@ -145,18 +143,14 @@
                 this.handleSwipeGesture(wrapper);
             };
 
-            // Don't start auto-advance immediately - let category controller manage it
-            // instanceData.autoAdvanceTimer = setInterval(() => {
-            //     this.navigateNext(wrapper);
-            // }, AUTO_ADVANCE_DURATION); // Use configurable duration
-            instanceData.autoAdvanceTimer = null; // Initialize as null
+            instanceData.autoAdvanceTimer = null;
 
             // Add event listeners
             tabsElement.addEventListener('w-tab-change', tabChangeListener);
             nextButton.addEventListener('click', nextClickListener);
             prevButton.addEventListener('click', prevClickListener);
             
-            // Add touch/swipe listeners to the wrapper element (broader touch area)
+            // Add touch/swipe listeners to the wrapper element
             wrapper.addEventListener('touchstart', touchStartListener, { passive: true });
             wrapper.addEventListener('touchend', touchEndListener, { passive: true });
             
@@ -171,11 +165,6 @@
             
             if (middleButton) {
                 middleButton.addEventListener('click', middleClickListener);
-            }
-
-
-            
-            if (middleButton) {
                 listeners.push(
                     { element: middleButton, event: 'click', listener: middleClickListener }
                 );
@@ -183,7 +172,7 @@
             
             instanceData.listeners = listeners;
 
-            // Removed: console.log(`✅ Initialized tab wrapper ${index} with ${instanceData.totalTabs} tabs`);
+
         }
 
         updateCurrentIndex(instanceData) {
@@ -202,8 +191,7 @@
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
 
-            // Remove excessive debugging
-            // console.log('🔍 Current index before next:', instance.currentIndex, 'total:', instance.totalTabs);
+
 
             if (instance.currentIndex >= instance.totalTabs - 1) {
                 // At last tab - trigger Swiper next slide
@@ -212,8 +200,7 @@
                     window.mySwiper.slideNext(300, true); // 300ms transition with callbacks
                     return;
                 }
-                // Remove this log as it's too frequent
-                // console.log('🚫 Already at last tab, cannot go next');
+
                 return;
             }
 
@@ -228,7 +215,7 @@
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
 
-            // Removed: console.log(`🔍 Current index before previous: ${instance.currentIndex}, total: ${instance.totalTabs}`);
+
 
             // Check if we can go to previous tab
             if (instance.currentIndex <= 0) {
@@ -272,98 +259,128 @@
                         instance.currentIndex = activeIndex;
                     }
                 }
-            }, 50);
+            }, 100);
 
-            // Removed: console.log(`🎯 Navigated from tab ${oldIndex + 1} to tab ${targetIndex + 1} of ${instance.totalTabs}`);
+
         }
 
 
-        // Cleanup method for defensive programming
-        destroy(wrapper) {
+        // Simple indicator animation methods (independent of timer)
+        startIndicatorAnimation(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
 
-            // Clear auto-advance timer
-            if (instance.autoAdvanceTimer) {
-                clearInterval(instance.autoAdvanceTimer);
-                instance.autoAdvanceTimer = null;
+            const currentTabLink = wrapper.querySelector('.w-tab-link.w--current');
+            if (!currentTabLink) return;
+
+            const indicator = currentTabLink.querySelector('div');
+            if (!indicator) return;
+
+            console.log('🎬 Starting indicator animation for tab:', currentTabLink);
+
+            // Store original styles for restoration
+            if (!indicator.dataset.originalWidth) {
+                const computedStyle = getComputedStyle(indicator);
+                indicator.dataset.originalWidth = computedStyle.width;
+                indicator.dataset.originalBackground = computedStyle.backgroundColor;
             }
 
-            // Remove all event listeners
-            instance.listeners.forEach(({ element, event, listener }) => {
-                element.removeEventListener(event, listener);
+            // Step 1: Immediately set white background and 0% width
+            indicator.style.backgroundColor = 'white';
+            indicator.style.width = '0%';
+            indicator.style.transition = 'none'; // No transition for immediate change
+
+            // Step 2: Force reflow, then animate to 100% over AUTO_ADVANCE_DURATION
+            indicator.offsetHeight; // Force reflow
+            
+            indicator.style.transition = `width ${AUTO_ADVANCE_DURATION}ms linear`;
+            indicator.style.width = '100%';
+
+            console.log('✅ Indicator animation started - animating to 100% over', AUTO_ADVANCE_DURATION, 'ms');
+        }
+
+        clearIndicatorAnimation(wrapper) {
+            // Reset all tab indicators in this wrapper to original state
+            const allTabLinks = wrapper.querySelectorAll('.w-tab-link');
+            
+            allTabLinks.forEach((tabLink) => {
+                const indicator = tabLink.querySelector('div');
+                if (!indicator) return;
+
+                // Restore original styles if stored
+                if (indicator.dataset.originalWidth) {
+                    indicator.style.width = indicator.dataset.originalWidth;
+                    indicator.style.backgroundColor = indicator.dataset.originalBackground || '';
+                    indicator.style.transition = '';
+                    
+                    // Clean up stored data
+                    delete indicator.dataset.originalWidth;
+                    delete indicator.dataset.originalBackground;
+                }
             });
 
-            // Remove from instances map
-            this.tabInstances.delete(wrapper);
-
-            console.log('🧹 Tab navigation instance cleaned up');
+            console.log('🧹 Indicator animation cleared for wrapper');
         }
 
-        // Destroy all instances
-        destroyAll() {
-            const wrappers = Array.from(this.tabInstances.keys());
-            wrappers.forEach(wrapper => this.destroy(wrapper));
-            console.log('🧹 All tab navigation instances cleaned up');
-        }
-
-        // Public method to get current tab info for debugging
-        getCurrentTabInfo(wrapperIndex = 0) {
-            const wrappers = Array.from(this.tabInstances.keys());
-            const wrapper = wrappers[wrapperIndex];
-            const instance = this.tabInstances.get(wrapper);
-            
-            if (!instance) {
-                return null;
-            }
-
-            return {
-                currentIndex: instance.currentIndex,
-                totalTabs: instance.totalTabs,
-                currentTab: instance.currentIndex + 1,
-                canGoNext: instance.currentIndex < instance.totalTabs - 1,
-                canGoPrevious: instance.currentIndex > 0
-            };
-        }
-
-        // New centralized method for resetting auto-advance timer
-        resetAutoAdvanceTimer(wrapper) {
+        // Modified auto-advance methods to include indicator animation
+        resumeAutoAdvance(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
-            
+
+            console.log('▶️ Resuming auto advance...');
+
             // Clear existing timer
             if (instance.autoAdvanceTimer) {
                 clearInterval(instance.autoAdvanceTimer);
             }
             
-            // Start fresh timer
+            // Start indicator animation immediately
+            this.startIndicatorAnimation(wrapper);
+            
+            // Start auto-advance timer (independent of animation)
             instance.autoAdvanceTimer = setInterval(() => {
+                console.log('⏭️ Auto advance timer triggered');
                 this.navigateNext(wrapper);
-            }, AUTO_ADVANCE_DURATION); // Use configurable duration
+            }, AUTO_ADVANCE_DURATION);
         }
 
-        // New methods for pausing/resuming auto-advance
+        resetAutoAdvanceTimer(wrapper) {
+            const instance = this.tabInstances.get(wrapper);
+            if (!instance) return;
+
+            console.log('🔄 Resetting auto advance timer...');
+
+            // Clear existing timer and animation
+            if (instance.autoAdvanceTimer) {
+                clearInterval(instance.autoAdvanceTimer);
+                instance.autoAdvanceTimer = null;
+            }
+            
+            this.clearIndicatorAnimation(wrapper);
+
+            // Start new timer and animation
+            this.startIndicatorAnimation(wrapper);
+            
+            instance.autoAdvanceTimer = setInterval(() => {
+                console.log('⏭️ Auto advance timer triggered (after reset)');
+                this.navigateNext(wrapper);
+            }, AUTO_ADVANCE_DURATION);
+        }
+
         pauseAutoAdvance(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
 
+            console.log('⏸️ Pausing auto advance...');
+
             if (instance.autoAdvanceTimer) {
                 clearInterval(instance.autoAdvanceTimer);
                 instance.autoAdvanceTimer = null;
-                // Remove excessive logging
-                // console.log('⏸️ Auto-advance paused for tab wrapper');
-            }
-        }
-
-        resumeAutoAdvance(wrapper) {
-            const instance = this.tabInstances.get(wrapper);
-            if (!instance) return;
-
-            // Only resume if not already running
-            if (!instance.autoAdvanceTimer) {
-                this.resetAutoAdvanceTimer(wrapper); // Use centralized method
-                // Remove excessive logging
-                // console.log('▶️ Auto-advance resumed for tab wrapper');
+                
+                // Clear animation when pausing
+                this.clearIndicatorAnimation(wrapper);
+            } else {
+                console.log('ℹ️ No timer to pause');
             }
         }
 
@@ -408,60 +425,53 @@
         // Handle swipe gestures for category navigation
         handleSwipeGesture(wrapper) {
             const instance = this.tabInstances.get(wrapper);
-            if (!instance) {
-                console.log('🚫 No instance found for wrapper');
-                return;
-            }
+            if (!instance) return;
 
             const deltaX = instance.touchEndX - instance.touchStartX;
             const deltaY = Math.abs(instance.touchEndY - instance.touchStartY);
-            const absDeltaX = Math.abs(deltaX);
 
-                // console.log('🔍 Swipe analysis:', {
-                //     deltaX,
-                //     deltaY, 
-                //     absDeltaX,
-                //     minSwipeDistance: instance.minSwipeDistance,
-                //     maxVerticalDistance: instance.maxVerticalDistance,
-                //     swiperAvailable: !!window.mySwiper
-                // });
-
-            // Check if this is a valid horizontal swipe
-            if (absDeltaX >= instance.minSwipeDistance && deltaY <= instance.maxVerticalDistance) {
-                if (deltaX > 0) {
-                    // Swipe right - go to previous Swiper category
-                    if (window.mySwiper && typeof window.mySwiper.slidePrev === 'function') {
-                        // console.log('👆 Swipe right detected - moving to previous Swiper category');
-                        window.mySwiper.slidePrev(300, true);
-                        
-                        // Reset auto-advance timer after swipe navigation
-                        this.resetAutoAdvanceTimer(wrapper);
-                    } else {
-                        //console.log('🚫 Swiper not available for slidePrev');
-                    }
-                } else {
-                    // Swipe left - go to next Swiper category
-                    if (window.mySwiper && typeof window.mySwiper.slideNext === 'function') {
-                        //console.log('👆 Swipe left detected - moving to next Swiper category');
-                        window.mySwiper.slideNext(300, true);
-                        
-                        // Reset auto-advance timer after swipe navigation
-                        this.resetAutoAdvanceTimer(wrapper);
-                    } else {
-                        //console.log('🚫 Swiper not available for slideNext');
-                    }
-                }
-            } else {
-                //console.log('🚫 Swipe did not meet criteria for horizontal swipe');
+            // Check if this is a horizontal swipe (not too much vertical movement)
+            if (deltaY > instance.maxVerticalDistance) {
+                return; // Too much vertical movement, ignore
             }
+
+            // Check if swipe distance is sufficient
+            if (Math.abs(deltaX) < instance.minSwipeDistance) {
+                return; // Swipe distance too small
+            }
+
+            // Determine swipe direction and navigate
+            if (deltaX > 0) {
+                // Swipe right - go to previous
+                this.navigatePrevious(wrapper);
+            } else {
+                // Swipe left - go to next
+                this.navigateNext(wrapper);
+            }
+        }
+
+        // Get current state for debugging
+        getCurrentState(wrapper) {
+            const instance = this.tabInstances.get(wrapper);
+            if (!instance) {
+                return { error: 'No instance found for wrapper' };
+            }
+
+            return {
+                currentIndex: instance.currentIndex,
+                totalTabs: instance.totalTabs,
+                hasTimer: !!instance.autoAdvanceTimer,
+                canGoNext: instance.currentIndex < instance.totalTabs - 1,
+                canGoPrevious: instance.currentIndex > 0
+            };
         }
     }
 
-    // Initialize the navigation manager
+    // Create global instance
     const navigationManager = new TabNavigationManager();
-
-    // Make it globally accessible for debugging and cleanup
-    window.TabNavigationManager = navigationManager;
-
+    
+    // Make it globally accessible for debugging
+    window.navigationManager = navigationManager;
+    
     console.log('📱 Tab Navigation script loaded');
 })();
