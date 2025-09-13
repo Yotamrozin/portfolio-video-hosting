@@ -199,71 +199,53 @@
         }
 
         navigateNext(wrapper) {
-        const instance = this.tabInstances.get(wrapper);
-        if (!instance) return;
+            const instance = this.tabInstances.get(wrapper);
+            if (!instance) return;
 
-        // Set indicator to 100% width before changing to next tab
-        const currentTab = instance.tabsElement.querySelector('.w-tab-link.w--current');
-        if (currentTab) {
-            const indicator = currentTab.querySelector('div');
-            if (indicator) {
-                indicator.style.width = '100%';
-            }
-        }
+            // Remove excessive debugging
+            // console.log('🔍 Current index before next:', instance.currentIndex, 'total:', instance.totalTabs);
 
-        // Remove excessive debugging
-        // console.log('🔍 Current index before next:', instance.currentIndex, 'total:', instance.totalTabs);
-
-        if (instance.currentIndex >= instance.totalTabs - 1) {
-            // At last tab - trigger Swiper next slide
-            if (window.mySwiper && typeof window.mySwiper.slideNext === 'function') {
-                console.log('🎯 At last tab, moving to next Swiper slide');
-                window.mySwiper.slideNext(300, true); // 300ms transition with callbacks
+            if (instance.currentIndex >= instance.totalTabs - 1) {
+                // At last tab - trigger Swiper next slide
+                if (window.mySwiper && typeof window.mySwiper.slideNext === 'function') {
+                    console.log('🎯 At last tab, moving to next Swiper slide');
+                    window.mySwiper.slideNext(300, true); // 300ms transition with callbacks
+                    return;
+                }
+                // Remove this log as it's too frequent
+                // console.log('🚫 Already at last tab, cannot go next');
                 return;
             }
-            // Remove this log as it's too frequent
-            // console.log('🚫 Already at last tab, cannot go next');
-            return;
-        }
 
-        const nextIndex = instance.currentIndex + 1;
-        this.navigateToTab(wrapper, nextIndex);
-        
-        // Reset auto-advance timer after navigation
-        this.resetAutoAdvanceTimer(wrapper);
+            const nextIndex = instance.currentIndex + 1;
+            this.navigateToTab(wrapper, nextIndex);
+            
+            // Reset auto-advance timer after navigation
+            this.resetAutoAdvanceTimer(wrapper);
         }
 
         navigatePrevious(wrapper) {
-        const instance = this.tabInstances.get(wrapper);
-        if (!instance) return;
+            const instance = this.tabInstances.get(wrapper);
+            if (!instance) return;
 
-        // Set indicator to 0% width before changing to previous tab
-        const currentTab = instance.tabsElement.querySelector('.w-tab-link.w--current');
-        if (currentTab) {
-            const indicator = currentTab.querySelector('div');
-            if (indicator) {
-                indicator.style.width = '0%';
-            }
-        }
+            // Removed: console.log(`🔍 Current index before previous: ${instance.currentIndex}, total: ${instance.totalTabs}`);
 
-        // Removed: console.log(`🔍 Current index before previous: ${instance.currentIndex}, total: ${instance.totalTabs}`);
-
-        // Check if we can go to previous tab
-        if (instance.currentIndex <= 0) {
-            // At first tab - trigger Swiper previous slide
-            if (window.mySwiper && typeof window.mySwiper.slidePrev === 'function') {
-                console.log('🎯 At first tab, moving to previous Swiper slide');
-                window.mySwiper.slidePrev(300, true); // 300ms transition with callbacks
+            // Check if we can go to previous tab
+            if (instance.currentIndex <= 0) {
+                // At first tab - trigger Swiper previous slide
+                if (window.mySwiper && typeof window.mySwiper.slidePrev === 'function') {
+                    console.log('🎯 At first tab, moving to previous Swiper slide');
+                    window.mySwiper.slidePrev(300, true); // 300ms transition with callbacks
+                    return;
+                }
                 return;
             }
-            return;
-        }
 
-        const prevIndex = instance.currentIndex - 1;
-        this.navigateToTab(wrapper, prevIndex);
-        
-        // Reset auto-advance timer after navigation
-        this.resetAutoAdvanceTimer(wrapper);
+            const prevIndex = instance.currentIndex - 1;
+            this.navigateToTab(wrapper, prevIndex);
+            
+            // Reset auto-advance timer after navigation
+            this.resetAutoAdvanceTimer(wrapper);
         }
 
         navigateToTab(wrapper, targetIndex) {
