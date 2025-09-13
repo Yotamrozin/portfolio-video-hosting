@@ -170,6 +170,12 @@
             // console.log('🔍 Current index before next:', instance.currentIndex, 'total:', instance.totalTabs);
 
             if (instance.currentIndex >= instance.totalTabs - 1) {
+                // At last tab - trigger Swiper next slide
+                if (window.mySwiper && typeof window.mySwiper.slideNext === 'function') {
+                    console.log('🎯 At last tab, moving to next Swiper slide');
+                    window.mySwiper.slideNext(300, true); // 300ms transition with callbacks
+                    return;
+                }
                 // Remove this log as it's too frequent
                 // console.log('🚫 Already at last tab, cannot go next');
                 return;
@@ -187,6 +193,12 @@
 
             // Check if we can go to previous tab
             if (instance.currentIndex <= 0) {
+                // At first tab - trigger Swiper previous slide
+                if (window.mySwiper && typeof window.mySwiper.slidePrev === 'function') {
+                    console.log('🎯 At first tab, moving to previous Swiper slide');
+                    window.mySwiper.slidePrev(300, true); // 300ms transition with callbacks
+                    return;
+                }
                 console.log('🚫 Already at first tab, cannot go previous');
                 return;
             }
