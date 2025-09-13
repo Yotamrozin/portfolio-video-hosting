@@ -104,6 +104,9 @@
                     if (activeIndex !== -1) {
                         instanceData.currentIndex = activeIndex;
                         console.log(`🎯 Tab changed to: ${activeIndex + 1} of ${instanceData.totalTabs}`);
+                        
+                        // Reset auto-advance timer when user manually clicks tabs
+                        this.resetAutoAdvanceTimer(wrapper);
                     }
                 }
             };
@@ -213,6 +216,9 @@
 
             const nextIndex = instance.currentIndex + 1;
             this.navigateToTab(wrapper, nextIndex);
+            
+            // Reset auto-advance timer after navigation
+            this.resetAutoAdvanceTimer(wrapper);
         }
 
         navigatePrevious(wrapper) {
@@ -234,6 +240,9 @@
 
             const prevIndex = instance.currentIndex - 1;
             this.navigateToTab(wrapper, prevIndex);
+            
+            // Reset auto-advance timer after navigation
+            this.resetAutoAdvanceTimer(wrapper);
         }
 
         navigateToTab(wrapper, targetIndex) {
@@ -314,6 +323,22 @@
             };
         }
 
+        // New centralized method for resetting auto-advance timer
+        resetAutoAdvanceTimer(wrapper) {
+            const instance = this.tabInstances.get(wrapper);
+            if (!instance) return;
+            
+            // Clear existing timer
+            if (instance.autoAdvanceTimer) {
+                clearInterval(instance.autoAdvanceTimer);
+            }
+            
+            // Start fresh timer
+            instance.autoAdvanceTimer = setInterval(() => {
+                this.navigateNext(wrapper);
+            }, 5000); // 5 seconds
+        }
+
         // New methods for pausing/resuming auto-advance
         pauseAutoAdvance(wrapper) {
             const instance = this.tabInstances.get(wrapper);
@@ -333,9 +358,7 @@
 
             // Only resume if not already running
             if (!instance.autoAdvanceTimer) {
-                instance.autoAdvanceTimer = setInterval(() => {
-                    this.navigateNext(wrapper);
-                }, 5000); // 5 seconds
+                this.resetAutoAdvanceTimer(wrapper); // Use centralized method
                 // Remove excessive logging
                 // console.log('▶️ Auto-advance resumed for tab wrapper');
             }
@@ -407,6 +430,9 @@
                     if (window.mySwiper && typeof window.mySwiper.slidePrev === 'function') {
                         console.log('👆 Swipe right detected - moving to previous Swiper category');
                         window.mySwiper.slidePrev(300, true);
+                        
+                        // Reset auto-advance timer after swipe navigation
+                        this.resetAutoAdvanceTimer(wrapper);
                     } else {
                         console.log('🚫 Swiper not available for slidePrev');
                     }
@@ -415,6 +441,9 @@
                     if (window.mySwiper && typeof window.mySwiper.slideNext === 'function') {
                         console.log('👆 Swipe left detected - moving to next Swiper category');
                         window.mySwiper.slideNext(300, true);
+                        
+                        // Reset auto-advance timer after swipe navigation
+                        this.resetAutoAdvanceTimer(wrapper);
                     } else {
                         console.log('🚫 Swiper not available for slideNext');
                     }
