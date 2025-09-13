@@ -145,12 +145,14 @@ class CategoryTabsController {
             const allCategoryButtons = swiperMenu.querySelectorAll('.category-button');
             allCategoryButtons.forEach(button => {
                 button.style.backgroundColor = '';
+                button.style.color = '';
             });
             
-            // Apply background color to the active category button
+            // Apply background color and font color to the active category button
             categoryButton.style.backgroundColor = colorAttribute;
+            categoryButton.style.color = '#272727';
             
-            console.log(`CategoryTabsController: 🎨 Applied color ${colorAttribute} to swiper menu and active category button`);
+            console.log(`CategoryTabsController: 🎨 Applied color ${colorAttribute} to swiper menu and active category button with #272727 font color`);
         } else {
             console.warn(`CategoryTabsController: ⚠ Category button not found within active slide`);
         }
