@@ -198,6 +198,25 @@
             }
         }
 
+        resetInstanceState(wrapper) {
+            const instance = this.tabInstances.get(wrapper);
+            if (!instance) return;
+            
+            // Force update the currentIndex based on actual DOM state
+            this.updateCurrentIndex(instance);
+            
+            // Clear any running timers to prevent conflicts
+            if (instance.autoAdvanceTimer) {
+                clearInterval(instance.autoAdvanceTimer);
+                instance.autoAdvanceTimer = null;
+            }
+            
+            // Clear indicator animations
+            this.clearIndicatorAnimation(wrapper);
+            
+            console.log(`🔄 Reset tab state for wrapper - currentIndex: ${instance.currentIndex}`);
+        }
+
         navigateNext(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
@@ -462,13 +481,26 @@
 
         // Resume auto-advance for specific tabs element
         resumeAutoAdvanceForTabsElement(tabsElement) {
-            // Find the wrapper that contains this tabs element
-            for (const [wrapper, instance] of this.tabInstances) {
-                if (instance.tabsElement === tabsElement) {
-                    this.resumeAutoAdvance(wrapper);
-                    return;
+            // Find the wrapper that contains this tabsElement
+            const wrapper = tabsElement.closest('.tab-wrapper');
+            if (!wrapper) {
+                // Fallback to the old method if closest doesn't find the wrapper
+                for (const [wrapperEl, instance] of this.tabInstances) {
+                    if (instance.tabsElement === tabsElement) {
+                        // Reset state before resuming
+                        this.resetInstanceState(wrapperEl);
+                        this.resumeAutoAdvance(wrapperEl);
+                        return;
+                    }
                 }
+                return;
             }
+            
+            // Reset state before resuming
+            this.resetInstanceState(wrapper);
+            
+            // Now resume auto-advance
+            this.resumeAutoAdvance(wrapper);
         }
 
         // Handle swipe gestures for category navigation

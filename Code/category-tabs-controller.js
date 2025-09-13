@@ -267,7 +267,7 @@ class CategoryTabsController {
         tabsElement.style.visibility = 'visible';
         tabsElement.style.position = 'static';
         
-        // Resume auto-advance for this tabs element
+        // Resume auto-advance for this tabs element with state reset
         if (window.TabNavigationManager) {
             window.TabNavigationManager.resumeAutoAdvanceForTabsElement(tabsElement);
         }
