@@ -35,6 +35,8 @@
                 return;
             }
 
+            // Removed: console.log(`📋 Found ${tabWrappers.length} tab wrapper(s)`);
+
             tabWrappers.forEach((wrapper, index) => {
                 this.initializeTabWrapper(wrapper, index);
             });
@@ -96,6 +98,7 @@
             this.tabInstances.set(wrapper, instanceData);
 
             // Event listener for tab clicks (to sync currentIndex)
+            // Listen for Webflow's tab change events instead of raw clicks
             const tabChangeListener = (e) => {
                 // Find which tab is now active
                 const activeTab = instanceData.tabsElement.querySelector('.w-tab-link.w--current');
@@ -137,18 +140,23 @@
             const touchEndListener = (e) => {
                 instanceData.touchEndX = e.changedTouches[0].clientX;
                 instanceData.touchEndY = e.changedTouches[0].clientY;
+                // Removed: console.log('🔍 Touch end detected:', instanceData.touchEndX, instanceData.touchEndY);
+                // Removed: console.log('🔍 Calling handleSwipeGesture...');
                 this.handleSwipeGesture(wrapper);
             };
 
-            // Initialize as null - let category controller manage it
-            instanceData.autoAdvanceTimer = null;
+            // Don't start auto-advance immediately - let category controller manage it
+            // instanceData.autoAdvanceTimer = setInterval(() => {
+            //     this.navigateNext(wrapper);
+            // }, AUTO_ADVANCE_DURATION); // Use configurable duration
+            instanceData.autoAdvanceTimer = null; // Initialize as null
 
             // Add event listeners
             tabsElement.addEventListener('w-tab-change', tabChangeListener);
             nextButton.addEventListener('click', nextClickListener);
             prevButton.addEventListener('click', prevClickListener);
             
-            // Add touch/swipe listeners to the wrapper element
+            // Add touch/swipe listeners to the wrapper element (broader touch area)
             wrapper.addEventListener('touchstart', touchStartListener, { passive: true });
             wrapper.addEventListener('touchend', touchEndListener, { passive: true });
             
@@ -163,12 +171,19 @@
             
             if (middleButton) {
                 middleButton.addEventListener('click', middleClickListener);
+            }
+
+
+            
+            if (middleButton) {
                 listeners.push(
                     { element: middleButton, event: 'click', listener: middleClickListener }
                 );
             }
             
             instanceData.listeners = listeners;
+
+            // Removed: console.log(`✅ Initialized tab wrapper ${index} with ${instanceData.totalTabs} tabs`);
         }
 
         updateCurrentIndex(instanceData) {
@@ -187,13 +202,18 @@
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
 
+            // Remove excessive debugging
+            // console.log('🔍 Current index before next:', instance.currentIndex, 'total:', instance.totalTabs);
+
             if (instance.currentIndex >= instance.totalTabs - 1) {
                 // At last tab - trigger Swiper next slide
                 if (window.mySwiper && typeof window.mySwiper.slideNext === 'function') {
                     console.log('🎯 At last tab, moving to next Swiper slide');
-                    window.mySwiper.slideNext(300, true);
+                    window.mySwiper.slideNext(300, true); // 300ms transition with callbacks
                     return;
                 }
+                // Remove this log as it's too frequent
+                // console.log('🚫 Already at last tab, cannot go next');
                 return;
             }
 
@@ -208,12 +228,14 @@
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
 
+            // Removed: console.log(`🔍 Current index before previous: ${instance.currentIndex}, total: ${instance.totalTabs}`);
+
             // Check if we can go to previous tab
             if (instance.currentIndex <= 0) {
                 // At first tab - trigger Swiper previous slide
                 if (window.mySwiper && typeof window.mySwiper.slidePrev === 'function') {
                     console.log('🎯 At first tab, moving to previous Swiper slide');
-                    window.mySwiper.slidePrev(300, true);
+                    window.mySwiper.slidePrev(300, true); // 300ms transition with callbacks
                     return;
                 }
                 return;
@@ -251,7 +273,10 @@
                     }
                 }
             }, 50);
+
+            // Removed: console.log(`🎯 Navigated from tab ${oldIndex + 1} to tab ${targetIndex + 1} of ${instance.totalTabs}`);
         }
+
 
         // Cleanup method for defensive programming
         destroy(wrapper) {
@@ -301,11 +326,11 @@
             };
         }
 
-        // Basic timer methods (without visualization)
-        resumeAutoAdvance(wrapper) {
+        // New centralized method for resetting auto-advance timer
+        resetAutoAdvanceTimer(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
-
+            
             // Clear existing timer
             if (instance.autoAdvanceTimer) {
                 clearInterval(instance.autoAdvanceTimer);
@@ -314,25 +339,10 @@
             // Start fresh timer
             instance.autoAdvanceTimer = setInterval(() => {
                 this.navigateNext(wrapper);
-            }, AUTO_ADVANCE_DURATION);
+            }, AUTO_ADVANCE_DURATION); // Use configurable duration
         }
 
-        resetAutoAdvanceTimer(wrapper) {
-            const instance = this.tabInstances.get(wrapper);
-            if (!instance) return;
-
-            // Clear existing timer
-            if (instance.autoAdvanceTimer) {
-                clearInterval(instance.autoAdvanceTimer);
-                instance.autoAdvanceTimer = null;
-            }
-            
-            // Start new timer
-            instance.autoAdvanceTimer = setInterval(() => {
-                this.navigateNext(wrapper);
-            }, AUTO_ADVANCE_DURATION);
-        }
-
+        // New methods for pausing/resuming auto-advance
         pauseAutoAdvance(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
@@ -340,6 +350,20 @@
             if (instance.autoAdvanceTimer) {
                 clearInterval(instance.autoAdvanceTimer);
                 instance.autoAdvanceTimer = null;
+                // Remove excessive logging
+                // console.log('⏸️ Auto-advance paused for tab wrapper');
+            }
+        }
+
+        resumeAutoAdvance(wrapper) {
+            const instance = this.tabInstances.get(wrapper);
+            if (!instance) return;
+
+            // Only resume if not already running
+            if (!instance.autoAdvanceTimer) {
+                this.resetAutoAdvanceTimer(wrapper); // Use centralized method
+                // Remove excessive logging
+                // console.log('▶️ Auto-advance resumed for tab wrapper');
             }
         }
 
@@ -384,37 +408,60 @@
         // Handle swipe gestures for category navigation
         handleSwipeGesture(wrapper) {
             const instance = this.tabInstances.get(wrapper);
-            if (!instance) return;
+            if (!instance) {
+                console.log('🚫 No instance found for wrapper');
+                return;
+            }
 
             const deltaX = instance.touchEndX - instance.touchStartX;
             const deltaY = Math.abs(instance.touchEndY - instance.touchStartY);
+            const absDeltaX = Math.abs(deltaX);
 
-            // Check if this is a horizontal swipe (not too much vertical movement)
-            if (deltaY > instance.maxVerticalDistance) {
-                return; // Too much vertical movement, ignore
-            }
+                // console.log('🔍 Swipe analysis:', {
+                //     deltaX,
+                //     deltaY, 
+                //     absDeltaX,
+                //     minSwipeDistance: instance.minSwipeDistance,
+                //     maxVerticalDistance: instance.maxVerticalDistance,
+                //     swiperAvailable: !!window.mySwiper
+                // });
 
-            // Check if swipe distance is sufficient
-            if (Math.abs(deltaX) < instance.minSwipeDistance) {
-                return; // Swipe distance too small
-            }
-
-            // Determine swipe direction and navigate
-            if (deltaX > 0) {
-                // Swipe right - go to previous
-                this.navigatePrevious(wrapper);
+            // Check if this is a valid horizontal swipe
+            if (absDeltaX >= instance.minSwipeDistance && deltaY <= instance.maxVerticalDistance) {
+                if (deltaX > 0) {
+                    // Swipe right - go to previous Swiper category
+                    if (window.mySwiper && typeof window.mySwiper.slidePrev === 'function') {
+                        // console.log('👆 Swipe right detected - moving to previous Swiper category');
+                        window.mySwiper.slidePrev(300, true);
+                        
+                        // Reset auto-advance timer after swipe navigation
+                        this.resetAutoAdvanceTimer(wrapper);
+                    } else {
+                        //console.log('🚫 Swiper not available for slidePrev');
+                    }
+                } else {
+                    // Swipe left - go to next Swiper category
+                    if (window.mySwiper && typeof window.mySwiper.slideNext === 'function') {
+                        //console.log('👆 Swipe left detected - moving to next Swiper category');
+                        window.mySwiper.slideNext(300, true);
+                        
+                        // Reset auto-advance timer after swipe navigation
+                        this.resetAutoAdvanceTimer(wrapper);
+                    } else {
+                        //console.log('🚫 Swiper not available for slideNext');
+                    }
+                }
             } else {
-                // Swipe left - go to next
-                this.navigateNext(wrapper);
+                //console.log('🚫 Swipe did not meet criteria for horizontal swipe');
             }
         }
     }
 
-    // Create global instance
+    // Initialize the navigation manager
     const navigationManager = new TabNavigationManager();
-    
-    // Make it globally accessible for debugging
-    window.navigationManager = navigationManager;
-    
+
+    // Make it globally accessible for debugging and cleanup
+    window.TabNavigationManager = navigationManager;
+
     console.log('📱 Tab Navigation script loaded');
 })();
