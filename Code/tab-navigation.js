@@ -126,7 +126,7 @@
 
             // Touch/swipe event listeners
             const touchStartListener = (e) => {
-                console.log('🔍 Touch start detected:', e.touches[0].clientX, e.touches[0].clientY);
+                // Removed: console.log('🔍 Touch start detected:', e.touches[0].clientX, e.touches[0].clientY);
                 instanceData.touchStartX = e.touches[0].clientX;
                 instanceData.touchStartY = e.touches[0].clientY;
             };
@@ -134,8 +134,8 @@
             const touchEndListener = (e) => {
                 instanceData.touchEndX = e.changedTouches[0].clientX;
                 instanceData.touchEndY = e.changedTouches[0].clientY;
-                console.log('🔍 Touch end detected:', instanceData.touchEndX, instanceData.touchEndY);
-                console.log('🔍 Calling handleSwipeGesture...');
+                // Removed: console.log('🔍 Touch end detected:', instanceData.touchEndX, instanceData.touchEndY);
+                // Removed: console.log('🔍 Calling handleSwipeGesture...');
                 this.handleSwipeGesture(wrapper);
             };
 
@@ -175,7 +175,7 @@
             
             instanceData.listeners = listeners;
 
-            console.log(`✅ Initialized tab wrapper ${index} with ${instanceData.totalTabs} tabs and touch swipe gestures`);
+            console.log(`✅ Initialized tab wrapper ${index} with ${instanceData.totalTabs} tabs`);
         }
 
         updateCurrentIndex(instanceData) {
@@ -217,7 +217,7 @@
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
 
-            console.log(`🔍 Current index before previous: ${instance.currentIndex}, total: ${instance.totalTabs}`);
+            // Removed: console.log(`🔍 Current index before previous: ${instance.currentIndex}, total: ${instance.totalTabs}`);
 
             // Check if we can go to previous tab
             if (instance.currentIndex <= 0) {
@@ -227,7 +227,6 @@
                     window.mySwiper.slidePrev(300, true); // 300ms transition with callbacks
                     return;
                 }
-                console.log('🚫 Already at first tab, cannot go previous');
                 return;
             }
 
@@ -247,8 +246,6 @@
                 return;
             }
 
-            const oldIndex = instance.currentIndex;
-            
             // Trigger the click
             targetTab.click();
 
@@ -259,12 +256,11 @@
                     const activeIndex = Array.from(tabLinks).indexOf(activeTab);
                     if (activeIndex !== -1 && activeIndex !== instance.currentIndex) {
                         instance.currentIndex = activeIndex;
-                        console.log(`🔄 Fallback: Updated index to ${activeIndex + 1}`);
                     }
                 }
             }, 50);
 
-            console.log(`🎯 Navigated from tab ${oldIndex + 1} to tab ${targetIndex + 1} of ${instance.totalTabs}`);
+            // Removed: console.log(`🎯 Navigated from tab ${oldIndex + 1} to tab ${targetIndex + 1} of ${instance.totalTabs}`);
         }
 
 
@@ -384,11 +380,23 @@
         // Handle swipe gestures for category navigation
         handleSwipeGesture(wrapper) {
             const instance = this.tabInstances.get(wrapper);
-            if (!instance) return;
+            if (!instance) {
+                console.log('🚫 No instance found for wrapper');
+                return;
+            }
 
             const deltaX = instance.touchEndX - instance.touchStartX;
             const deltaY = Math.abs(instance.touchEndY - instance.touchStartY);
             const absDeltaX = Math.abs(deltaX);
+
+            console.log('🔍 Swipe analysis:', {
+                deltaX,
+                deltaY,
+                absDeltaX,
+                minSwipeDistance: instance.minSwipeDistance,
+                maxVerticalDistance: instance.maxVerticalDistance,
+                swiperAvailable: !!window.mySwiper
+            });
 
             // Check if this is a valid horizontal swipe
             if (absDeltaX >= instance.minSwipeDistance && deltaY <= instance.maxVerticalDistance) {
@@ -397,14 +405,20 @@
                     if (window.mySwiper && typeof window.mySwiper.slidePrev === 'function') {
                         console.log('👆 Swipe right detected - moving to previous Swiper category');
                         window.mySwiper.slidePrev(300, true);
+                    } else {
+                        console.log('🚫 Swiper not available for slidePrev');
                     }
                 } else {
                     // Swipe left - go to next Swiper category
                     if (window.mySwiper && typeof window.mySwiper.slideNext === 'function') {
                         console.log('👆 Swipe left detected - moving to next Swiper category');
                         window.mySwiper.slideNext(300, true);
+                    } else {
+                        console.log('🚫 Swiper not available for slideNext');
                     }
                 }
+            } else {
+                console.log('🚫 Swipe did not meet criteria for horizontal swipe');
             }
         }
     }
