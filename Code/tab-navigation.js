@@ -105,9 +105,8 @@
                         instanceData.currentIndex = activeIndex;
                         console.log(`🎯 Tab changed to: ${activeIndex + 1} of ${instanceData.totalTabs}`);
                         
-                        // MODIFIED: Only pause timer on manual clicks, don't auto-restart
-                        // The category controller will handle resuming
-                        this.pauseAutoAdvance(wrapper);
+                        // Reset auto-advance timer when user manually clicks tabs
+                        this.resetAutoAdvanceTimer(wrapper);
                     }
                 }
             };
@@ -192,8 +191,6 @@
                 // At last tab - trigger Swiper next slide
                 if (window.mySwiper && typeof window.mySwiper.slideNext === 'function') {
                     console.log('🎯 At last tab, moving to next Swiper slide');
-                    // Pause current timer before category switch
-                    this.pauseAutoAdvance(wrapper);
                     window.mySwiper.slideNext(300, true);
                     return;
                 }
@@ -203,8 +200,8 @@
             const nextIndex = instance.currentIndex + 1;
             this.navigateToTab(wrapper, nextIndex);
             
-            // REMOVED: Don't automatically reset timer here
-            // Let the category controller manage timer lifecycle
+            // Reset auto-advance timer after navigation
+            this.resetAutoAdvanceTimer(wrapper);
         }
 
         navigatePrevious(wrapper) {
@@ -216,8 +213,6 @@
                 // At first tab - trigger Swiper previous slide
                 if (window.mySwiper && typeof window.mySwiper.slidePrev === 'function') {
                     console.log('🎯 At first tab, moving to previous Swiper slide');
-                    // Pause current timer before category switch
-                    this.pauseAutoAdvance(wrapper);
                     window.mySwiper.slidePrev(300, true);
                     return;
                 }
@@ -227,8 +222,8 @@
             const prevIndex = instance.currentIndex - 1;
             this.navigateToTab(wrapper, prevIndex);
             
-            // REMOVED: Don't automatically reset timer here
-            // Let the category controller manage timer lifecycle
+            // Reset auto-advance timer after navigation
+            this.resetAutoAdvanceTimer(wrapper);
         }
 
         navigateToTab(wrapper, targetIndex) {
@@ -307,81 +302,17 @@
         }
 
         // Basic timer methods (without visualization)
-        // Add timer visualization methods
-        // Fixed timer visualization methods
-        startTimerVisualization(wrapper) {
-            const instance = this.tabInstances.get(wrapper);
-            if (!instance) return;
-
-            // Clear any existing visualization first
-            this.clearTimerVisualization(wrapper);
-
-            const currentTabLink = wrapper.querySelector('.w-tab-link.w--current');
-            if (!currentTabLink) return;
-
-            const indicator = currentTabLink.querySelector('div');
-            if (!indicator) return;
-
-            console.log('🎬 Starting timer visualization for tab:', currentTabLink);
-
-            // Store original width and set up animation
-            const computedStyle = getComputedStyle(indicator);
-            const originalWidth = computedStyle.width;
-            
-            // Store original width for restoration
-            indicator.dataset.originalWidth = originalWidth;
-            
-            // IMPORTANT: Reset to 0% first, then set up transition
-            indicator.style.transition = '';
-            indicator.style.width = '0%';
-            indicator.style.backgroundColor = 'white';
-            
-            // Force reflow before starting animation
-            indicator.offsetHeight;
-            
-            // Now set transition and animate to 100%
-            indicator.style.transition = `width ${AUTO_ADVANCE_DURATION}ms linear`;
-            indicator.style.width = '100%';
-
-            console.log('✅ Timer visualization started - animating to 100% over', AUTO_ADVANCE_DURATION, 'ms');
-        }
-
-        clearTimerVisualization(wrapper) {
-            // Reset all tab indicators in this wrapper
-            const allTabLinks = wrapper.querySelectorAll('.w-tab-link');
-            
-            allTabLinks.forEach((tabLink) => {
-                const indicator = tabLink.querySelector('div');
-                if (!indicator) return;
-
-                // Restore original width if stored
-                if (indicator.dataset.originalWidth) {
-                    indicator.style.width = indicator.dataset.originalWidth;
-                    indicator.style.backgroundColor = ''; // Remove white background
-                    indicator.style.transition = '';
-                    delete indicator.dataset.originalWidth;
-                }
-            });
-
-            console.log('🧹 Timer visualization cleared for wrapper');
-        }
-
-        // Fixed timer methods with proper cleanup
         resumeAutoAdvance(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
 
-            console.log('▶️ Resuming auto advance...');
-
-            // CRITICAL: Always clear existing timer first
-            this.pauseAutoAdvance(wrapper);
-            
-            // Start timer visualization
-            this.startTimerVisualization(wrapper);
+            // Clear existing timer
+            if (instance.autoAdvanceTimer) {
+                clearInterval(instance.autoAdvanceTimer);
+            }
             
             // Start fresh timer
             instance.autoAdvanceTimer = setInterval(() => {
-                console.log('⏭️ Auto advance timer triggered');
                 this.navigateNext(wrapper);
             }, AUTO_ADVANCE_DURATION);
         }
@@ -390,80 +321,26 @@
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
 
-            console.log('🔄 Resetting auto advance timer...');
-
-            // CRITICAL: Completely pause first to avoid multiple timers
-            this.pauseAutoAdvance(wrapper);
-
-            // Only restart if auto-advance should be active
-            // Don't automatically restart - let category controller manage this
-            console.log('⏸️ Timer reset complete - waiting for category controller to resume');
+            // Clear existing timer
+            if (instance.autoAdvanceTimer) {
+                clearInterval(instance.autoAdvanceTimer);
+                instance.autoAdvanceTimer = null;
+            }
+            
+            // Start new timer
+            instance.autoAdvanceTimer = setInterval(() => {
+                this.navigateNext(wrapper);
+            }, AUTO_ADVANCE_DURATION);
         }
 
         pauseAutoAdvance(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
 
-            console.log('⏸️ Pausing auto advance...');
-
             if (instance.autoAdvanceTimer) {
                 clearInterval(instance.autoAdvanceTimer);
                 instance.autoAdvanceTimer = null;
-                
-                // Clear visualization when pausing
-                this.clearTimerVisualization(wrapper);
-                console.log('✅ Timer and visualization cleared');
-            } else {
-                console.log('ℹ️ No timer to pause');
             }
-        }
-
-        // Modified navigation methods to prevent timer cascade
-        navigateNext(wrapper) {
-            const instance = this.tabInstances.get(wrapper);
-            if (!instance) return;
-
-            if (instance.currentIndex >= instance.totalTabs - 1) {
-                // At last tab - trigger Swiper next slide
-                if (window.mySwiper && typeof window.mySwiper.slideNext === 'function') {
-                    console.log('🎯 At last tab, moving to next Swiper slide');
-                    // Pause current timer before category switch
-                    this.pauseAutoAdvance(wrapper);
-                    window.mySwiper.slideNext(300, true);
-                    return;
-                }
-                return;
-            }
-
-            const nextIndex = instance.currentIndex + 1;
-            this.navigateToTab(wrapper, nextIndex);
-            
-            // REMOVED: Don't automatically reset timer here
-            // Let the category controller manage timer lifecycle
-        }
-
-        navigatePrevious(wrapper) {
-            const instance = this.tabInstances.get(wrapper);
-            if (!instance) return;
-
-            // Check if we can go to previous tab
-            if (instance.currentIndex <= 0) {
-                // At first tab - trigger Swiper previous slide
-                if (window.mySwiper && typeof window.mySwiper.slidePrev === 'function') {
-                    console.log('🎯 At first tab, moving to previous Swiper slide');
-                    // Pause current timer before category switch
-                    this.pauseAutoAdvance(wrapper);
-                    window.mySwiper.slidePrev(300, true);
-                    return;
-                }
-                return;
-            }
-
-            const prevIndex = instance.currentIndex - 1;
-            this.navigateToTab(wrapper, prevIndex);
-            
-            // REMOVED: Don't automatically reset timer here
-            // Let the category controller manage timer lifecycle
         }
 
         // Pause all auto-advance timers
