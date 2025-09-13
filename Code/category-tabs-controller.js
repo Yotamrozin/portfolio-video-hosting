@@ -80,6 +80,9 @@ class CategoryTabsController {
                         if (category && category !== this.currentActiveCategory) {
                             console.log(`CategoryTabsController: 🎯 Swiper active slide changed to category "${category}"`);
                             this.showCategory(category);
+                            
+                            // NEW: Apply color changes based on data-color attribute
+                            this.applyMenuColors(slide);
                         }
                     }
                 }
@@ -108,8 +111,55 @@ class CategoryTabsController {
             if (category) {
                 console.log(`CategoryTabsController: 🎯 Initial active slide category: "${category}"`);
                 this.showCategory(category);
+                
+                // NEW: Apply initial colors
+                this.applyMenuColors(activeSlide);
             }
         }
+    }
+    
+    applyMenuColors(activeSlide) {
+        const colorAttribute = activeSlide.getAttribute('data-color');
+        
+        if (!colorAttribute || !this.isValidHexColor(colorAttribute)) {
+            console.warn(`CategoryTabsController: ⚠ Invalid or missing data-color: ${colorAttribute}`);
+            return;
+        }
+
+        // Get the single .swiper-menu container
+        const swiperMenu = document.querySelector('.swiper-menu');
+        if (!swiperMenu) {
+            console.warn('CategoryTabsController: ⚠ .swiper-menu not found');
+            return;
+        }
+
+        // Apply border and font color to .swiper-menu
+        swiperMenu.style.borderColor = colorAttribute;
+        swiperMenu.style.color = colorAttribute;
+
+        // Directly target the category button within the active slide
+        const categoryButton = activeSlide.querySelector('.category-button');
+        
+        if (categoryButton) {
+            // Reset all category buttons first
+            const allCategoryButtons = swiperMenu.querySelectorAll('.category-button');
+            allCategoryButtons.forEach(button => {
+                button.style.backgroundColor = '';
+            });
+            
+            // Apply background color to the active category button
+            categoryButton.style.backgroundColor = colorAttribute;
+            
+            console.log(`CategoryTabsController: 🎨 Applied color ${colorAttribute} to swiper menu and active category button`);
+        } else {
+            console.warn(`CategoryTabsController: ⚠ Category button not found within active slide`);
+        }
+    }
+    
+    isValidHexColor(hex) {
+        // Check if it's a valid hex color (with or without #)
+        const hexRegex = /^#?([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/;
+        return hexRegex.test(hex);
     }
 
     pairCategoryTabsWithButtons() {
