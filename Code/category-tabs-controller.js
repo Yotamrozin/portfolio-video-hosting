@@ -51,7 +51,7 @@ class CategoryTabsController {
 
         categoryButtons.forEach((button, index) => {
             const category = button.getAttribute('data-category');
-            console.log(`CategoryTabsController: Button ${index + 1}: category="${category}", text="${button.textContent.trim()}", element:`, button);
+            // Removed: console.log(`CategoryTabsController: Button ${index + 1}: category="${category}", text="${button.textContent.trim()}", element:`, button);
             
             if (category) {
                 this.categoryButtons.set(category, button);
@@ -142,12 +142,9 @@ class CategoryTabsController {
         }
 
         tabsElements.forEach((tabsElement, index) => {
-            // Read data-category directly from .fs-tabs element
             const category = tabsElement.getAttribute('data-category');
-            console.log(`CategoryTabsController: .fs-tabs ${index + 1}: category="${category}", element:`, tabsElement);
             
             if (category) {
-                // Find matching category button
                 const matchingButton = this.categoryButtons.get(category);
                 
                 if (matchingButton) {
@@ -155,7 +152,6 @@ class CategoryTabsController {
                         tabsElement: tabsElement,
                         button: matchingButton
                     });
-                    console.log(`CategoryTabsController: ✅ Paired category "${category}" with tabs and button`);
                 } else {
                     console.warn(`CategoryTabsController: ⚠ No matching button found for tabs category "${category}"`);
                 }
@@ -164,26 +160,15 @@ class CategoryTabsController {
             }
         });
 
-        // Summary
+        // Simplified summary - keeping only essential info
         const pairedCategories = Array.from(this.categoryTabsPairs.keys());
         const buttonCategories = Array.from(this.categoryButtons.keys());
         const orphanedButtons = buttonCategories.filter(cat => !this.categoryTabsPairs.has(cat));
         
-        console.log(`CategoryTabsController: 📊 Pairing Summary:`);
-        console.log(`  - Total .fs-tabs found: ${tabsElements.length}`);
-        console.log(`  - Total category buttons: ${buttonCategories.length}`);
-        console.log(`  - Successfully paired: ${pairedCategories.length}`);
-        console.log(`  - Paired categories: [${pairedCategories.join(', ')}]`);
-        console.log(`  - Button categories: [${buttonCategories.join(', ')}]`);
-        console.log(`  - Orphaned buttons: [${orphanedButtons.join(', ')}]`);
-        
-        // Log all pairs
-        this.categoryTabsPairs.forEach((pair, category) => {
-            console.log(`CategoryTabsController: 🔗 Pair "${category}":`, {
-                button: pair.button,
-                tabsElement: pair.tabsElement
-            });
-        });
+        console.log(`CategoryTabsController: 📊 Successfully paired ${pairedCategories.length}/${buttonCategories.length} categories`);
+        if (orphanedButtons.length > 0) {
+            console.warn(`CategoryTabsController: ⚠ Orphaned buttons: [${orphanedButtons.join(', ')}]`);
+        }
     }
 
     initializeVisibility() {
@@ -248,12 +233,12 @@ class CategoryTabsController {
 
     addActiveState(button) {
         button.classList.add('active');
-        console.log('CategoryTabsController: ✨ Added active state to button:', button);
+        // Removed: console.log('CategoryTabsController: ✨ Added active state to button:', button);
     }
 
     removeActiveState(button) {
         button.classList.remove('active');
-        console.log('CategoryTabsController: 💫 Removed active state from button:', button);
+        // Removed: console.log('CategoryTabsController: 💫 Removed active state from button:', button);
     }
 
     destroy() {

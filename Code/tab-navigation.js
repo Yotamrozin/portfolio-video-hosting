@@ -32,7 +32,7 @@
                 return;
             }
 
-            console.log(`📋 Found ${tabWrappers.length} tab wrapper(s)`);
+            // Removed: console.log(`📋 Found ${tabWrappers.length} tab wrapper(s)`);
 
             tabWrappers.forEach((wrapper, index) => {
                 this.initializeTabWrapper(wrapper, index);
@@ -175,7 +175,7 @@
             
             instanceData.listeners = listeners;
 
-            console.log(`✅ Initialized tab wrapper ${index} with ${instanceData.totalTabs} tabs`);
+            // Removed: console.log(`✅ Initialized tab wrapper ${index} with ${instanceData.totalTabs} tabs`);
         }
 
         updateCurrentIndex(instanceData) {
