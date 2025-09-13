@@ -326,94 +326,167 @@
             };
         }
 
-        // Add new method for timer visualization
+        // Add new method for timer visualization with debugging
         startTimerVisualization(wrapper) {
+            console.log('🎬 Starting timer visualization...');
             const instance = this.tabInstances.get(wrapper);
-            if (!instance) return;
+            if (!instance) {
+                console.warn('❌ No instance found for wrapper:', wrapper);
+                return;
+            }
 
             // Clear any existing visualization
             this.clearTimerVisualization(wrapper);
 
             // Find current active tab link using existing classes
             const currentTabLink = wrapper.querySelector('.w-tab-link.w--current');
-            if (!currentTabLink) return;
+            console.log('🎯 Current tab link found:', currentTabLink);
+            
+            if (!currentTabLink) {
+                console.warn('❌ No current tab link found in wrapper');
+                console.log('Available tab links:', wrapper.querySelectorAll('.w-tab-link'));
+                return;
+            }
 
             const innerDiv = currentTabLink.querySelector('div');
-            if (!innerDiv) return;
+            console.log('📦 Inner div found:', innerDiv);
+            console.log('📦 Inner div content:', innerDiv ? innerDiv.textContent : 'null');
+            
+            if (!innerDiv) {
+                console.warn('❌ No inner div found in current tab link');
+                console.log('Tab link HTML:', currentTabLink.innerHTML);
+                return;
+            }
 
             // Store original width and set initial state
+            const originalWidth = getComputedStyle(innerDiv).width;
+            console.log('📏 Original width:', originalWidth);
+            
             innerDiv.dataset.originalWidth = innerDiv.style.width || '100%';
+            console.log('💾 Stored original width:', innerDiv.dataset.originalWidth);
+            
             innerDiv.style.width = '0%';
             innerDiv.style.transition = `width ${AUTO_ADVANCE_DURATION}ms linear`;
             
+            console.log('⚙️ Set initial styles - width: 0%, transition:', `width ${AUTO_ADVANCE_DURATION}ms linear`);
+            console.log('📊 Current computed width after setting 0%:', getComputedStyle(innerDiv).width);
+            
             // Start animation
             requestAnimationFrame(() => {
+                console.log('🚀 Starting width animation to:', innerDiv.dataset.originalWidth);
                 innerDiv.style.width = innerDiv.dataset.originalWidth;
+                
+                // Check if animation actually started
+                setTimeout(() => {
+                    const currentWidth = getComputedStyle(innerDiv).width;
+                    console.log('📈 Width after 100ms:', currentWidth);
+                }, 100);
+                
+                setTimeout(() => {
+                    const currentWidth = getComputedStyle(innerDiv).width;
+                    console.log('📈 Width after 1 second:', currentWidth);
+                }, 1000);
             });
         }
 
         clearTimerVisualization(wrapper) {
+            console.log('🧹 Clearing timer visualization...');
+            
             // Reset width for all tab divs in this wrapper
             const allTabDivs = wrapper.querySelectorAll('.w-tab-link div');
-            allTabDivs.forEach(div => {
+            console.log('🔍 Found tab divs to clear:', allTabDivs.length);
+            
+            allTabDivs.forEach((div, index) => {
+                console.log(`🧹 Clearing div ${index}:`, div.textContent);
+                
                 if (div.dataset.originalWidth) {
+                    console.log(`↩️ Restoring original width: ${div.dataset.originalWidth}`);
                     div.style.width = div.dataset.originalWidth;
                     div.style.transition = '';
                     delete div.dataset.originalWidth;
+                } else {
+                    console.log('ℹ️ No original width stored for this div');
                 }
             });
         }
 
-        // New centralized method for resetting auto-advance timer
-        resetAutoAdvanceTimer(wrapper) {
-            const instance = this.tabInstances.get(wrapper);
-            if (!instance) return;
-            
-            // Clear existing timer and visualization
-            if (instance.autoAdvanceTimer) {
-                clearInterval(instance.autoAdvanceTimer);
-                instance.autoAdvanceTimer = null;
-            }
-            this.clearTimerVisualization(wrapper);
-
-            // Start new timer with visualization
-            this.startTimerVisualization(wrapper);
-            instance.autoAdvanceTimer = setInterval(() => {
-                this.navigateNext(wrapper);
-            }, AUTO_ADVANCE_DURATION); // Use configurable duration
-        }
-
-        // New methods for pausing/resuming auto-advance
-        pauseAutoAdvance(wrapper) {
-            const instance = this.tabInstances.get(wrapper);
-            if (!instance) return;
-
-            if (instance.autoAdvanceTimer) {
-                clearInterval(instance.autoAdvanceTimer);
-                instance.autoAdvanceTimer = null;
-                // Clear visualization when pausing
-                this.clearTimerVisualization(wrapper);
-                // Remove excessive logging
-                // console.log('⏸️ Auto-advance paused for tab wrapper');
-            }
-        }
-
+        // Modified resumeAutoAdvance method with debugging
         resumeAutoAdvance(wrapper) {
+            console.log('▶️ Resuming auto advance...');
             const instance = this.tabInstances.get(wrapper);
-            if (!instance) return;
+            if (!instance) {
+                console.warn('❌ No instance found for resumeAutoAdvance');
+                return;
+            }
 
             // Clear existing timer
             if (instance.autoAdvanceTimer) {
+                console.log('🛑 Clearing existing timer');
                 clearInterval(instance.autoAdvanceTimer);
             }
             
             // Start timer visualization
+            console.log('🎬 Starting visualization from resumeAutoAdvance');
             this.startTimerVisualization(wrapper);
             
             // Start fresh timer
+            console.log('⏰ Starting new auto advance timer');
             instance.autoAdvanceTimer = setInterval(() => {
+                console.log('⏭️ Auto advance timer triggered');
                 this.navigateNext(wrapper);
             }, AUTO_ADVANCE_DURATION);
+        }
+
+        // Modified resetAutoAdvanceTimer method with debugging
+        resetAutoAdvanceTimer(wrapper) {
+            console.log('🔄 Resetting auto advance timer...');
+            const instance = this.tabInstances.get(wrapper);
+            if (!instance) {
+                console.warn('❌ No instance found for resetAutoAdvanceTimer');
+                return;
+            }
+
+            // Clear existing timer and visualization
+            if (instance.autoAdvanceTimer) {
+                console.log('🛑 Clearing existing timer for reset');
+                clearInterval(instance.autoAdvanceTimer);
+                instance.autoAdvanceTimer = null;
+            }
+            
+            console.log('🧹 Clearing visualization for reset');
+            this.clearTimerVisualization(wrapper);
+
+            // Start new timer with visualization
+            console.log('🎬 Starting new visualization after reset');
+            this.startTimerVisualization(wrapper);
+            
+            console.log('⏰ Starting new timer after reset');
+            instance.autoAdvanceTimer = setInterval(() => {
+                console.log('⏭️ Auto advance timer triggered (after reset)');
+                this.navigateNext(wrapper);
+            }, AUTO_ADVANCE_DURATION);
+        }
+
+        // Modified pauseAutoAdvance method with debugging
+        pauseAutoAdvance(wrapper) {
+            console.log('⏸️ Pausing auto advance...');
+            const instance = this.tabInstances.get(wrapper);
+            if (!instance) {
+                console.warn('❌ No instance found for pauseAutoAdvance');
+                return;
+            }
+
+            if (instance.autoAdvanceTimer) {
+                console.log('🛑 Clearing timer for pause');
+                clearInterval(instance.autoAdvanceTimer);
+                instance.autoAdvanceTimer = null;
+                
+                // Clear visualization when pausing
+                console.log('🧹 Clearing visualization for pause');
+                this.clearTimerVisualization(wrapper);
+            } else {
+                console.log('ℹ️ No timer to pause');
+            }
         }
 
         // Pause all auto-advance timers
@@ -457,52 +530,62 @@
         // Handle swipe gestures for category navigation
         handleSwipeGesture(wrapper) {
             const instance = this.tabInstances.get(wrapper);
-            if (!instance) {
-                console.log('🚫 No instance found for wrapper');
-                return;
-            }
+            if (!instance) return;
 
             const deltaX = instance.touchEndX - instance.touchStartX;
             const deltaY = Math.abs(instance.touchEndY - instance.touchStartY);
-            const absDeltaX = Math.abs(deltaX);
 
-                // console.log('🔍 Swipe analysis:', {
-                //     deltaX,
-                //     deltaY, 
-                //     absDeltaX,
-                //     minSwipeDistance: instance.minSwipeDistance,
-                //     maxVerticalDistance: instance.maxVerticalDistance,
-                //     swiperAvailable: !!window.mySwiper
-                // });
-
-            // Check if this is a valid horizontal swipe
-            if (absDeltaX >= instance.minSwipeDistance && deltaY <= instance.maxVerticalDistance) {
-                if (deltaX > 0) {
-                    // Swipe right - go to previous Swiper category
-                    if (window.mySwiper && typeof window.mySwiper.slidePrev === 'function') {
-                        // console.log('👆 Swipe right detected - moving to previous Swiper category');
-                        window.mySwiper.slidePrev(300, true);
-                        
-                        // Reset auto-advance timer after swipe navigation
-                        this.resetAutoAdvanceTimer(wrapper);
-                    } else {
-                        //console.log('🚫 Swiper not available for slidePrev');
-                    }
-                } else {
-                    // Swipe left - go to next Swiper category
-                    if (window.mySwiper && typeof window.mySwiper.slideNext === 'function') {
-                        //console.log('👆 Swipe left detected - moving to next Swiper category');
-                        window.mySwiper.slideNext(300, true);
-                        
-                        // Reset auto-advance timer after swipe navigation
-                        this.resetAutoAdvanceTimer(wrapper);
-                    } else {
-                        //console.log('🚫 Swiper not available for slideNext');
-                    }
-                }
-            } else {
-                //console.log('🚫 Swipe did not meet criteria for horizontal swipe');
+            // Check if this is a horizontal swipe (not too much vertical movement)
+            if (deltaY > instance.maxVerticalDistance) {
+                return; // Too much vertical movement, ignore
             }
+
+            // Check if swipe distance is sufficient
+            if (Math.abs(deltaX) < instance.minSwipeDistance) {
+                return; // Swipe distance too small
+            }
+
+            // Determine swipe direction and navigate
+            if (deltaX > 0) {
+                // Swipe right - go to previous
+                this.navigatePrevious(wrapper);
+            } else {
+                // Swipe left - go to next
+                this.navigateNext(wrapper);
+            }
+        }
+
+        // Debug helper method - call this manually in console
+        debugCurrentState(wrapper) {
+            console.log('🔍 === DEBUG CURRENT STATE ===');
+            const instance = this.tabInstances.get(wrapper);
+            console.log('Instance:', instance);
+            console.log('Timer active:', !!instance?.autoAdvanceTimer);
+            
+            const currentTabLink = wrapper.querySelector('.w-tab-link.w--current');
+            console.log('Current tab link:', currentTabLink);
+            
+            if (currentTabLink) {
+                const innerDiv = currentTabLink.querySelector('div');
+                console.log('Inner div:', innerDiv);
+                console.log('Inner div content:', innerDiv?.textContent);
+                console.log('Current width style:', innerDiv?.style.width);
+                console.log('Computed width:', innerDiv ? getComputedStyle(innerDiv).width : 'null');
+                console.log('Transition style:', innerDiv?.style.transition);
+                console.log('Original width stored:', innerDiv?.dataset.originalWidth);
+            }
+            
+            const allTabLinks = wrapper.querySelectorAll('.w-tab-link');
+            console.log('All tab links:', allTabLinks.length);
+            allTabLinks.forEach((link, i) => {
+                const div = link.querySelector('div');
+                console.log(`Tab ${i}:`, {
+                    isCurrent: link.classList.contains('w--current'),
+                    content: div?.textContent,
+                    width: div?.style.width,
+                    computedWidth: div ? getComputedStyle(div).width : 'null'
+                });
+            });
         }
     }
 
