@@ -126,7 +126,7 @@
 
             // Touch/swipe event listeners
             const touchStartListener = (e) => {
-                // Removed: console.log('🔍 Touch start detected:', e.touches[0].clientX, e.touches[0].clientY);
+                console.log('🔍 Touch detected on:', e.target.tagName, e.target.className);
                 instanceData.touchStartX = e.touches[0].clientX;
                 instanceData.touchStartY = e.touches[0].clientY;
             };
@@ -150,9 +150,9 @@
             nextButton.addEventListener('click', nextClickListener);
             prevButton.addEventListener('click', prevClickListener);
             
-            // Add touch/swipe listeners to the tabs element
-            tabsElement.addEventListener('touchstart', touchStartListener, { passive: true });
-            tabsElement.addEventListener('touchend', touchEndListener, { passive: true });
+            // Add touch/swipe listeners to the wrapper element (broader touch area)
+            wrapper.addEventListener('touchstart', touchStartListener, { passive: true });
+            wrapper.addEventListener('touchend', touchEndListener, { passive: true });
             
             if (middleButton) {
                 middleButton.addEventListener('click', middleClickListener);
@@ -163,8 +163,8 @@
                 { element: tabsElement, event: 'w-tab-change', listener: tabChangeListener },
                 { element: nextButton, event: 'click', listener: nextClickListener },
                 { element: prevButton, event: 'click', listener: prevClickListener },
-                { element: tabsElement, event: 'touchstart', listener: touchStartListener },
-                { element: tabsElement, event: 'touchend', listener: touchEndListener }
+                { element: wrapper, event: 'touchstart', listener: touchStartListener },
+                { element: wrapper, event: 'touchend', listener: touchEndListener }
             ];
             
             if (middleButton) {
