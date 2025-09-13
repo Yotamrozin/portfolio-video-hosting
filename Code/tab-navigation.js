@@ -35,8 +35,6 @@
                 return;
             }
 
-            // Removed: console.log(`📋 Found ${tabWrappers.length} tab wrapper(s)`);
-
             tabWrappers.forEach((wrapper, index) => {
                 this.initializeTabWrapper(wrapper, index);
             });
@@ -98,7 +96,6 @@
             this.tabInstances.set(wrapper, instanceData);
 
             // Event listener for tab clicks (to sync currentIndex)
-            // Listen for Webflow's tab change events instead of raw clicks
             const tabChangeListener = (e) => {
                 // Find which tab is now active
                 const activeTab = instanceData.tabsElement.querySelector('.w-tab-link.w--current');
@@ -140,23 +137,18 @@
             const touchEndListener = (e) => {
                 instanceData.touchEndX = e.changedTouches[0].clientX;
                 instanceData.touchEndY = e.changedTouches[0].clientY;
-                // Removed: console.log('🔍 Touch end detected:', instanceData.touchEndX, instanceData.touchEndY);
-                // Removed: console.log('🔍 Calling handleSwipeGesture...');
                 this.handleSwipeGesture(wrapper);
             };
 
-            // Don't start auto-advance immediately - let category controller manage it
-            // instanceData.autoAdvanceTimer = setInterval(() => {
-            //     this.navigateNext(wrapper);
-            // }, AUTO_ADVANCE_DURATION); // Use configurable duration
-            instanceData.autoAdvanceTimer = null; // Initialize as null
+            // Initialize as null - let category controller manage it
+            instanceData.autoAdvanceTimer = null;
 
             // Add event listeners
             tabsElement.addEventListener('w-tab-change', tabChangeListener);
             nextButton.addEventListener('click', nextClickListener);
             prevButton.addEventListener('click', prevClickListener);
             
-            // Add touch/swipe listeners to the wrapper element (broader touch area)
+            // Add touch/swipe listeners to the wrapper element
             wrapper.addEventListener('touchstart', touchStartListener, { passive: true });
             wrapper.addEventListener('touchend', touchEndListener, { passive: true });
             
@@ -171,19 +163,12 @@
             
             if (middleButton) {
                 middleButton.addEventListener('click', middleClickListener);
-            }
-
-
-            
-            if (middleButton) {
                 listeners.push(
                     { element: middleButton, event: 'click', listener: middleClickListener }
                 );
             }
             
             instanceData.listeners = listeners;
-
-            // Removed: console.log(`✅ Initialized tab wrapper ${index} with ${instanceData.totalTabs} tabs`);
         }
 
         updateCurrentIndex(instanceData) {
@@ -202,18 +187,13 @@
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
 
-            // Remove excessive debugging
-            // console.log('🔍 Current index before next:', instance.currentIndex, 'total:', instance.totalTabs);
-
             if (instance.currentIndex >= instance.totalTabs - 1) {
                 // At last tab - trigger Swiper next slide
                 if (window.mySwiper && typeof window.mySwiper.slideNext === 'function') {
                     console.log('🎯 At last tab, moving to next Swiper slide');
-                    window.mySwiper.slideNext(300, true); // 300ms transition with callbacks
+                    window.mySwiper.slideNext(300, true);
                     return;
                 }
-                // Remove this log as it's too frequent
-                // console.log('🚫 Already at last tab, cannot go next');
                 return;
             }
 
@@ -228,14 +208,12 @@
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
 
-            // Removed: console.log(`🔍 Current index before previous: ${instance.currentIndex}, total: ${instance.totalTabs}`);
-
             // Check if we can go to previous tab
             if (instance.currentIndex <= 0) {
                 // At first tab - trigger Swiper previous slide
                 if (window.mySwiper && typeof window.mySwiper.slidePrev === 'function') {
                     console.log('🎯 At first tab, moving to previous Swiper slide');
-                    window.mySwiper.slidePrev(300, true); // 300ms transition with callbacks
+                    window.mySwiper.slidePrev(300, true);
                     return;
                 }
                 return;
@@ -273,10 +251,7 @@
                     }
                 }
             }, 50);
-
-            // Removed: console.log(`🎯 Navigated from tab ${oldIndex + 1} to tab ${targetIndex + 1} of ${instance.totalTabs}`);
         }
-
 
         // Cleanup method for defensive programming
         destroy(wrapper) {
@@ -326,166 +301,45 @@
             };
         }
 
-        // Add new method for timer visualization with debugging
-        startTimerVisualization(wrapper) {
-            console.log('🎬 Starting timer visualization...');
-            const instance = this.tabInstances.get(wrapper);
-            if (!instance) {
-                console.warn('❌ No instance found for wrapper:', wrapper);
-                return;
-            }
-
-            // Clear any existing visualization
-            this.clearTimerVisualization(wrapper);
-
-            // Find current active tab link using existing classes
-            const currentTabLink = wrapper.querySelector('.w-tab-link.w--current');
-            console.log('🎯 Current tab link found:', currentTabLink);
-            
-            if (!currentTabLink) {
-                console.warn('❌ No current tab link found in wrapper');
-                console.log('Available tab links:', wrapper.querySelectorAll('.w-tab-link'));
-                return;
-            }
-
-            const innerDiv = currentTabLink.querySelector('div');
-            console.log('📦 Inner div found:', innerDiv);
-            console.log('📦 Inner div content:', innerDiv ? innerDiv.textContent : 'null');
-            
-            if (!innerDiv) {
-                console.warn('❌ No inner div found in current tab link');
-                console.log('Tab link HTML:', currentTabLink.innerHTML);
-                return;
-            }
-
-            // Store original width and set initial state
-            const originalWidth = getComputedStyle(innerDiv).width;
-            console.log('📏 Original width:', originalWidth);
-            
-            innerDiv.dataset.originalWidth = innerDiv.style.width || '100%';
-            console.log('💾 Stored original width:', innerDiv.dataset.originalWidth);
-            
-            innerDiv.style.width = '0%';
-            innerDiv.style.transition = `width ${AUTO_ADVANCE_DURATION}ms linear`;
-            
-            console.log('⚙️ Set initial styles - width: 0%, transition:', `width ${AUTO_ADVANCE_DURATION}ms linear`);
-            console.log('📊 Current computed width after setting 0%:', getComputedStyle(innerDiv).width);
-            
-            // Start animation
-            requestAnimationFrame(() => {
-                console.log('🚀 Starting width animation to:', innerDiv.dataset.originalWidth);
-                innerDiv.style.width = innerDiv.dataset.originalWidth;
-                
-                // Check if animation actually started
-                setTimeout(() => {
-                    const currentWidth = getComputedStyle(innerDiv).width;
-                    console.log('📈 Width after 100ms:', currentWidth);
-                }, 100);
-                
-                setTimeout(() => {
-                    const currentWidth = getComputedStyle(innerDiv).width;
-                    console.log('📈 Width after 1 second:', currentWidth);
-                }, 1000);
-            });
-        }
-
-        clearTimerVisualization(wrapper) {
-            console.log('🧹 Clearing timer visualization...');
-            
-            // Reset width for all tab divs in this wrapper
-            const allTabDivs = wrapper.querySelectorAll('.w-tab-link div');
-            console.log('🔍 Found tab divs to clear:', allTabDivs.length);
-            
-            allTabDivs.forEach((div, index) => {
-                console.log(`🧹 Clearing div ${index}:`, div.textContent);
-                
-                if (div.dataset.originalWidth) {
-                    console.log(`↩️ Restoring original width: ${div.dataset.originalWidth}`);
-                    div.style.width = div.dataset.originalWidth;
-                    div.style.transition = '';
-                    delete div.dataset.originalWidth;
-                } else {
-                    console.log('ℹ️ No original width stored for this div');
-                }
-            });
-        }
-
-        // Modified resumeAutoAdvance method with debugging
+        // Basic timer methods (without visualization)
         resumeAutoAdvance(wrapper) {
-            console.log('▶️ Resuming auto advance...');
             const instance = this.tabInstances.get(wrapper);
-            if (!instance) {
-                console.warn('❌ No instance found for resumeAutoAdvance');
-                return;
-            }
+            if (!instance) return;
 
             // Clear existing timer
             if (instance.autoAdvanceTimer) {
-                console.log('🛑 Clearing existing timer');
                 clearInterval(instance.autoAdvanceTimer);
             }
-            
-            // Start timer visualization
-            console.log('🎬 Starting visualization from resumeAutoAdvance');
-            this.startTimerVisualization(wrapper);
             
             // Start fresh timer
-            console.log('⏰ Starting new auto advance timer');
             instance.autoAdvanceTimer = setInterval(() => {
-                console.log('⏭️ Auto advance timer triggered');
                 this.navigateNext(wrapper);
             }, AUTO_ADVANCE_DURATION);
         }
 
-        // Modified resetAutoAdvanceTimer method with debugging
         resetAutoAdvanceTimer(wrapper) {
-            console.log('🔄 Resetting auto advance timer...');
             const instance = this.tabInstances.get(wrapper);
-            if (!instance) {
-                console.warn('❌ No instance found for resetAutoAdvanceTimer');
-                return;
-            }
+            if (!instance) return;
 
-            // Clear existing timer and visualization
+            // Clear existing timer
             if (instance.autoAdvanceTimer) {
-                console.log('🛑 Clearing existing timer for reset');
                 clearInterval(instance.autoAdvanceTimer);
                 instance.autoAdvanceTimer = null;
             }
             
-            console.log('🧹 Clearing visualization for reset');
-            this.clearTimerVisualization(wrapper);
-
-            // Start new timer with visualization
-            console.log('🎬 Starting new visualization after reset');
-            this.startTimerVisualization(wrapper);
-            
-            console.log('⏰ Starting new timer after reset');
+            // Start new timer
             instance.autoAdvanceTimer = setInterval(() => {
-                console.log('⏭️ Auto advance timer triggered (after reset)');
                 this.navigateNext(wrapper);
             }, AUTO_ADVANCE_DURATION);
         }
 
-        // Modified pauseAutoAdvance method with debugging
         pauseAutoAdvance(wrapper) {
-            console.log('⏸️ Pausing auto advance...');
             const instance = this.tabInstances.get(wrapper);
-            if (!instance) {
-                console.warn('❌ No instance found for pauseAutoAdvance');
-                return;
-            }
+            if (!instance) return;
 
             if (instance.autoAdvanceTimer) {
-                console.log('🛑 Clearing timer for pause');
                 clearInterval(instance.autoAdvanceTimer);
                 instance.autoAdvanceTimer = null;
-                
-                // Clear visualization when pausing
-                console.log('🧹 Clearing visualization for pause');
-                this.clearTimerVisualization(wrapper);
-            } else {
-                console.log('ℹ️ No timer to pause');
             }
         }
 
@@ -554,46 +408,13 @@
                 this.navigateNext(wrapper);
             }
         }
-
-        // Debug helper method - call this manually in console
-        debugCurrentState(wrapper) {
-            console.log('🔍 === DEBUG CURRENT STATE ===');
-            const instance = this.tabInstances.get(wrapper);
-            console.log('Instance:', instance);
-            console.log('Timer active:', !!instance?.autoAdvanceTimer);
-            
-            const currentTabLink = wrapper.querySelector('.w-tab-link.w--current');
-            console.log('Current tab link:', currentTabLink);
-            
-            if (currentTabLink) {
-                const innerDiv = currentTabLink.querySelector('div');
-                console.log('Inner div:', innerDiv);
-                console.log('Inner div content:', innerDiv?.textContent);
-                console.log('Current width style:', innerDiv?.style.width);
-                console.log('Computed width:', innerDiv ? getComputedStyle(innerDiv).width : 'null');
-                console.log('Transition style:', innerDiv?.style.transition);
-                console.log('Original width stored:', innerDiv?.dataset.originalWidth);
-            }
-            
-            const allTabLinks = wrapper.querySelectorAll('.w-tab-link');
-            console.log('All tab links:', allTabLinks.length);
-            allTabLinks.forEach((link, i) => {
-                const div = link.querySelector('div');
-                console.log(`Tab ${i}:`, {
-                    isCurrent: link.classList.contains('w--current'),
-                    content: div?.textContent,
-                    width: div?.style.width,
-                    computedWidth: div ? getComputedStyle(div).width : 'null'
-                });
-            });
-        }
     }
 
-    // Initialize the navigation manager
+    // Create global instance
     const navigationManager = new TabNavigationManager();
-
-    // Make it globally accessible for debugging and cleanup
-    window.TabNavigationManager = navigationManager;
-
+    
+    // Make it globally accessible for debugging
+    window.navigationManager = navigationManager;
+    
     console.log('📱 Tab Navigation script loaded');
 })();
