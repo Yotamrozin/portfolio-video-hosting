@@ -126,6 +126,7 @@
 
             // Touch/swipe event listeners
             const touchStartListener = (e) => {
+                console.log('🔍 Touch start detected:', e.touches[0].clientX, e.touches[0].clientY);
                 instanceData.touchStartX = e.touches[0].clientX;
                 instanceData.touchStartY = e.touches[0].clientY;
             };
@@ -133,6 +134,8 @@
             const touchEndListener = (e) => {
                 instanceData.touchEndX = e.changedTouches[0].clientX;
                 instanceData.touchEndY = e.changedTouches[0].clientY;
+                console.log('🔍 Touch end detected:', instanceData.touchEndX, instanceData.touchEndY);
+                console.log('🔍 Calling handleSwipeGesture...');
                 this.handleSwipeGesture(wrapper);
             };
 
@@ -378,7 +381,7 @@
             }
         }
 
-        // Add new method for handling swipe gestures
+        // Handle swipe gestures for category navigation
         handleSwipeGesture(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
