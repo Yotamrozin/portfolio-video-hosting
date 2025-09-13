@@ -326,17 +326,58 @@
             };
         }
 
+        // Add new method for timer visualization
+        startTimerVisualization(wrapper) {
+            const instance = this.tabInstances.get(wrapper);
+            if (!instance) return;
+
+            // Clear any existing visualization
+            this.clearTimerVisualization(wrapper);
+
+            // Find current active tab link using existing classes
+            const currentTabLink = wrapper.querySelector('.w-tab-link.w--current');
+            if (!currentTabLink) return;
+
+            const innerDiv = currentTabLink.querySelector('div');
+            if (!innerDiv) return;
+
+            // Store original width and set initial state
+            innerDiv.dataset.originalWidth = innerDiv.style.width || '100%';
+            innerDiv.style.width = '0%';
+            innerDiv.style.transition = `width ${AUTO_ADVANCE_DURATION}ms linear`;
+            
+            // Start animation
+            requestAnimationFrame(() => {
+                innerDiv.style.width = innerDiv.dataset.originalWidth;
+            });
+        }
+
+        clearTimerVisualization(wrapper) {
+            // Reset width for all tab divs in this wrapper
+            const allTabDivs = wrapper.querySelectorAll('.w-tab-link div');
+            allTabDivs.forEach(div => {
+                if (div.dataset.originalWidth) {
+                    div.style.width = div.dataset.originalWidth;
+                    div.style.transition = '';
+                    delete div.dataset.originalWidth;
+                }
+            });
+        }
+
         // New centralized method for resetting auto-advance timer
         resetAutoAdvanceTimer(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
             
-            // Clear existing timer
+            // Clear existing timer and visualization
             if (instance.autoAdvanceTimer) {
                 clearInterval(instance.autoAdvanceTimer);
+                instance.autoAdvanceTimer = null;
             }
-            
-            // Start fresh timer
+            this.clearTimerVisualization(wrapper);
+
+            // Start new timer with visualization
+            this.startTimerVisualization(wrapper);
             instance.autoAdvanceTimer = setInterval(() => {
                 this.navigateNext(wrapper);
             }, AUTO_ADVANCE_DURATION); // Use configurable duration
@@ -350,6 +391,8 @@
             if (instance.autoAdvanceTimer) {
                 clearInterval(instance.autoAdvanceTimer);
                 instance.autoAdvanceTimer = null;
+                // Clear visualization when pausing
+                this.clearTimerVisualization(wrapper);
                 // Remove excessive logging
                 // console.log('⏸️ Auto-advance paused for tab wrapper');
             }
@@ -359,12 +402,18 @@
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
 
-            // Only resume if not already running
-            if (!instance.autoAdvanceTimer) {
-                this.resetAutoAdvanceTimer(wrapper); // Use centralized method
-                // Remove excessive logging
-                // console.log('▶️ Auto-advance resumed for tab wrapper');
+            // Clear existing timer
+            if (instance.autoAdvanceTimer) {
+                clearInterval(instance.autoAdvanceTimer);
             }
+            
+            // Start timer visualization
+            this.startTimerVisualization(wrapper);
+            
+            // Start fresh timer
+            instance.autoAdvanceTimer = setInterval(() => {
+                this.navigateNext(wrapper);
+            }, AUTO_ADVANCE_DURATION);
         }
 
         // Pause all auto-advance timers
