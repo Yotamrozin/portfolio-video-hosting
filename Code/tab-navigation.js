@@ -70,7 +70,14 @@
                 currentIndex: 0,
                 totalTabs: 0,
                 listeners: [], // Store listeners for cleanup
-                autoAdvanceTimer: null // Store timer for cleanup
+                autoAdvanceTimer: null, // Store timer for cleanup
+                // Touch/swipe properties
+                touchStartX: 0,
+                touchStartY: 0,
+                touchEndX: 0,
+                touchEndY: 0,
+                minSwipeDistance: 50, // Minimum distance for a swipe
+                maxVerticalDistance: 100 // Maximum vertical movement to still count as horizontal swipe
             };
 
             // Get total number of tabs
@@ -117,6 +124,18 @@
                 this.navigateNext(wrapper); // Same functionality as Next button
             };
 
+            // Touch/swipe event listeners
+            const touchStartListener = (e) => {
+                instanceData.touchStartX = e.touches[0].clientX;
+                instanceData.touchStartY = e.touches[0].clientY;
+            };
+
+            const touchEndListener = (e) => {
+                instanceData.touchEndX = e.changedTouches[0].clientX;
+                instanceData.touchEndY = e.changedTouches[0].clientY;
+                this.handleSwipeGesture(wrapper);
+            };
+
             // Don't start auto-advance immediately - let category controller manage it
             // instanceData.autoAdvanceTimer = setInterval(() => {
             //     this.navigateNext(wrapper);
@@ -128,6 +147,10 @@
             nextButton.addEventListener('click', nextClickListener);
             prevButton.addEventListener('click', prevClickListener);
             
+            // Add touch/swipe listeners to the tabs element
+            tabsElement.addEventListener('touchstart', touchStartListener, { passive: true });
+            tabsElement.addEventListener('touchend', touchEndListener, { passive: true });
+            
             if (middleButton) {
                 middleButton.addEventListener('click', middleClickListener);
             }
@@ -136,7 +159,9 @@
             const listeners = [
                 { element: tabsElement, event: 'w-tab-change', listener: tabChangeListener },
                 { element: nextButton, event: 'click', listener: nextClickListener },
-                { element: prevButton, event: 'click', listener: prevClickListener }
+                { element: prevButton, event: 'click', listener: prevClickListener },
+                { element: tabsElement, event: 'touchstart', listener: touchStartListener },
+                { element: tabsElement, event: 'touchend', listener: touchEndListener }
             ];
             
             if (middleButton) {
@@ -147,7 +172,7 @@
             
             instanceData.listeners = listeners;
 
-            console.log(`✅ Initialized tab wrapper ${index} with ${instanceData.totalTabs} tabs`);
+            console.log(`✅ Initialized tab wrapper ${index} with ${instanceData.totalTabs} tabs and touch swipe gestures`);
         }
 
         updateCurrentIndex(instanceData) {
@@ -349,6 +374,33 @@
                 if (instance.tabsElement === tabsElement) {
                     this.resumeAutoAdvance(wrapper);
                     return;
+                }
+            }
+        }
+
+        // Add new method for handling swipe gestures
+        handleSwipeGesture(wrapper) {
+            const instance = this.tabInstances.get(wrapper);
+            if (!instance) return;
+
+            const deltaX = instance.touchEndX - instance.touchStartX;
+            const deltaY = Math.abs(instance.touchEndY - instance.touchStartY);
+            const absDeltaX = Math.abs(deltaX);
+
+            // Check if this is a valid horizontal swipe
+            if (absDeltaX >= instance.minSwipeDistance && deltaY <= instance.maxVerticalDistance) {
+                if (deltaX > 0) {
+                    // Swipe right - go to previous Swiper category
+                    if (window.mySwiper && typeof window.mySwiper.slidePrev === 'function') {
+                        console.log('👆 Swipe right detected - moving to previous Swiper category');
+                        window.mySwiper.slidePrev(300, true);
+                    }
+                } else {
+                    // Swipe left - go to next Swiper category
+                    if (window.mySwiper && typeof window.mySwiper.slideNext === 'function') {
+                        console.log('👆 Swipe left detected - moving to next Swiper category');
+                        window.mySwiper.slideNext(300, true);
+                    }
                 }
             }
         }
