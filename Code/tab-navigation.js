@@ -154,10 +154,6 @@
             wrapper.addEventListener('touchstart', touchStartListener, { passive: true });
             wrapper.addEventListener('touchend', touchEndListener, { passive: true });
             
-            if (middleButton) {
-                middleButton.addEventListener('click', middleClickListener);
-            }
-
             // Store listeners for cleanup
             const listeners = [
                 { element: tabsElement, event: 'w-tab-change', listener: tabChangeListener },
@@ -166,6 +162,12 @@
                 { element: wrapper, event: 'touchstart', listener: touchStartListener },
                 { element: wrapper, event: 'touchend', listener: touchEndListener }
             ];
+            
+            if (middleButton) {
+                middleButton.addEventListener('click', middleClickListener);
+            }
+
+
             
             if (middleButton) {
                 listeners.push(
