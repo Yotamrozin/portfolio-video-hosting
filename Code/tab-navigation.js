@@ -212,13 +212,6 @@
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
             
-            // CRITICAL FIX: Recalculate totalTabs from current DOM
-            const tabLinks = instance.tabsElement.querySelectorAll('.w-tab-link');
-            instance.totalTabs = tabLinks.length;
-            
-            // Force update the currentIndex based on actual DOM state
-            this.updateCurrentIndex(instance);
-            
             // Clear any running timers to prevent conflicts
             if (instance.autoAdvanceTimer) {
                 clearInterval(instance.autoAdvanceTimer);
@@ -227,6 +220,44 @@
             
             // Clear indicator animations
             this.clearIndicatorAnimation(wrapper);
+            
+            // ROBUST FIX: Use MutationObserver to detect when DOM actually changes
+            const observer = new MutationObserver((mutations) => {
+                let tabsChanged = false;
+                mutations.forEach(mutation => {
+                    if (mutation.type === 'childList' || 
+                        (mutation.type === 'attributes' && mutation.attributeName === 'class')) {
+                        tabsChanged = true;
+                    }
+                });
+                
+                if (tabsChanged) {
+                    // Recalculate totalTabs from current DOM
+                    const tabLinks = instance.tabsElement.querySelectorAll('.w-tab-link');
+                    instance.totalTabs = tabLinks.length;
+                    
+                    // Force update the currentIndex based on actual DOM state
+                    this.updateCurrentIndex(instance);
+                    
+                    console.log(`🔄 DOM-triggered reset - currentIndex: ${instance.currentIndex}, totalTabs: ${instance.totalTabs}`);
+                    
+                    // Disconnect observer after first update
+                    observer.disconnect();
+                }
+            });
+            
+            // Observe the tabs element for changes
+            observer.observe(instance.tabsElement, {
+                childList: true,
+                subtree: true,
+                attributes: true,
+                attributeFilter: ['class']
+            });
+            
+            // Fallback: Also do immediate calculation in case DOM is already updated
+            const tabLinks = instance.tabsElement.querySelectorAll('.w-tab-link');
+            instance.totalTabs = tabLinks.length;
+            this.updateCurrentIndex(instance);
             
             console.log(`🔄 Reset tab state for wrapper - currentIndex: ${instance.currentIndex}, totalTabs: ${instance.totalTabs}`);
         }
