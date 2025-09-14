@@ -7,6 +7,8 @@
     class TabNavigationManager {
         constructor() {
             this.tabInstances = new Map();
+            // Add debounce timers for navigation methods
+            this.navigationDebounceTimers = new Map();
             this.init();
         }
 
@@ -177,6 +179,16 @@
         }
 
         navigateNext(wrapper) {
+            // Add debouncing to prevent multiple rapid calls
+            const timerId = this.navigationDebounceTimers.get(wrapper + '_next');
+            if (timerId) {
+                return; // Already processing a navigation
+            }
+            
+            this.navigationDebounceTimers.set(wrapper + '_next', setTimeout(() => {
+                this.navigationDebounceTimers.delete(wrapper + '_next');
+            }, 100)); // 100ms debounce
+            
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
             
@@ -201,6 +213,16 @@
         }
 
         navigatePrevious(wrapper) {
+            // Add debouncing to prevent multiple rapid calls
+            const timerId = this.navigationDebounceTimers.get(wrapper + '_prev');
+            if (timerId) {
+                return; // Already processing a navigation
+            }
+            
+            this.navigationDebounceTimers.set(wrapper + '_prev', setTimeout(() => {
+                this.navigationDebounceTimers.delete(wrapper + '_prev');
+            }, 100)); // 100ms debounce
+            
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
             
