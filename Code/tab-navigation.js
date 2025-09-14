@@ -290,21 +290,23 @@
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
 
-            // Add state validation before navigation
+            // Only validate state, don't reset it during normal navigation
             this.validateAndSyncState(wrapper);
             
             console.log(`🔍 NavigateNext - currentIndex: ${instance.currentIndex}, totalTabs: ${instance.totalTabs}`);
 
+            // Check if we're actually at the last tab of the current category
             if (instance.currentIndex >= instance.totalTabs - 1) {
                 // At last tab - trigger Swiper next slide
                 if (window.mySwiper && typeof window.mySwiper.slideNext === 'function') {
                     console.log('🎯 At last tab, moving to next Swiper slide');
-                    window.mySwiper.slideNext(300, true); // 300ms transition with callbacks
+                    window.mySwiper.slideNext(300, true);
                     return;
                 }
                 return;
             }
 
+            // Navigate to next tab within current category
             const nextIndex = instance.currentIndex + 1;
             this.navigateToTab(wrapper, nextIndex);
             
@@ -316,22 +318,23 @@
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
 
-            // Add state validation before navigation
+            // Only validate state, don't reset it during normal navigation
             this.validateAndSyncState(wrapper);
             
             console.log(`🔍 NavigatePrevious - currentIndex: ${instance.currentIndex}, totalTabs: ${instance.totalTabs}`);
 
-            // Check if we can go to previous tab
+            // Check if we're actually at the first tab of the current category
             if (instance.currentIndex <= 0) {
                 // At first tab - trigger Swiper previous slide
                 if (window.mySwiper && typeof window.mySwiper.slidePrev === 'function') {
                     console.log('🎯 At first tab, moving to previous Swiper slide');
-                    window.mySwiper.slidePrev(300, true); // 300ms transition with callbacks
+                    window.mySwiper.slidePrev(300, true);
                     return;
                 }
                 return;
             }
 
+            // Navigate to previous tab within current category
             const prevIndex = instance.currentIndex - 1;
             this.navigateToTab(wrapper, prevIndex);
             
