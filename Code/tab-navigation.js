@@ -239,6 +239,16 @@
             // Start indicator animation
             this.startIndicatorAnimation(wrapper);
         }
+
+        resumeAutoAdvance(wrapper) {
+            const instance = this.tabInstances.get(wrapper);
+            if (!instance) return;
+
+            // Only resume if not already running
+            if (!instance.autoAdvanceTimer) {
+                this.resetAutoAdvanceTimer(wrapper); // This will start both timer and animation
+            }
+        }
         
         resumeAutoAdvanceForTabsElement(tabsElement) {
             // Find the wrapper that contains this tabsElement
