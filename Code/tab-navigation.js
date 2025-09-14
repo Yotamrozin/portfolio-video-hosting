@@ -212,6 +212,10 @@
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
             
+            // CRITICAL FIX: Recalculate totalTabs from current DOM
+            const tabLinks = instance.tabsElement.querySelectorAll('.w-tab-link');
+            instance.totalTabs = tabLinks.length;
+            
             // Force update the currentIndex based on actual DOM state
             this.updateCurrentIndex(instance);
             
@@ -224,10 +228,10 @@
             // Clear indicator animations
             this.clearIndicatorAnimation(wrapper);
             
-            console.log(`🔄 Reset tab state for wrapper - currentIndex: ${instance.currentIndex}`);
+            console.log(`🔄 Reset tab state for wrapper - currentIndex: ${instance.currentIndex}, totalTabs: ${instance.totalTabs}`);
         }
         
-        // Add new method for state validation
+        // Enhanced validation method
         validateAndSyncState(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
@@ -235,10 +239,17 @@
             const tabLinks = instance.tabsElement.querySelectorAll('.w-tab-link');
             const activeTab = instance.tabsElement.querySelector('.w-tab-link.w--current');
             
+            // CRITICAL FIX: Always recalculate totalTabs
+            const actualTotalTabs = tabLinks.length;
+            if (actualTotalTabs !== instance.totalTabs) {
+                console.warn(`⚠️ TotalTabs mismatch! Stored: ${instance.totalTabs}, Actual: ${actualTotalTabs}. Syncing...`);
+                instance.totalTabs = actualTotalTabs;
+            }
+            
             if (activeTab) {
                 const actualIndex = Array.from(tabLinks).indexOf(activeTab);
                 if (actualIndex !== -1 && actualIndex !== instance.currentIndex) {
-                    console.warn(`⚠️ State mismatch detected! Stored: ${instance.currentIndex}, Actual: ${actualIndex}. Syncing...`);
+                    console.warn(`⚠️ CurrentIndex mismatch! Stored: ${instance.currentIndex}, Actual: ${actualIndex}. Syncing...`);
                     instance.currentIndex = actualIndex;
                 }
             }
