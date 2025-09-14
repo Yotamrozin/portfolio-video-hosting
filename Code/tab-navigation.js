@@ -331,10 +331,23 @@
         }
 
         setActiveWrapper(wrapper) {
+            const instance = this.tabInstances.get(wrapper);
+            if (!instance) return;
+            
+            // Update the active wrapper
             this.currentActiveWrapper = wrapper;
-            // Reset timer when switching to a new wrapper
+            
+            // Recalculate totalTabs for the new active category
+            const tabLinks = instance.tabsElement.querySelectorAll('.w-tab-link');
+            instance.totalTabs = tabLinks.length;
+            
+            // Reset to first tab
+            instance.currentIndex = 0;
+            
+            // Reset the timer (don't pause, just restart the countdown)
             this.resetGlobalAutoAdvanceTimer();
-            console.log('🎯 Active wrapper changed, timer reset');
+            
+            console.log(`🎯 Active wrapper changed - totalTabs: ${instance.totalTabs}`);
         }
 
         pauseGlobalAutoAdvance() {
@@ -397,13 +410,14 @@
                 indicator.style.width = instance.originalIndicatorStyles.width;
             }
         }
+        */
 
         pauseAutoAdvanceForTabsElement(tabsElement) {
             // Find the wrapper that contains this tabs element
             for (const [wrapper, instance] of this.tabInstances) {
                 if (instance.tabsElement === tabsElement) {
                     // Pause auto-advance
-                    this.pauseAutoAdvance(wrapper);
+                    this.pauseGlobalAutoAdvance();
                     
                     // Clear all indicators in the tabs component
                     this.clearAllIndicators(tabsElement);
@@ -415,7 +429,6 @@
                 }
             }
         }
-        */
         
         clearAllIndicators(tabsElement) {
             const allTabLinks = tabsElement.querySelectorAll('.w-tab-link');
@@ -435,28 +448,28 @@
         }
         
         resetToFirstTab(wrapper) {
-        const instance = this.tabInstances.get(wrapper);
-        if (!instance) return;
-        
-        const tabLinks = instance.tabsElement.querySelectorAll('.w-tab-link');
-        
-        // Recalculate total tabs for the new category
-        instance.totalTabs = tabLinks.length;
-        
-        const firstTab = tabLinks[0];
-        
-        if (firstTab) {
-            // Update current index
-            instance.currentIndex = 0;
+            const instance = this.tabInstances.get(wrapper);
+            if (!instance) return;
             
-            // Set this as the active wrapper and reset timer
-            this.setActiveWrapper(wrapper);
+            const tabLinks = instance.tabsElement.querySelectorAll('.w-tab-link');
             
-            // Click the first tab to activate it
-            firstTab.click();
+            // Recalculate total tabs for the new category
+            instance.totalTabs = tabLinks.length;
             
-            console.log(`🔄 Reset tabs component to first tab - totalTabs: ${instance.totalTabs}`);
-        }
+            const firstTab = tabLinks[0];
+            
+            if (firstTab) {
+                // Update current index
+                instance.currentIndex = 0;
+                
+                // Set this as the active wrapper and reset timer
+                this.setActiveWrapper(wrapper);
+                
+                // Click the first tab to activate it
+                firstTab.click();
+                
+                console.log(`🔄 Reset tabs component to first tab - totalTabs: ${instance.totalTabs}`);
+            }
     }
 
         // Handle swipe gestures for category navigation

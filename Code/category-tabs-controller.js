@@ -267,26 +267,19 @@ class CategoryTabsController {
         tabsElement.style.visibility = 'visible';
         tabsElement.style.position = 'static';
         
-        // COMMENTED OUT - auto-advance resume disabled
-        /*
-        // Resume auto-advance for this tabs element with state reset
+        // Just notify the tab navigation to update active wrapper - don't pause/resume
         if (window.TabNavigationManager) {
-            window.TabNavigationManager.resumeAutoAdvanceForTabsElement(tabsElement);
+            const wrapper = tabsElement.closest('[data-tabs="wrapper"]');
+            if (wrapper) {
+                window.TabNavigationManager.setActiveWrapper(wrapper);
+            }
         }
-        */
     }
 
     hideTabsElement(tabsElement) {
         tabsElement.style.visibility = 'hidden';
         tabsElement.style.position = 'absolute';
-        
-        // COMMENTED OUT - auto-advance pause disabled
-        /*
-        // Pause auto-advance for this tabs element
-        if (window.TabNavigationManager) {
-            window.TabNavigationManager.pauseAutoAdvanceForTabsElement(tabsElement);
-        }
-        */
+        // No need to pause - just let the timer continue with the new active wrapper
     }
 
     addActiveState(button) {
