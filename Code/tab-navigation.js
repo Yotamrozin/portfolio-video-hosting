@@ -251,20 +251,27 @@
             if (!instance) return;
 
             const tabLinks = instance.tabsElement.querySelectorAll('.w-tab-link');
+            const tabPanes = instance.tabsElement.querySelectorAll('.w-tab-pane');
             const targetTab = tabLinks[targetIndex];
+            const targetPane = tabPanes[targetIndex];
 
-            if (!targetTab) {
+            if (!targetTab || !targetPane) {
                 console.warn(`⚠️ Target tab at index ${targetIndex} not found`);
                 return;
             }
 
             console.log(`🎯 Navigating from tab ${instance.currentIndex} to tab ${targetIndex}`);
             
-            const oldIndex = instance.currentIndex;
-            instance.currentIndex = targetIndex;
+            // Remove current active states
+            tabLinks.forEach(link => link.classList.remove('w--current'));
+            tabPanes.forEach(pane => pane.classList.remove('w--tab-active'));
             
-            // Trigger the click
-            targetTab.click();
+            // Set new active states
+            targetTab.classList.add('w--current');
+            targetPane.classList.add('w--tab-active');
+            
+            // Update instance state
+            instance.currentIndex = targetIndex;
             
             // COMMENTED OUT - indicator animation disabled
             // this.startIndicatorAnimation(wrapper);
