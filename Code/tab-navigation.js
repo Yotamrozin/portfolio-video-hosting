@@ -9,21 +9,36 @@
             this.tabInstances = new Map();
             // Add debounce timers for navigation methods
             this.navigationDebounceTimers = new Map();
+            this.isInitialized = false; // Add initialization flag
+            this.globalAutoAdvanceTimer = null; // Single global timer
+            this.currentActiveWrapper = null; // Track which wrapper is currently active
             this.init();
         }
 
         init() {
             console.log('🎯 Tab Navigation Manager initializing...');
             
+            // Prevent double initialization
+            if (this.isInitialized) {
+                console.log('⚠️ Tab Navigation Manager already initialized, skipping...');
+                return;
+            }
+            
             // Wait for Webflow and Finsweet to be ready
             if (typeof Webflow !== 'undefined') {
                 Webflow.push(() => {
-                    this.setupNavigation();
+                    if (!this.isInitialized) {
+                        this.setupNavigation();
+                        this.isInitialized = true;
+                    }
                 });
             } else {
                 // Fallback if Webflow is not available
                 document.addEventListener('DOMContentLoaded', () => {
-                    this.setupNavigation();
+                    if (!this.isInitialized) {
+                        this.setupNavigation();
+                        this.isInitialized = true;
+                    }
                 });
             }
         }
@@ -70,7 +85,7 @@
                 currentIndex: 0,
                 totalTabs: 0,
                 listeners: [],
-                autoAdvanceTimer: null, // Re-enabled for auto-advance functionality
+                // Remove autoAdvanceTimer from instance data
                 // Touch/swipe properties
                 touchStartX: 0,
                 touchStartY: 0,
@@ -93,8 +108,11 @@
             this.updateCurrentIndex(instanceData);
             this.tabInstances.set(wrapper, instanceData);
 
-            // Start auto-advance timer for this wrapper
-            this.startAutoAdvanceTimer(wrapper);
+            // Only start timer for the first wrapper (initially visible)
+            if (index === 0) {
+                this.currentActiveWrapper = wrapper;
+                this.startGlobalAutoAdvanceTimer();
+            }
             // Event listener for tab clicks (to sync currentIndex)
             let debounceTimer = null;
             const tabChangeListener = (e) => {
@@ -194,8 +212,8 @@
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
             
-            // Always reset the auto-advance timer on any navigation
-            this.resetAutoAdvanceTimer(wrapper);
+            // Always reset the global auto-advance timer on any navigation
+            this.resetGlobalAutoAdvanceTimer();
             
             console.log(`🔍 NavigateNext - currentIndex: ${instance.currentIndex}, totalTabs: ${instance.totalTabs}`);
 
@@ -279,49 +297,51 @@
         }
 
         // Auto-advance functionality
-        startAutoAdvanceTimer(wrapper) {
-            const instance = this.tabInstances.get(wrapper);
-            if (!instance) return;
-
+        startGlobalAutoAdvanceTimer() {
             // Clear any existing timer
-            if (instance.autoAdvanceTimer) {
-                clearTimeout(instance.autoAdvanceTimer);
+            if (this.globalAutoAdvanceTimer) {
+                clearTimeout(this.globalAutoAdvanceTimer);
             }
 
             // Start new timer
-            instance.autoAdvanceTimer = setTimeout(() => {
-                console.log('⏰ Auto-advance triggered for wrapper');
-                // Ensure we start from the current active tab, not assuming position
-                this.updateCurrentIndex(instance);
-                this.navigateNext(wrapper);
+            this.globalAutoAdvanceTimer = setTimeout(() => {
+                console.log('⏰ Auto-advance triggered for active wrapper');
+                if (this.currentActiveWrapper) {
+                    const instance = this.tabInstances.get(this.currentActiveWrapper);
+                    if (instance) {
+                        this.updateCurrentIndex(instance);
+                        this.navigateNext(this.currentActiveWrapper);
+                    }
+                }
             }, AUTO_ADVANCE_DURATION);
 
-            console.log(`⏱️ Auto-advance timer started (${AUTO_ADVANCE_DURATION}ms)`);
+            console.log(`⏱️ Global auto-advance timer started (${AUTO_ADVANCE_DURATION}ms)`);
         }
 
-        resetAutoAdvanceTimer(wrapper) {
-            const instance = this.tabInstances.get(wrapper);
-            if (!instance) return;
-
+        resetGlobalAutoAdvanceTimer() {
             // Clear existing timer
-            if (instance.autoAdvanceTimer) {
-                clearTimeout(instance.autoAdvanceTimer);
-                instance.autoAdvanceTimer = null;
+            if (this.globalAutoAdvanceTimer) {
+                clearTimeout(this.globalAutoAdvanceTimer);
+                this.globalAutoAdvanceTimer = null;
             }
 
             // Start new timer
-            this.startAutoAdvanceTimer(wrapper);
-            console.log('🔄 Auto-advance timer reset due to navigation');
+            this.startGlobalAutoAdvanceTimer();
+            console.log('🔄 Global auto-advance timer reset due to navigation');
         }
 
-        pauseAutoAdvance(wrapper) {
-            const instance = this.tabInstances.get(wrapper);
-            if (!instance) return;
+        setActiveWrapper(wrapper) {
+            this.currentActiveWrapper = wrapper;
+            // Reset timer when switching to a new wrapper
+            this.resetGlobalAutoAdvanceTimer();
+            console.log('🎯 Active wrapper changed, timer reset');
+        }
 
-            if (instance.autoAdvanceTimer) {
-                clearTimeout(instance.autoAdvanceTimer);
-                instance.autoAdvanceTimer = null;
-                console.log('⏸️ Auto-advance paused');
+        pauseGlobalAutoAdvance() {
+            if (this.globalAutoAdvanceTimer) {
+                clearTimeout(this.globalAutoAdvanceTimer);
+                this.globalAutoAdvanceTimer = null;
+                console.log('⏸️ Global auto-advance paused');
             }
         }
 
@@ -428,6 +448,9 @@
         if (firstTab) {
             // Update current index
             instance.currentIndex = 0;
+            
+            // Set this as the active wrapper and reset timer
+            this.setActiveWrapper(wrapper);
             
             // Click the first tab to activate it
             firstTab.click();
