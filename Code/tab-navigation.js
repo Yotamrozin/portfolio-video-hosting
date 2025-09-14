@@ -256,6 +256,7 @@
                 if (window.mySwiper && typeof window.mySwiper.slidePrev === 'function') {
                     console.log('🎯 At first tab, moving to previous Swiper slide');
                     window.mySwiper.slidePrev(300, true);
+                    // Note: setActiveWrapper will be called by CategoryTabsController with 'backward' direction
                     return;
                 }
                 return;
@@ -330,7 +331,7 @@
             console.log('🔄 Global auto-advance timer reset due to navigation');
         }
 
-        setActiveWrapper(wrapper) {
+        setActiveWrapper(wrapper, direction = 'forward') {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
             
@@ -341,13 +342,22 @@
             const tabLinks = instance.tabsElement.querySelectorAll('.w-tab-link');
             instance.totalTabs = tabLinks.length;
             
-            // Reset to first tab
-            instance.currentIndex = 0;
+            // Set currentIndex based on navigation direction
+            if (direction === 'backward') {
+                // When going backward, start at the last tab
+                instance.currentIndex = instance.totalTabs - 1;
+            } else {
+                // When going forward, start at the first tab
+                instance.currentIndex = 0;
+            }
+            
+            // Navigate to the appropriate tab
+            this.navigateToTab(wrapper, instance.currentIndex);
             
             // Reset the timer (don't pause, just restart the countdown)
             this.resetGlobalAutoAdvanceTimer();
             
-            console.log(`🎯 Active wrapper changed - totalTabs: ${instance.totalTabs}`);
+            console.log(`🎯 Active wrapper changed - totalTabs: ${instance.totalTabs}, currentIndex: ${instance.currentIndex}`);
         }
 
         pauseGlobalAutoAdvance() {

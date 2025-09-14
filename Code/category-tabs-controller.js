@@ -239,7 +239,7 @@ class CategoryTabsController {
         console.log(`CategoryTabsController: ✅ Initialized visibility system`);
     }
 
-    showCategory(category) {
+    showCategory(category, direction = 'forward') {
         console.log(`CategoryTabsController: Showing category "${category}"`);
         
         if (!this.categoryTabsPairs.has(category)) {
@@ -255,23 +255,23 @@ class CategoryTabsController {
             this.removeActiveState(currentPair.button);
         }
         
-        // Show new category
+        // Show new category with direction
         const pair = this.categoryTabsPairs.get(category);
-        this.showTabsElement(pair.tabsElement);
+        this.showTabsElement(pair.tabsElement, direction);
         this.addActiveState(pair.button);
         this.currentActiveCategory = category;
         console.log(`CategoryTabsController: ✅ Successfully switched to category "${category}"`);
     }
 
-    showTabsElement(tabsElement) {
+    showTabsElement(tabsElement, direction = 'forward') {
         tabsElement.style.visibility = 'visible';
         tabsElement.style.position = 'static';
         
-        // Just notify the tab navigation to update active wrapper - don't pause/resume
+        // Notify the tab navigation to update active wrapper with direction
         if (window.TabNavigationManager) {
             const wrapper = tabsElement.closest('[data-tabs="wrapper"]');
             if (wrapper) {
-                window.TabNavigationManager.setActiveWrapper(wrapper);
+                window.TabNavigationManager.setActiveWrapper(wrapper, direction);
             }
         }
     }
