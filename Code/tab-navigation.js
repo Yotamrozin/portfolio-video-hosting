@@ -2,7 +2,7 @@
     'use strict';
     
     // Configuration - Easy to adjust timer duration
-    // const AUTO_ADVANCE_DURATION = 5000; // 5 seconds (COMMENTED OUT - auto-advance disabled)
+    const AUTO_ADVANCE_DURATION = 5000; // 5 seconds
     
     class TabNavigationManager {
         constructor() {
@@ -70,7 +70,7 @@
                 currentIndex: 0,
                 totalTabs: 0,
                 listeners: [],
-               // autoAdvanceTimer: null, // COMMENTED OUT - auto-advance disabled
+                autoAdvanceTimer: null, // Re-enabled for auto-advance functionality
                 // Touch/swipe properties
                 touchStartX: 0,
                 touchStartY: 0,
@@ -93,6 +93,8 @@
             this.updateCurrentIndex(instanceData);
             this.tabInstances.set(wrapper, instanceData);
 
+            // Start auto-advance timer for this wrapper
+            this.startAutoAdvanceTimer(wrapper);
             // Event listener for tab clicks (to sync currentIndex)
             let debounceTimer = null;
             const tabChangeListener = (e) => {
@@ -192,6 +194,9 @@
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
             
+            // Always reset the auto-advance timer on any navigation
+            this.resetAutoAdvanceTimer(wrapper);
+            
             console.log(`🔍 NavigateNext - currentIndex: ${instance.currentIndex}, totalTabs: ${instance.totalTabs}`);
 
             // Check if we're at the last tab - trigger Swiper category change
@@ -271,35 +276,64 @@
             // this.startIndicatorAnimation(wrapper);
         }
 
-        // COMMENTED OUT - auto-advance methods disabled
-        /*
+        // Auto-advance functionality
+        startAutoAdvanceTimer(wrapper) {
+            const instance = this.tabInstances.get(wrapper);
+            if (!instance) return;
+
+            // Clear any existing timer
+            if (instance.autoAdvanceTimer) {
+                clearTimeout(instance.autoAdvanceTimer);
+            }
+
+            // Start new timer
+            instance.autoAdvanceTimer = setTimeout(() => {
+                console.log('⏰ Auto-advance triggered for wrapper');
+                this.navigateNext(wrapper, true); // Pass true to indicate auto-advance
+                // Timer will be automatically restarted after navigation
+                this.startAutoAdvanceTimer(wrapper);
+            }, AUTO_ADVANCE_DURATION);
+
+            console.log(`⏱️ Auto-advance timer started (${AUTO_ADVANCE_DURATION}ms)`);
+        }
+
         resetAutoAdvanceTimer(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
-            
-            // Clear existing timer and animation
+
+            // Clear existing timer
             if (instance.autoAdvanceTimer) {
-                clearInterval(instance.autoAdvanceTimer);
+                clearTimeout(instance.autoAdvanceTimer);
+                instance.autoAdvanceTimer = null;
             }
-            this.clearIndicatorAnimation(wrapper);
-            
-            // Start fresh timer and animation
-            instance.autoAdvanceTimer = setInterval(() => {
-                this.navigateNext(wrapper);
-            }, AUTO_ADVANCE_DURATION);
-            this.startIndicatorAnimation(wrapper);
+
+            // Start new timer
+            this.startAutoAdvanceTimer(wrapper);
+            console.log('🔄 Auto-advance timer reset due to manual navigation');
+        }
+
+        pauseAutoAdvance(wrapper) {
+            const instance = this.tabInstances.get(wrapper);
+            if (!instance) return;
+
+            if (instance.autoAdvanceTimer) {
+                clearTimeout(instance.autoAdvanceTimer);
+                instance.autoAdvanceTimer = null;
+                console.log('⏸️ Auto-advance paused');
+            }
         }
 
         resumeAutoAdvance(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
 
-            // Only resume if not already running
+            // Only resume if no timer is currently active
             if (!instance.autoAdvanceTimer) {
-                this.resetAutoAdvanceTimer(wrapper); // This will start both timer and animation
+                this.startAutoAdvanceTimer(wrapper);
+                console.log('▶️ Auto-advance resumed');
             }
         }
-        
+
         resumeAutoAdvanceForTabsElement(tabsElement) {
             // Find the wrapper that contains this tabsElement
             const wrapper = tabsElement.closest('.tab-wrapper');
@@ -315,10 +349,9 @@
                 }
                 return;
             }
-                        // Now resume auto-advance
+            // Now resume auto-advance
             this.resumeAutoAdvance(wrapper);
         }
-        */
         
         // COMMENTED OUT - indicator animation methods disabled
         /*
@@ -343,18 +376,6 @@
             }
         }
 
-        /*
-        pauseAutoAdvance(wrapper) {
-            const instance = this.tabInstances.get(wrapper);
-            if (!instance) return;
-
-            if (instance.autoAdvanceTimer) {
-                clearInterval(instance.autoAdvanceTimer);
-                instance.autoAdvanceTimer = null;
-            }
-            this.clearIndicatorAnimation(wrapper);
-        }
-
         pauseAutoAdvanceForTabsElement(tabsElement) {
             // Find the wrapper that contains this tabs element
             for (const [wrapper, instance] of this.tabInstances) {
@@ -372,6 +393,7 @@
                 }
             }
         }
+        */
         
         clearAllIndicators(tabsElement) {
             const allTabLinks = tabsElement.querySelectorAll('.w-tab-link');
@@ -407,7 +429,6 @@
                 console.log(`🔄 Reset tabs component to first tab`);
             }
         }
-        */
 
         // Handle swipe gestures for category navigation
         handleSwipeGesture(wrapper) {
