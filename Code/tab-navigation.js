@@ -99,19 +99,29 @@
 
             // Event listener for tab clicks (to sync currentIndex)
             // Listen for Webflow's tab change events instead of raw clicks
+            let debounceTimer = null;
             const tabChangeListener = (e) => {
-                // Find which tab is now active
-                const activeTab = instanceData.tabsElement.querySelector('.w-tab-link.w--current');
-                if (activeTab) {
-                    const activeIndex = Array.from(tabLinks).indexOf(activeTab);
-                    if (activeIndex !== -1) {
-                        instanceData.currentIndex = activeIndex;
-                        console.log(`🎯 Tab changed to: ${activeIndex + 1} of ${instanceData.totalTabs}`);
-                        
-                        // Reset auto-advance timer when user manually clicks tabs
-                        this.resetAutoAdvanceTimer(wrapper);
-                    }
+                // Debounce rapid events
+                if (debounceTimer) {
+                    clearTimeout(debounceTimer);
                 }
+                
+                debounceTimer = setTimeout(() => {
+                    // Find which tab is now active
+                    const activeTab = instanceData.tabsElement.querySelector('.w-tab-link.w--current');
+                    if (activeTab) {
+                        const activeIndex = Array.from(tabLinks).indexOf(activeTab);
+                        if (activeIndex !== -1) {
+                            const oldIndex = instanceData.currentIndex;
+                            instanceData.currentIndex = activeIndex;
+                            console.log(`🎯 Tab changed: ${oldIndex} → ${activeIndex} (${activeIndex + 1} of ${instanceData.totalTabs})`);
+                            
+                            // Reset auto-advance timer when user manually clicks tabs
+                            this.resetAutoAdvanceTimer(wrapper);
+                        }
+                    }
+                    debounceTimer = null;
+                }, 5); // Very short debounce
             };
 
             // Navigation button listeners
@@ -216,13 +226,32 @@
             
             console.log(`🔄 Reset tab state for wrapper - currentIndex: ${instance.currentIndex}`);
         }
+        
+        // Add new method for state validation
+        validateAndSyncState(wrapper) {
+            const instance = this.tabInstances.get(wrapper);
+            if (!instance) return;
+            
+            const tabLinks = instance.tabsElement.querySelectorAll('.w-tab-link');
+            const activeTab = instance.tabsElement.querySelector('.w-tab-link.w--current');
+            
+            if (activeTab) {
+                const actualIndex = Array.from(tabLinks).indexOf(activeTab);
+                if (actualIndex !== -1 && actualIndex !== instance.currentIndex) {
+                    console.warn(`⚠️ State mismatch detected! Stored: ${instance.currentIndex}, Actual: ${actualIndex}. Syncing...`);
+                    instance.currentIndex = actualIndex;
+                }
+            }
+        }
 
         navigateNext(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
 
-            // Remove excessive debugging
-            // console.log('🔍 Current index before next:', instance.currentIndex, 'total:', instance.totalTabs);
+            // Add state validation before navigation
+            this.validateAndSyncState(wrapper);
+            
+            console.log(`🔍 NavigateNext - currentIndex: ${instance.currentIndex}, totalTabs: ${instance.totalTabs}`);
 
             if (instance.currentIndex >= instance.totalTabs - 1) {
                 // At last tab - trigger Swiper next slide
@@ -231,8 +260,6 @@
                     window.mySwiper.slideNext(300, true); // 300ms transition with callbacks
                     return;
                 }
-                // Remove this log as it's too frequent
-                // console.log('🚫 Already at last tab, cannot go next');
                 return;
             }
 
@@ -247,7 +274,10 @@
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
 
-            // Removed: console.log(`🔍 Current index before previous: ${instance.currentIndex}, total: ${instance.totalTabs}`);
+            // Add state validation before navigation
+            this.validateAndSyncState(wrapper);
+            
+            console.log(`🔍 NavigatePrevious - currentIndex: ${instance.currentIndex}, totalTabs: ${instance.totalTabs}`);
 
             // Check if we can go to previous tab
             if (instance.currentIndex <= 0) {
@@ -279,21 +309,29 @@
                 return;
             }
 
+            console.log(`🎯 Navigating from tab ${instance.currentIndex} to tab ${targetIndex}`);
+            
+            // CRITICAL FIX: Update currentIndex IMMEDIATELY before DOM manipulation
+            const oldIndex = instance.currentIndex;
+            instance.currentIndex = targetIndex;
+            
             // Trigger the click
             targetTab.click();
 
-            // Fallback: Update index after a short delay if w-tab-change doesn't fire
+            // Add validation after click to ensure DOM updated correctly
             setTimeout(() => {
                 const activeTab = instance.tabsElement.querySelector('.w-tab-link.w--current');
                 if (activeTab) {
-                    const activeIndex = Array.from(tabLinks).indexOf(activeTab);
-                    if (activeIndex !== -1 && activeIndex !== instance.currentIndex) {
-                        instance.currentIndex = activeIndex;
+                    const actualIndex = Array.from(tabLinks).indexOf(activeTab);
+                    if (actualIndex !== targetIndex) {
+                        console.warn(`⚠️ Navigation failed! Expected: ${targetIndex}, Got: ${actualIndex}`);
+                        // Force sync with actual DOM state
+                        instance.currentIndex = actualIndex;
+                    } else {
+                        console.log(`✅ Navigation successful: ${oldIndex} → ${targetIndex}`);
                     }
                 }
-            }, 50);
-
-            // Removed: console.log(`🎯 Navigated from tab ${oldIndex + 1} to tab ${targetIndex + 1} of ${instance.totalTabs}`);
+            }, 10); // Reduced timeout for faster validation
         }
 
 
