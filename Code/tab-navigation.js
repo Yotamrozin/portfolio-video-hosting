@@ -325,13 +325,57 @@
             // Find the wrapper that contains this tabs element
             for (const [wrapper, instance] of this.tabInstances) {
                 if (instance.tabsElement === tabsElement) {
+                    // Pause auto-advance
                     this.pauseAutoAdvance(wrapper);
+                    
+                    // Clear all indicators in the tabs component
+                    this.clearAllIndicators(tabsElement);
+                    
+                    // Reset to first tab
+                    this.resetToFirstTab(wrapper);
+                    
                     return;
                 }
             }
         }
-
         
+        // Clear all indicators in a tabs component
+        clearAllIndicators(tabsElement) {
+            const allTabLinks = tabsElement.querySelectorAll('.w-tab-link');
+            
+            allTabLinks.forEach(tabLink => {
+                const indicator = tabLink.querySelector('div');
+                if (indicator) {
+                    // Stop any ongoing animation
+                    indicator.style.transition = 'none';
+                    // Reset to initial state (0% width, white background)
+                    indicator.style.width = '0%';
+                    indicator.style.backgroundColor = 'white';
+                }
+            });
+            
+            console.log(`🧹 Cleared all indicators for tabs component`);
+        }
+        
+        // Reset tabs component to first tab
+        resetToFirstTab(wrapper) {
+            const instance = this.tabInstances.get(wrapper);
+            if (!instance) return;
+            
+            const tabLinks = instance.tabsElement.querySelectorAll('.w-tab-link');
+            const firstTab = tabLinks[0];
+            
+            if (firstTab) {
+                // Update current index
+                instance.currentIndex = 0;
+                
+                // Click the first tab to activate it
+                firstTab.click();
+                
+                console.log(`🔄 Reset tabs component to first tab`);
+            }
+        }
+
         // Handle swipe gestures
         handleSwipeGesture(wrapper) {
             const instance = this.tabInstances.get(wrapper);
