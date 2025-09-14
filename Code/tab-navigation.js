@@ -239,6 +239,29 @@
             // Start indicator animation
             this.startIndicatorAnimation(wrapper);
         }
+        
+clearIndicatorAnimation(wrapper) {
+            const instance = this.tabInstances.get(wrapper);
+            if (!instance) return;
+
+            // Find the current active tab
+            const currentTab = instance.tabsElement.querySelector('.w-tab-link.w--current');
+            if (!currentTab) return;
+
+            // Find the inner div (indicator)
+            const indicator = currentTab.querySelector('div');
+            if (!indicator) return;
+
+            // Stop any ongoing animation
+            indicator.style.transition = 'none';
+            
+            // Restore original styles if available
+            if (instance.originalIndicatorStyles) {
+                indicator.style.width = instance.originalIndicatorStyles.width;
+                indicator.style.backgroundColor = instance.originalIndicatorStyles.backgroundColor;
+                indicator.style.transition = instance.originalIndicatorStyles.transition;
+            }
+        }
 
                 // New methods for pausing/resuming auto-advance
         pauseAutoAdvance(wrapper) {
@@ -252,7 +275,7 @@
             this.clearIndicatorAnimation(wrapper);
         }
 
-        
+
         // Pause auto-advance for specific tabs element
         pauseAutoAdvanceForTabsElement(tabsElement) {
             // Find the wrapper that contains this tabs element
