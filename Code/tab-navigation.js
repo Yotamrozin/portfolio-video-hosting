@@ -289,9 +289,7 @@
             // Start new timer
             instance.autoAdvanceTimer = setTimeout(() => {
                 console.log('⏰ Auto-advance triggered for wrapper');
-                this.navigateNext(wrapper, true); // Pass true to indicate auto-advance
-                // Timer will be automatically restarted after navigation
-                this.startAutoAdvanceTimer(wrapper);
+                this.navigateNext(wrapper); // Remove the unnecessary parameter
             }, AUTO_ADVANCE_DURATION);
 
             console.log(`⏱️ Auto-advance timer started (${AUTO_ADVANCE_DURATION}ms)`);
@@ -309,7 +307,7 @@
 
             // Start new timer
             this.startAutoAdvanceTimer(wrapper);
-            console.log('🔄 Auto-advance timer reset due to manual navigation');
+            console.log('🔄 Auto-advance timer reset due to navigation');
         }
 
         pauseAutoAdvance(wrapper) {
