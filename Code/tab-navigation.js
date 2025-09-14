@@ -409,7 +409,7 @@
         }
         */
 
-        // Handle swipe gestures
+        // Handle swipe gestures for category navigation
         handleSwipeGesture(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
@@ -420,11 +420,17 @@
             // Check if it's a valid horizontal swipe
             if (Math.abs(deltaX) > instance.minSwipeDistance && deltaY < instance.maxVerticalDistance) {
                 if (deltaX > 0) {
-                    // Swipe right - go to previous
-                    this.navigatePrevious(wrapper);
+                    // Swipe right - go to previous Swiper category
+                    if (window.mySwiper && typeof window.mySwiper.slidePrev === 'function') {
+                        console.log('👆 Swipe right detected - moving to previous Swiper category');
+                        window.mySwiper.slidePrev(300, true);
+                    }
                 } else {
-                    // Swipe left - go to next
-                    this.navigateNext(wrapper);
+                    // Swipe left - go to next Swiper category
+                    if (window.mySwiper && typeof window.mySwiper.slideNext === 'function') {
+                        console.log('👆 Swipe left detected - moving to next Swiper category');
+                        window.mySwiper.slideNext(300, true);
+                    }
                 }
             }
         }
