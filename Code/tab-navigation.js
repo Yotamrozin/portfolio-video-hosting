@@ -240,6 +240,23 @@
             this.startIndicatorAnimation(wrapper);
         }
 
+        resetAutoAdvanceTimer(wrapper) {
+            const instance = this.tabInstances.get(wrapper);
+            if (!instance) return;
+            
+            // Clear existing timer and animation
+            if (instance.autoAdvanceTimer) {
+                clearInterval(instance.autoAdvanceTimer);
+            }
+            this.clearIndicatorAnimation(wrapper);
+            
+            // Start fresh timer and animation
+            instance.autoAdvanceTimer = setInterval(() => {
+                this.navigateNext(wrapper);
+            }, AUTO_ADVANCE_DURATION);
+            this.startIndicatorAnimation(wrapper);
+        }
+
         resumeAutoAdvance(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
@@ -287,8 +304,6 @@
             // Restore original styles if available
             if (instance.originalIndicatorStyles) {
                 indicator.style.width = instance.originalIndicatorStyles.width;
-                indicator.style.backgroundColor = instance.originalIndicatorStyles.backgroundColor;
-                indicator.style.transition = instance.originalIndicatorStyles.transition;
             }
         }
 
