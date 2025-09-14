@@ -213,7 +213,7 @@
             }
 
             const prevIndex = instance.currentIndex - 1;
-            this.navigateToTab(wrapper, nextIndex);
+            this.navigateToTab(wrapper, prevIndex);
         }
 
         navigateToTab(wrapper, targetIndex) {
@@ -239,7 +239,16 @@
             // Start indicator animation
             this.startIndicatorAnimation(wrapper);
         }
-
+        // Pause auto-advance for specific tabs element
+        pauseAutoAdvanceForTabsElement(tabsElement) {
+            // Find the wrapper that contains this tabs element
+            for (const [wrapper, instance] of this.tabInstances) {
+                if (instance.tabsElement === tabsElement) {
+                    this.pauseAutoAdvance(wrapper);
+                    return;
+                }
+            }
+        }
         // Handle swipe gestures
         handleSwipeGesture(wrapper) {
             const instance = this.tabInstances.get(wrapper);
