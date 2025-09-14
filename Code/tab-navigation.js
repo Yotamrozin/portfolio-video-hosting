@@ -293,8 +293,9 @@
             // Update instance state
             instance.currentIndex = targetIndex;
             
-            // COMMENTED OUT - indicator animation disabled
-            // this.startIndicatorAnimation(wrapper);
+            // Update indicator states and start animation for active tab
+            this.updateIndicatorStates(wrapper, targetIndex);
+            this.startIndicatorAnimation(wrapper);
         }
 
         // Auto-advance functionality
@@ -398,8 +399,6 @@
             this.resumeAutoAdvance(wrapper);
         }
         
-        // COMMENTED OUT - indicator animation methods disabled
-        /*
         clearIndicatorAnimation(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
@@ -420,7 +419,6 @@
                 indicator.style.width = instance.originalIndicatorStyles.width;
             }
         }
-        */
 
         pauseAutoAdvanceForTabsElement(tabsElement) {
             // Find the wrapper that contains this tabs element
@@ -455,6 +453,33 @@
             });
             
             console.log(`🧹 Cleared all indicators for tabs component`);
+        }
+        
+        updateIndicatorStates(wrapper, activeIndex) {
+            const instance = this.tabInstances.get(wrapper);
+            if (!instance) return;
+
+            const tabLinks = instance.tabsElement.querySelectorAll('.w-tab-link');
+            
+            tabLinks.forEach((tabLink, index) => {
+                const indicator = tabLink.querySelector('div');
+                if (!indicator) return;
+
+                // Stop any ongoing animation
+                indicator.style.transition = 'none';
+                indicator.style.backgroundColor = 'white';
+
+                if (index < activeIndex) {
+                    // Previous tabs: set to 100% width
+                    indicator.style.width = '100%';
+                } else if (index === activeIndex) {
+                    // Current tab: set to 0% width (will be animated)
+                    indicator.style.width = '0%';
+                } else {
+                    // Subsequent tabs: set to 0% width
+                    indicator.style.width = '0%';
+                }
+            });
         }
         
         resetToFirstTab(wrapper) {
@@ -508,8 +533,6 @@
             }
         }
 
-        // COMMENTED OUT - indicator animation disabled
-        /*
         startIndicatorAnimation(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
@@ -520,7 +543,7 @@
             const indicator = currentTab.querySelector('div');
             if (!indicator) return;
 
-            // Reset to initial properties: white background and 0% width
+            // Ensure initial state: white background and 0% width
             indicator.style.backgroundColor = 'white';
             indicator.style.width = '0%';
             indicator.style.transition = 'none';
@@ -532,7 +555,6 @@
             indicator.style.transition = `width ${AUTO_ADVANCE_DURATION}ms linear`;
             indicator.style.width = '100%';
         }
-        */
 
         // Cleanup method
         destroy(wrapper) {
