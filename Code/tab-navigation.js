@@ -240,7 +240,26 @@
             this.startIndicatorAnimation(wrapper);
         }
         
-clearIndicatorAnimation(wrapper) {
+        resumeAutoAdvanceForTabsElement(tabsElement) {
+            // Find the wrapper that contains this tabsElement
+            const wrapper = tabsElement.closest('.tab-wrapper');
+            if (!wrapper) {
+                // Fallback to the old method if closest doesn't find the wrapper
+                for (const [wrapperEl, instance] of this.tabInstances) {
+                    if (instance.tabsElement === tabsElement) {
+                        // Reset state before resuming
+                        this.resetInstanceState(wrapperEl);
+                        this.resumeAutoAdvance(wrapperEl);
+                        return;
+                    }
+                }
+                return;
+            }
+                        // Now resume auto-advance
+            this.resumeAutoAdvance(wrapper);
+        }
+        
+        clearIndicatorAnimation(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
 
