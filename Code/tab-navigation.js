@@ -239,6 +239,20 @@
             // Start indicator animation
             this.startIndicatorAnimation(wrapper);
         }
+
+                // New methods for pausing/resuming auto-advance
+        pauseAutoAdvance(wrapper) {
+            const instance = this.tabInstances.get(wrapper);
+            if (!instance) return;
+
+            if (instance.autoAdvanceTimer) {
+                clearInterval(instance.autoAdvanceTimer);
+                instance.autoAdvanceTimer = null;
+            }
+            this.clearIndicatorAnimation(wrapper);
+        }
+
+        
         // Pause auto-advance for specific tabs element
         pauseAutoAdvanceForTabsElement(tabsElement) {
             // Find the wrapper that contains this tabs element
@@ -249,6 +263,8 @@
                 }
             }
         }
+
+        
         // Handle swipe gestures
         handleSwipeGesture(wrapper) {
             const instance = this.tabInstances.get(wrapper);
