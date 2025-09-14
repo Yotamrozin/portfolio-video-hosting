@@ -267,20 +267,26 @@ class CategoryTabsController {
         tabsElement.style.visibility = 'visible';
         tabsElement.style.position = 'static';
         
+        // COMMENTED OUT - auto-advance resume disabled
+        /*
         // Resume auto-advance for this tabs element with state reset
         if (window.TabNavigationManager) {
             window.TabNavigationManager.resumeAutoAdvanceForTabsElement(tabsElement);
         }
+        */
     }
 
     hideTabsElement(tabsElement) {
         tabsElement.style.visibility = 'hidden';
         tabsElement.style.position = 'absolute';
         
+        // COMMENTED OUT - auto-advance pause disabled
+        /*
         // Pause auto-advance for this tabs element
         if (window.TabNavigationManager) {
             window.TabNavigationManager.pauseAutoAdvanceForTabsElement(tabsElement);
         }
+        */
     }
 
     addActiveState(button) {

@@ -2,7 +2,7 @@
     'use strict';
     
     // Configuration - Easy to adjust timer duration
-    const AUTO_ADVANCE_DURATION = 5000; // 5 seconds (adjust this value as needed)
+    // const AUTO_ADVANCE_DURATION = 5000; // 5 seconds (COMMENTED OUT - auto-advance disabled)
     
     class TabNavigationManager {
         constructor() {
@@ -68,7 +68,7 @@
                 currentIndex: 0,
                 totalTabs: 0,
                 listeners: [],
-                autoAdvanceTimer: null,
+               // autoAdvanceTimer: null, // COMMENTED OUT - auto-advance disabled
                 // Touch/swipe properties
                 touchStartX: 0,
                 touchStartY: 0,
@@ -236,10 +236,12 @@
             // Trigger the click
             targetTab.click();
             
-            // Start indicator animation
-            this.startIndicatorAnimation(wrapper);
+            // COMMENTED OUT - indicator animation disabled
+            // this.startIndicatorAnimation(wrapper);
         }
 
+        // COMMENTED OUT - auto-advance methods disabled
+        /*
         resetAutoAdvanceTimer(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
@@ -285,7 +287,10 @@
                         // Now resume auto-advance
             this.resumeAutoAdvance(wrapper);
         }
+        */
         
+        // COMMENTED OUT - indicator animation methods disabled
+        /*
         clearIndicatorAnimation(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
@@ -307,7 +312,7 @@
             }
         }
 
-                // New methods for pausing/resuming auto-advance
+        /*
         pauseAutoAdvance(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
@@ -319,8 +324,6 @@
             this.clearIndicatorAnimation(wrapper);
         }
 
-
-        // Pause auto-advance for specific tabs element
         pauseAutoAdvanceForTabsElement(tabsElement) {
             // Find the wrapper that contains this tabs element
             for (const [wrapper, instance] of this.tabInstances) {
@@ -339,7 +342,6 @@
             }
         }
         
-        // Clear all indicators in a tabs component
         clearAllIndicators(tabsElement) {
             const allTabLinks = tabsElement.querySelectorAll('.w-tab-link');
             
@@ -357,7 +359,6 @@
             console.log(`🧹 Cleared all indicators for tabs component`);
         }
         
-        // Reset tabs component to first tab
         resetToFirstTab(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
@@ -375,6 +376,7 @@
                 console.log(`🔄 Reset tabs component to first tab`);
             }
         }
+        */
 
         // Handle swipe gestures
         handleSwipeGesture(wrapper) {
@@ -396,7 +398,8 @@
             }
         }
 
-        // Start indicator animation
+        // COMMENTED OUT - indicator animation disabled
+        /*
         startIndicatorAnimation(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
@@ -419,17 +422,21 @@
             indicator.style.transition = `width ${AUTO_ADVANCE_DURATION}ms linear`;
             indicator.style.width = '100%';
         }
+        */
 
         // Cleanup method
         destroy(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
 
+            // COMMENTED OUT - auto-advance timer cleanup disabled
+            /*
             // Clear auto-advance timer
             if (instance.autoAdvanceTimer) {
                 clearInterval(instance.autoAdvanceTimer);
                 instance.autoAdvanceTimer = null;
             }
+            */
 
             // Remove all event listeners
             instance.listeners.forEach(({ element, event, listener }) => {
