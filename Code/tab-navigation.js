@@ -1,6 +1,9 @@
 (function() {
     'use strict';
-
+    
+    // Configuration - Easy to adjust timer duration
+    const AUTO_ADVANCE_DURATION = 5000; // 5 seconds (adjust this value as needed)
+    
     class TabNavigationManager {
         constructor() {
             this.tabInstances = new Map();
@@ -32,8 +35,6 @@
                 return;
             }
 
-            console.log(`📋 Found ${tabWrappers.length} tab wrapper(s)`);
-
             tabWrappers.forEach((wrapper, index) => {
                 this.initializeTabWrapper(wrapper, index);
             });
@@ -54,13 +55,10 @@
 
             if (!nextButton || !prevButton) {
                 console.warn(`⚠️ Navigation buttons not found in wrapper ${index}`);
-                console.warn(`   Next button: ${nextButton ? 'found' : 'missing'}`);
-                console.warn(`   Previous button: ${prevButton ? 'found' : 'missing'}`);
-                console.warn(`   Middle button: ${middleButton ? 'found' : 'missing'}`);
                 return;
             }
 
-            // Store instance data with event listeners for cleanup
+            // Store instance data
             const instanceData = {
                 wrapper,
                 tabsElement,
@@ -69,8 +67,15 @@
                 middleButton,
                 currentIndex: 0,
                 totalTabs: 0,
-                listeners: [], // Store listeners for cleanup
-                autoAdvanceTimer: null // Store timer for cleanup
+                listeners: [],
+                autoAdvanceTimer: null,
+                // Touch/swipe properties
+                touchStartX: 0,
+                touchStartY: 0,
+                touchEndX: 0,
+                touchEndY: 0,
+                minSwipeDistance: 50,
+                maxVerticalDistance: 100
             };
 
             // Get total number of tabs
@@ -84,21 +89,27 @@
 
             // Find currently active tab
             this.updateCurrentIndex(instanceData);
-
             this.tabInstances.set(wrapper, instanceData);
 
             // Event listener for tab clicks (to sync currentIndex)
-            // Listen for Webflow's tab change events instead of raw clicks
+            let debounceTimer = null;
             const tabChangeListener = (e) => {
-                // Find which tab is now active
-                const activeTab = instanceData.tabsElement.querySelector('.w-tab-link.w--current');
-                if (activeTab) {
-                    const activeIndex = Array.from(tabLinks).indexOf(activeTab);
-                    if (activeIndex !== -1) {
-                        instanceData.currentIndex = activeIndex;
-                        console.log(`🎯 Tab changed to: ${activeIndex + 1} of ${instanceData.totalTabs}`);
-                    }
+                if (debounceTimer) {
+                    clearTimeout(debounceTimer);
                 }
+                
+                debounceTimer = setTimeout(() => {
+                    const activeTab = instanceData.tabsElement.querySelector('.w-tab-link.w--current');
+                    if (activeTab) {
+                        const activeIndex = Array.from(tabLinks).indexOf(activeTab);
+                        if (activeIndex !== -1) {
+                            const oldIndex = instanceData.currentIndex;
+                            instanceData.currentIndex = activeIndex;
+                            console.log(`🎯 Tab changed: ${oldIndex} → ${activeIndex} (${activeIndex + 1} of ${instanceData.totalTabs})`);
+                        }
+                    }
+                    debounceTimer = null;
+                }, 5);
             };
 
             // Navigation button listeners
@@ -114,39 +125,43 @@
 
             const middleClickListener = (e) => {
                 e.preventDefault();
-                this.navigateNext(wrapper); // Same functionality as Next button
+                this.navigateNext(wrapper);
             };
 
-            // Auto-advance functionality - change tab every 5 seconds
-            instanceData.autoAdvanceTimer = setInterval(() => {
-                this.navigateNext(wrapper);
-            }, 5000); // 5 seconds
+            // Touch/swipe event listeners
+            const touchStartListener = (e) => {
+                instanceData.touchStartX = e.touches[0].clientX;
+                instanceData.touchStartY = e.touches[0].clientY;
+            };
+
+            const touchEndListener = (e) => {
+                instanceData.touchEndX = e.changedTouches[0].clientX;
+                instanceData.touchEndY = e.changedTouches[0].clientY;
+                this.handleSwipeGesture(wrapper);
+            };
 
             // Add event listeners
             tabsElement.addEventListener('w-tab-change', tabChangeListener);
             nextButton.addEventListener('click', nextClickListener);
             prevButton.addEventListener('click', prevClickListener);
+            wrapper.addEventListener('touchstart', touchStartListener, { passive: true });
+            wrapper.addEventListener('touchend', touchEndListener, { passive: true });
             
-            if (middleButton) {
-                middleButton.addEventListener('click', middleClickListener);
-            }
-
             // Store listeners for cleanup
             const listeners = [
                 { element: tabsElement, event: 'w-tab-change', listener: tabChangeListener },
                 { element: nextButton, event: 'click', listener: nextClickListener },
-                { element: prevButton, event: 'click', listener: prevClickListener }
+                { element: prevButton, event: 'click', listener: prevClickListener },
+                { element: wrapper, event: 'touchstart', listener: touchStartListener },
+                { element: wrapper, event: 'touchend', listener: touchEndListener }
             ];
             
             if (middleButton) {
-                listeners.push(
-                    { element: middleButton, event: 'click', listener: middleClickListener }
-                );
+                middleButton.addEventListener('click', middleClickListener);
+                listeners.push({ element: middleButton, event: 'click', listener: middleClickListener });
             }
             
             instanceData.listeners = listeners;
-
-            console.log(`✅ Initialized tab wrapper ${index} with ${instanceData.totalTabs} tabs`);
         }
 
         updateCurrentIndex(instanceData) {
@@ -164,12 +179,16 @@
         navigateNext(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
+            
+            console.log(`🔍 NavigateNext - currentIndex: ${instance.currentIndex}, totalTabs: ${instance.totalTabs}`);
 
-            console.log(`🔍 Current index before next: ${instance.currentIndex}, total: ${instance.totalTabs}`);
-
-            // Check if we can go to next tab
             if (instance.currentIndex >= instance.totalTabs - 1) {
-                console.log('🚫 Already at last tab, cannot go next');
+                // At last tab - trigger Swiper next slide
+                if (window.mySwiper && typeof window.mySwiper.slideNext === 'function') {
+                    console.log('🎯 At last tab, moving to next Swiper slide');
+                    window.mySwiper.slideNext(300, true);
+                    return;
+                }
                 return;
             }
 
@@ -180,17 +199,21 @@
         navigatePrevious(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
+            
+            console.log(`🔍 NavigatePrevious - currentIndex: ${instance.currentIndex}, totalTabs: ${instance.totalTabs}`);
 
-            console.log(`🔍 Current index before previous: ${instance.currentIndex}, total: ${instance.totalTabs}`);
-
-            // Check if we can go to previous tab
             if (instance.currentIndex <= 0) {
-                console.log('🚫 Already at first tab, cannot go previous');
+                // At first tab - trigger Swiper previous slide
+                if (window.mySwiper && typeof window.mySwiper.slidePrev === 'function') {
+                    console.log('🎯 At first tab, moving to previous Swiper slide');
+                    window.mySwiper.slidePrev(300, true);
+                    return;
+                }
                 return;
             }
 
             const prevIndex = instance.currentIndex - 1;
-            this.navigateToTab(wrapper, prevIndex);
+            this.navigateToTab(wrapper, nextIndex);
         }
 
         navigateToTab(wrapper, targetIndex) {
@@ -205,28 +228,63 @@
                 return;
             }
 
+            console.log(`🎯 Navigating from tab ${instance.currentIndex} to tab ${targetIndex}`);
+            
             const oldIndex = instance.currentIndex;
+            instance.currentIndex = targetIndex;
             
             // Trigger the click
             targetTab.click();
-
-            // Fallback: Update index after a short delay if w-tab-change doesn't fire
-            setTimeout(() => {
-                const activeTab = instance.tabsElement.querySelector('.w-tab-link.w--current');
-                if (activeTab) {
-                    const activeIndex = Array.from(tabLinks).indexOf(activeTab);
-                    if (activeIndex !== -1 && activeIndex !== instance.currentIndex) {
-                        instance.currentIndex = activeIndex;
-                        console.log(`🔄 Fallback: Updated index to ${activeIndex + 1}`);
-                    }
-                }
-            }, 50);
-
-            console.log(`🎯 Navigated from tab ${oldIndex + 1} to tab ${targetIndex + 1} of ${instance.totalTabs}`);
+            
+            // Start indicator animation
+            this.startIndicatorAnimation(wrapper);
         }
 
+        // Handle swipe gestures
+        handleSwipeGesture(wrapper) {
+            const instance = this.tabInstances.get(wrapper);
+            if (!instance) return;
 
-        // Cleanup method for defensive programming
+            const deltaX = instance.touchEndX - instance.touchStartX;
+            const deltaY = Math.abs(instance.touchEndY - instance.touchStartY);
+
+            // Check if it's a valid horizontal swipe
+            if (Math.abs(deltaX) > instance.minSwipeDistance && deltaY < instance.maxVerticalDistance) {
+                if (deltaX > 0) {
+                    // Swipe right - go to previous
+                    this.navigatePrevious(wrapper);
+                } else {
+                    // Swipe left - go to next
+                    this.navigateNext(wrapper);
+                }
+            }
+        }
+
+        // Start indicator animation
+        startIndicatorAnimation(wrapper) {
+            const instance = this.tabInstances.get(wrapper);
+            if (!instance) return;
+
+            const currentTab = instance.tabsElement.querySelector('.w-tab-link.w--current');
+            if (!currentTab) return;
+
+            const indicator = currentTab.querySelector('div');
+            if (!indicator) return;
+
+            // Reset to initial properties: white background and 0% width
+            indicator.style.backgroundColor = 'white';
+            indicator.style.width = '0%';
+            indicator.style.transition = 'none';
+
+            // Force reflow
+            indicator.offsetHeight;
+
+            // Start animation to 100%
+            indicator.style.transition = `width ${AUTO_ADVANCE_DURATION}ms linear`;
+            indicator.style.width = '100%';
+        }
+
+        // Cleanup method
         destroy(wrapper) {
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
@@ -244,15 +302,12 @@
 
             // Remove from instances map
             this.tabInstances.delete(wrapper);
-
-            console.log('🧹 Tab navigation instance cleaned up');
         }
 
         // Destroy all instances
         destroyAll() {
             const wrappers = Array.from(this.tabInstances.keys());
             wrappers.forEach(wrapper => this.destroy(wrapper));
-            console.log('🧹 All tab navigation instances cleaned up');
         }
 
         // Public method to get current tab info for debugging
@@ -261,9 +316,7 @@
             const wrapper = wrappers[wrapperIndex];
             const instance = this.tabInstances.get(wrapper);
             
-            if (!instance) {
-                return null;
-            }
+            if (!instance) return null;
 
             return {
                 currentIndex: instance.currentIndex,
@@ -276,10 +329,5 @@
     }
 
     // Initialize the navigation manager
-    const navigationManager = new TabNavigationManager();
-
-    // Make it globally accessible for debugging and cleanup
-    window.TabNavigationManager = navigationManager;
-
-    console.log('📱 Tab Navigation script loaded');
+    window.TabNavigationManager = new TabNavigationManager();
 })();
