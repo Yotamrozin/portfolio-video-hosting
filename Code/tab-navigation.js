@@ -194,18 +194,15 @@
             
             console.log(`🔍 NavigateNext - currentIndex: ${instance.currentIndex}, totalTabs: ${instance.totalTabs}`);
 
-            // Simple navigation - stop at last tab without changing category
+            // Check if we're at the last tab - trigger Swiper category change
             if (instance.currentIndex >= instance.totalTabs - 1) {
-                // At last tab - do nothing (stay in current category)
-                console.log('🛑 At last tab, staying in current category');
+                // At last tab - move to next Swiper category
+                if (window.mySwiper && typeof window.mySwiper.slideNext === 'function') {
+                    console.log('🎯 At last tab, moving to next Swiper slide');
+                    window.mySwiper.slideNext(300, true);
+                    return;
+                }
                 return;
-                
-                // Comment out Swiper category change functionality
-                // if (window.mySwiper && typeof window.mySwiper.slideNext === 'function') {
-                //     console.log('🎯 At last tab, moving to next Swiper slide');
-                //     window.mySwiper.slideNext(300, true);
-                //     return;
-                // }
             }
 
             const nextIndex = instance.currentIndex + 1;
@@ -228,18 +225,15 @@
             
             console.log(`🔍 NavigatePrevious - currentIndex: ${instance.currentIndex}, totalTabs: ${instance.totalTabs}`);
 
-            // Simple navigation - stop at first tab without changing category
+            // Check if we're at the first tab - trigger Swiper category change
             if (instance.currentIndex <= 0) {
-                // At first tab - do nothing (stay in current category)
-                console.log('🛑 At first tab, staying in current category');
+                // At first tab - move to previous Swiper category
+                if (window.mySwiper && typeof window.mySwiper.slidePrev === 'function') {
+                    console.log('🎯 At first tab, moving to previous Swiper slide');
+                    window.mySwiper.slidePrev(300, true);
+                    return;
+                }
                 return;
-                
-                // Comment out Swiper category change functionality
-                // if (window.mySwiper && typeof window.mySwiper.slidePrev === 'function') {
-                //     console.log('🎯 At first tab, moving to previous Swiper slide');
-                //     window.mySwiper.slidePrev(300, true);
-                //     return;
-                // }
             }
 
             const prevIndex = instance.currentIndex - 1;
