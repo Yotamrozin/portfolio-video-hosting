@@ -205,6 +205,8 @@
                 if (window.mySwiper && typeof window.mySwiper.slideNext === 'function') {
                     console.log('🎯 At last tab, moving to next Swiper slide');
                     window.mySwiper.slideNext(300, true);
+                    // Reset to first tab for the new category
+                    instance.currentIndex = 0;
                     return;
                 }
                 return;
@@ -289,7 +291,9 @@
             // Start new timer
             instance.autoAdvanceTimer = setTimeout(() => {
                 console.log('⏰ Auto-advance triggered for wrapper');
-                this.navigateNext(wrapper); // Remove the unnecessary parameter
+                // Ensure we start from the current active tab, not assuming position
+                this.updateCurrentIndex(instance);
+                this.navigateNext(wrapper);
             }, AUTO_ADVANCE_DURATION);
 
             console.log(`⏱️ Auto-advance timer started (${AUTO_ADVANCE_DURATION}ms)`);
