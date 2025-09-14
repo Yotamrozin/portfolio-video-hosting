@@ -415,22 +415,26 @@
         }
         
         resetToFirstTab(wrapper) {
-            const instance = this.tabInstances.get(wrapper);
-            if (!instance) return;
+        const instance = this.tabInstances.get(wrapper);
+        if (!instance) return;
+        
+        const tabLinks = instance.tabsElement.querySelectorAll('.w-tab-link');
+        
+        // Recalculate total tabs for the new category
+        instance.totalTabs = tabLinks.length;
+        
+        const firstTab = tabLinks[0];
+        
+        if (firstTab) {
+            // Update current index
+            instance.currentIndex = 0;
             
-            const tabLinks = instance.tabsElement.querySelectorAll('.w-tab-link');
-            const firstTab = tabLinks[0];
+            // Click the first tab to activate it
+            firstTab.click();
             
-            if (firstTab) {
-                // Update current index
-                instance.currentIndex = 0;
-                
-                // Click the first tab to activate it
-                firstTab.click();
-                
-                console.log(`🔄 Reset tabs component to first tab`);
-            }
+            console.log(`🔄 Reset tabs component to first tab - totalTabs: ${instance.totalTabs}`);
         }
+    }
 
         // Handle swipe gestures for category navigation
         handleSwipeGesture(wrapper) {
