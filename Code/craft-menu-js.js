@@ -119,49 +119,33 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fixed subcategory example display - removed fade-out transition lag
   function showRelevantExamples() {
-    console.log('=== showRelevantExamples called ===');
-    console.log('Active category:', activeCategory);
-    console.log('Active subcategory:', activeSubcategory);
+    console.log(`🎯 Category: "${activeCategory}" | Subcategory: "${activeSubcategory}"`);
     
-    // Fixed: Use the correct selector for EXAMPLES, not buttons
     const exampleGroups = document.querySelectorAll('[data-category-example], [data-subcategory-example]');
-    console.log('Found example groups:', exampleGroups.length);
     
     let targetExample = null;
     
     exampleGroups.forEach((group, index) => {
-        // Fixed: Get the correct attributes from EXAMPLES
         const categoryExample = group.getAttribute('data-category-example');
         const subcategoryExample = group.getAttribute('data-subcategory-example');
-        
-        console.log(`Example ${index + 1}:`);
-        console.log('  Category example:', categoryExample);
-        console.log('  Subcategory example:', subcategoryExample);
-        console.log('  Current classes:', group.classList.toString());
-        console.log('  Display style:', window.getComputedStyle(group).display);
         
         let shouldShow = false;
         
         // Check subcategory match first (takes precedence)
         if (activeSubcategory && subcategoryExample) {
             shouldShow = subcategoryExample === activeSubcategory;
-            console.log(`  Subcategory check: ${subcategoryExample} === ${activeSubcategory} = ${shouldShow}`);
         }
         // If no subcategory match and we have an active category, check category with new logic
         else if (activeCategory && !activeSubcategory) {
             // New matching logic: category example must match AND subcategory example must match the category
             if (categoryExample && subcategoryExample) {
                 shouldShow = (categoryExample === activeCategory) && (subcategoryExample === activeCategory);
-                console.log(`  Category + Subcategory check: (${categoryExample} === ${activeCategory}) && (${subcategoryExample} === ${activeCategory}) = ${shouldShow}`);
             }
             // Fallback: if only category example exists, match it
             else if (categoryExample && !subcategoryExample) {
                 shouldShow = categoryExample === activeCategory;
-                console.log(`  Category only check: ${categoryExample} === ${activeCategory} = ${shouldShow}`);
             }
         }
-        
-        console.log('  Should show:', shouldShow);
         
         // Hide this example
         batchDOMUpdates(() => {
@@ -173,16 +157,17 @@ document.addEventListener("DOMContentLoaded", () => {
         // If this should be shown and we haven't found a target yet, set it as target
         if (shouldShow && !targetExample) {
             targetExample = group;
-            console.log(`  Setting as target example: ${index + 1}`);
         }
     });
     
     // Show the single target example
     if (targetExample) {
-        console.log('Showing target example:', targetExample);
+        const categoryExample = targetExample.getAttribute('data-category-example');
+        const subcategoryExample = targetExample.getAttribute('data-subcategory-example');
+        console.log(`✅ Showing example: Category="${categoryExample}" | Subcategory="${subcategoryExample}"`);
         showSingleExample(targetExample);
     } else {
-        console.log('No matching example found');
+        console.log('❌ No matching example found');
     }
 }
 
