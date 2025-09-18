@@ -1,4 +1,4 @@
-  /* Subcategories */
+/* Subcategories */
   .subcategory-group { display: none; }
   [data-category-row].active-category .subcategory-group { display: flex; }
 
@@ -92,3 +92,44 @@
     [data-category-example] { transition: none !important; transform: none !important; opacity: 1 !important; }
     .crafty-heading .reveal-char { transform: none !important; opacity: 1 !important; }
   }
+
+
+/* Updated selectors for new data attributes */
+
+/* Category label examples */
+[data-category-label] {
+  /* Your existing styles */
+}
+
+/* Subcategory label examples */
+[data-subcategory-label] {
+  /* Your existing styles */
+}
+
+/* Hide examples by default */
+[data-category-label].u-hidden,
+[data-subcategory-label].u-hidden {
+  display: none !important;
+  opacity: 0;
+}
+
+/* Show examples with fade-in */
+[data-category-label].fade-in,
+[data-subcategory-label].fade-in {
+  display: block !important;
+  opacity: 1;
+  transition: opacity 0.3s ease-in-out;
+}
+
+/* Ensure proper visibility states */
+[data-category-label]:not(.u-hidden):not(.fade-in),
+[data-subcategory-label]:not(.u-hidden):not(.fade-in) {
+  display: none;
+}
+
+/* Animation states */
+[data-category-label].fade-out,
+[data-subcategory-label].fade-out {
+  opacity: 0;
+  transition: opacity 0.2s ease-out;
+}

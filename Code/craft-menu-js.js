@@ -118,77 +118,71 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Fixed subcategory example display - removed fade-out transition lag
-  // CHANGED: Modified to work with direct CMS attribute matching instead of slugified matching
   function showRelevantExamples() {
-    const categoryName = activeCategory;
-    const subcategoryName = activeSubcategory;
+    console.log('=== showRelevantExamples called ===');
+    console.log('Active category:', activeCategory);
+    console.log('Active subcategory:', activeSubcategory);
+    
+    const exampleGroups = document.querySelectorAll('[data-category-label], [data-subcategory-label]');
+    console.log('Found example groups:', exampleGroups.length);
+    
     let targetExample = null;
-  
-    // Enhanced debugging to see what values we're comparing
-    console.log('=== DEBUGGING EXAMPLE MATCHING ===');
-    console.log('Active category:', categoryName);
-    console.log('Active subcategory:', subcategoryName);
-    console.log('Total example groups found:', exampleGroups.length);
     
-    // Find the correct example to show
     exampleGroups.forEach((group, index) => {
-      const exampleValue = group.getAttribute("data-category-example") || "";
-      
-      // Log each subcategory item we're checking
-      console.log(`\n--- Example Group ${index + 1} ---`);
-      console.log('Element:', group);
-      console.log('data-category-example value:', `"${exampleValue}"`);
-      console.log('Current classes:', Array.from(group.classList));
-      console.log('Current display style:', group.style.display);
-      
-      // CHANGED: Direct string comparison instead of slugified comparison
-      const subcategoryMatch = subcategoryName && exampleValue === subcategoryName;
-      const categoryMatch = !subcategoryName && categoryName && exampleValue === categoryName;
-      const shouldShow = subcategoryMatch || categoryMatch;
-      
-      console.log('Subcategory match check:', {
-        hasSubcategory: !!subcategoryName,
-        subcategoryName: `"${subcategoryName}"`,
-        exampleValue: `"${exampleValue}"`,
-        matches: subcategoryMatch
-      });
-      
-      console.log('Category match check:', {
-        noSubcategory: !subcategoryName,
-        hasCategory: !!categoryName,
-        categoryName: `"${categoryName}"`,
-        exampleValue: `"${exampleValue}"`,
-        matches: categoryMatch
-      });
-      
-      console.log('Final decision - Should show:', shouldShow);
-      
-      if (shouldShow) {
-        targetExample = group;
-        console.log('*** TARGET EXAMPLE FOUND ***');
-      }
-    });
-  
-    console.log('\n=== FINAL RESULTS ===');
-    console.log('Target example selected:', targetExample);
-    console.log('Will proceed to show target:', !!targetExample);
-    // Hide all visible examples immediately for faster transitions
-    const visible = Array.from(exampleGroups).filter(g => g.classList.contains("fade-in"));
-    
-    if (visible.length > 0) {
-      batchDOMUpdates(() => {
-        visible.forEach(group => {
-          group.classList.remove("fade-in");
-          group.classList.add("u-hidden");
-          group.style.display = "none";
+        const categoryLabel = group.getAttribute('data-category-label');
+        const subcategoryLabel = group.getAttribute('data-subcategory-label');
+        
+        console.log(`Example ${index + 1}:`);
+        console.log('  Category label:', categoryLabel);
+        console.log('  Subcategory label:', subcategoryLabel);
+        console.log('  Current classes:', group.classList.toString());
+        console.log('  Display style:', window.getComputedStyle(group).display);
+        
+        let shouldShow = false;
+        
+        // Check subcategory match first (takes precedence)
+        if (activeSubcategory && subcategoryLabel) {
+            shouldShow = subcategoryLabel === activeSubcategory;
+            console.log(`  Subcategory check: ${subcategoryLabel} === ${activeSubcategory} = ${shouldShow}`);
+        }
+        // If no subcategory match and we have an active category, check category with new logic
+        else if (activeCategory && !activeSubcategory) {
+            // New matching logic: category label must match AND subcategory label must match the category
+            if (categoryLabel && subcategoryLabel) {
+                shouldShow = (categoryLabel === activeCategory) && (subcategoryLabel === activeCategory);
+                console.log(`  Category + Subcategory check: (${categoryLabel} === ${activeCategory}) && (${subcategoryLabel} === ${activeCategory}) = ${shouldShow}`);
+            }
+            // Fallback: if only category label exists, match it
+            else if (categoryLabel && !subcategoryLabel) {
+                shouldShow = categoryLabel === activeCategory;
+                console.log(`  Category only check: ${categoryLabel} === ${activeCategory} = ${shouldShow}`);
+            }
+        }
+        
+        console.log('  Should show:', shouldShow);
+        
+        // Hide this example
+        batchDOMUpdates(() => {
+            group.classList.remove('fade-in');
+            group.classList.add('u-hidden');
+            group.style.display = 'none';
         });
-        // Show target immediately after hiding others
-        if (targetExample) showSingleExample(targetExample);
-      });
+        
+        // If this should be shown and we haven't found a target yet, set it as target
+        if (shouldShow && !targetExample) {
+            targetExample = group;
+            console.log(`  Setting as target example: ${index + 1}`);
+        }
+    });
+    
+    // Show the single target example
+    if (targetExample) {
+        console.log('Showing target example:', targetExample);
+        showSingleExample(targetExample);
     } else {
-      if (targetExample) showSingleExample(targetExample);
+        console.log('No matching example found');
     }
-  }
+}
 
   function showSingleExample(group) {
     batchDOMUpdates(() => {
