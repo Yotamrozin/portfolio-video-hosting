@@ -1,3 +1,4 @@
+
 document.addEventListener("DOMContentLoaded", () => {
   const section = document.querySelector("[data-crafty-section]");
   if (!section) return;
@@ -118,20 +119,18 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Fixed subcategory example display - removed fade-out transition lag
-  // CHANGED: Modified to work with direct CMS attribute matching instead of slugified matching
   function showRelevantExamples() {
-    const categoryName = activeCategory;
-    const subcategoryName = activeSubcategory;
+    const categorySlug = slugify(activeCategory);
+    const subcategorySlug = slugify(activeSubcategory);
     let targetExample = null;
 
     // Find the correct example to show
     exampleGroups.forEach(group => {
       const exampleValue = group.getAttribute("data-category-example") || "";
-      // CHANGED: Direct string comparison instead of slugified comparison
-      // This works because both data-category-row and data-category-example use the same Category field
+      const exampleSlug = slugify(exampleValue);
       const shouldShow =
-        (subcategoryName && exampleValue === subcategoryName) ||
-        (!subcategoryName && categoryName && exampleValue === categoryName);
+        (subcategorySlug && exampleSlug === subcategorySlug) ||
+        (!subcategorySlug && categorySlug && exampleSlug === categorySlug);
       if (shouldShow) targetExample = group;
     });
 
