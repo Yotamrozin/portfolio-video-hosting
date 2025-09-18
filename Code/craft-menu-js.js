@@ -123,39 +123,41 @@ document.addEventListener("DOMContentLoaded", () => {
     console.log('Active category:', activeCategory);
     console.log('Active subcategory:', activeSubcategory);
     
-    const exampleGroups = document.querySelectorAll('[data-category-label], [data-subcategory-label]');
+    // Fixed: Use the correct selector for EXAMPLES, not buttons
+    const exampleGroups = document.querySelectorAll('[data-category-example], [data-subcategory-example]');
     console.log('Found example groups:', exampleGroups.length);
     
     let targetExample = null;
     
     exampleGroups.forEach((group, index) => {
-        const categoryLabel = group.getAttribute('data-category-label');
-        const subcategoryLabel = group.getAttribute('data-subcategory-label');
+        // Fixed: Get the correct attributes from EXAMPLES
+        const categoryExample = group.getAttribute('data-category-example');
+        const subcategoryExample = group.getAttribute('data-subcategory-example');
         
         console.log(`Example ${index + 1}:`);
-        console.log('  Category label:', categoryLabel);
-        console.log('  Subcategory label:', subcategoryLabel);
+        console.log('  Category example:', categoryExample);
+        console.log('  Subcategory example:', subcategoryExample);
         console.log('  Current classes:', group.classList.toString());
         console.log('  Display style:', window.getComputedStyle(group).display);
         
         let shouldShow = false;
         
         // Check subcategory match first (takes precedence)
-        if (activeSubcategory && subcategoryLabel) {
-            shouldShow = subcategoryLabel === activeSubcategory;
-            console.log(`  Subcategory check: ${subcategoryLabel} === ${activeSubcategory} = ${shouldShow}`);
+        if (activeSubcategory && subcategoryExample) {
+            shouldShow = subcategoryExample === activeSubcategory;
+            console.log(`  Subcategory check: ${subcategoryExample} === ${activeSubcategory} = ${shouldShow}`);
         }
         // If no subcategory match and we have an active category, check category with new logic
         else if (activeCategory && !activeSubcategory) {
-            // New matching logic: category label must match AND subcategory label must match the category
-            if (categoryLabel && subcategoryLabel) {
-                shouldShow = (categoryLabel === activeCategory) && (subcategoryLabel === activeCategory);
-                console.log(`  Category + Subcategory check: (${categoryLabel} === ${activeCategory}) && (${subcategoryLabel} === ${activeCategory}) = ${shouldShow}`);
+            // New matching logic: category example must match AND subcategory example must match the category
+            if (categoryExample && subcategoryExample) {
+                shouldShow = (categoryExample === activeCategory) && (subcategoryExample === activeCategory);
+                console.log(`  Category + Subcategory check: (${categoryExample} === ${activeCategory}) && (${subcategoryExample} === ${activeCategory}) = ${shouldShow}`);
             }
-            // Fallback: if only category label exists, match it
-            else if (categoryLabel && !subcategoryLabel) {
-                shouldShow = categoryLabel === activeCategory;
-                console.log(`  Category only check: ${categoryLabel} === ${activeCategory} = ${shouldShow}`);
+            // Fallback: if only category example exists, match it
+            else if (categoryExample && !subcategoryExample) {
+                shouldShow = categoryExample === activeCategory;
+                console.log(`  Category only check: ${categoryExample} === ${activeCategory} = ${shouldShow}`);
             }
         }
         
