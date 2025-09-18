@@ -123,18 +123,55 @@ document.addEventListener("DOMContentLoaded", () => {
     const categoryName = activeCategory;
     const subcategoryName = activeSubcategory;
     let targetExample = null;
-
+  
+    // Enhanced debugging to see what values we're comparing
+    console.log('=== DEBUGGING EXAMPLE MATCHING ===');
+    console.log('Active category:', categoryName);
+    console.log('Active subcategory:', subcategoryName);
+    console.log('Total example groups found:', exampleGroups.length);
+    
     // Find the correct example to show
-    exampleGroups.forEach(group => {
+    exampleGroups.forEach((group, index) => {
       const exampleValue = group.getAttribute("data-category-example") || "";
+      
+      // Log each subcategory item we're checking
+      console.log(`\n--- Example Group ${index + 1} ---`);
+      console.log('Element:', group);
+      console.log('data-category-example value:', `"${exampleValue}"`);
+      console.log('Current classes:', Array.from(group.classList));
+      console.log('Current display style:', group.style.display);
+      
       // CHANGED: Direct string comparison instead of slugified comparison
-      // This works because both data-category-row and data-category-example use the same Category field
-      const shouldShow =
-        (subcategoryName && exampleValue === subcategoryName) ||
-        (!subcategoryName && categoryName && exampleValue === categoryName);
-      if (shouldShow) targetExample = group;
+      const subcategoryMatch = subcategoryName && exampleValue === subcategoryName;
+      const categoryMatch = !subcategoryName && categoryName && exampleValue === categoryName;
+      const shouldShow = subcategoryMatch || categoryMatch;
+      
+      console.log('Subcategory match check:', {
+        hasSubcategory: !!subcategoryName,
+        subcategoryName: `"${subcategoryName}"`,
+        exampleValue: `"${exampleValue}"`,
+        matches: subcategoryMatch
+      });
+      
+      console.log('Category match check:', {
+        noSubcategory: !subcategoryName,
+        hasCategory: !!categoryName,
+        categoryName: `"${categoryName}"`,
+        exampleValue: `"${exampleValue}"`,
+        matches: categoryMatch
+      });
+      
+      console.log('Final decision - Should show:', shouldShow);
+      
+      if (shouldShow) {
+        targetExample = group;
+        console.log('*** TARGET EXAMPLE FOUND ***');
+      }
     });
-
+  
+    console.log('\n=== FINAL RESULTS ===');
+    console.log('Target example selected:', targetExample);
+    console.log('Will proceed to show target:', !!targetExample);
     // Hide all visible examples immediately for faster transitions
     const visible = Array.from(exampleGroups).filter(g => g.classList.contains("fade-in"));
     
