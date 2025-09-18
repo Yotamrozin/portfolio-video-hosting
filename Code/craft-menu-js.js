@@ -1,3 +1,4 @@
+
 document.addEventListener("DOMContentLoaded", () => {
   const section = document.querySelector("[data-crafty-section]");
   if (!section) return;
@@ -119,72 +120,37 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fixed subcategory example display - removed fade-out transition lag
   function showRelevantExamples() {
-    console.log('=== showRelevantExamples called ===');
-    console.log('Active category:', activeCategory);
-    console.log('Active subcategory:', activeSubcategory);
-    
-    // Fixed: Use the correct selector for EXAMPLES, not buttons
-    const exampleGroups = document.querySelectorAll('[data-category-example], [data-subcategory-example]');
-    console.log('Found example groups:', exampleGroups.length);
-    
+    const categorySlug = slugify(activeCategory);
+    const subcategorySlug = slugify(activeSubcategory);
     let targetExample = null;
-    
-    exampleGroups.forEach((group, index) => {
-        // Fixed: Get the correct attributes from EXAMPLES
-        const categoryExample = group.getAttribute('data-category-example');
-        const subcategoryExample = group.getAttribute('data-subcategory-example');
-        
-        console.log(`Example ${index + 1}:`);
-        console.log('  Category example:', categoryExample);
-        console.log('  Subcategory example:', subcategoryExample);
-        console.log('  Current classes:', group.classList.toString());
-        console.log('  Display style:', window.getComputedStyle(group).display);
-        
-        let shouldShow = false;
-        
-        // Check subcategory match first (takes precedence)
-        if (activeSubcategory && subcategoryExample) {
-            shouldShow = subcategoryExample === activeSubcategory;
-            console.log(`  Subcategory check: ${subcategoryExample} === ${activeSubcategory} = ${shouldShow}`);
-        }
-        // If no subcategory match and we have an active category, check category with new logic
-        else if (activeCategory && !activeSubcategory) {
-            // New matching logic: category example must match AND subcategory example must match the category
-            if (categoryExample && subcategoryExample) {
-                shouldShow = (categoryExample === activeCategory) && (subcategoryExample === activeCategory);
-                console.log(`  Category + Subcategory check: (${categoryExample} === ${activeCategory}) && (${subcategoryExample} === ${activeCategory}) = ${shouldShow}`);
-            }
-            // Fallback: if only category example exists, match it
-            else if (categoryExample && !subcategoryExample) {
-                shouldShow = categoryExample === activeCategory;
-                console.log(`  Category only check: ${categoryExample} === ${activeCategory} = ${shouldShow}`);
-            }
-        }
-        
-        console.log('  Should show:', shouldShow);
-        
-        // Hide this example
-        batchDOMUpdates(() => {
-            group.classList.remove('fade-in');
-            group.classList.add('u-hidden');
-            group.style.display = 'none';
-        });
-        
-        // If this should be shown and we haven't found a target yet, set it as target
-        if (shouldShow && !targetExample) {
-            targetExample = group;
-            console.log(`  Setting as target example: ${index + 1}`);
-        }
+
+    // Find the correct example to show
+    exampleGroups.forEach(group => {
+      const exampleValue = group.getAttribute("data-category-example") || "";
+      const exampleSlug = slugify(exampleValue);
+      const shouldShow =
+        (subcategorySlug && exampleSlug === subcategorySlug) ||
+        (!subcategorySlug && categorySlug && exampleSlug === categorySlug);
+      if (shouldShow) targetExample = group;
     });
+
+    // Hide all visible examples immediately for faster transitions
+    const visible = Array.from(exampleGroups).filter(g => g.classList.contains("fade-in"));
     
-    // Show the single target example
-    if (targetExample) {
-        console.log('Showing target example:', targetExample);
-        showSingleExample(targetExample);
+    if (visible.length > 0) {
+      batchDOMUpdates(() => {
+        visible.forEach(group => {
+          group.classList.remove("fade-in");
+          group.classList.add("u-hidden");
+          group.style.display = "none";
+        });
+        // Show target immediately after hiding others
+        if (targetExample) showSingleExample(targetExample);
+      });
     } else {
-        console.log('No matching example found');
+      if (targetExample) showSingleExample(targetExample);
     }
-}
+  }
 
   function showSingleExample(group) {
     batchDOMUpdates(() => {
