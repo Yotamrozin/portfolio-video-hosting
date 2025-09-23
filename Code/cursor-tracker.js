@@ -23,10 +23,11 @@ function resetCursor() {
   window.heroCursorRawY = 0;
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+function initializeCursorTracker() {
   const hero = document.querySelector(".hero");
   if (!hero) {
-    console.warn("No .hero element found - cursor tracking disabled");
+    console.log("Hero element not found yet, retrying in 100ms...");
+    setTimeout(initializeCursorTracker, 100);
     return;
   }
 
@@ -34,4 +35,12 @@ document.addEventListener("DOMContentLoaded", () => {
   hero.addEventListener("pointerleave", resetCursor);
   
   console.log("✅ Cursor tracker initialized");
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  // Try to initialize immediately
+  initializeCursorTracker();
+  
+  // Also try after a short delay in case elements are still loading
+  setTimeout(initializeCursorTracker, 50);
 });
