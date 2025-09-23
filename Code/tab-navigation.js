@@ -92,11 +92,7 @@
                 touchEndX: 0,
                 touchEndY: 0,
                 minSwipeDistance: 50,
-                maxVerticalDistance: 100,
-                // Press-and-hold properties for middle button
-                middleButtonHoldTimer: null,
-                isMiddleButtonHeld: false,
-                holdDuration: 500 // 500ms to trigger hold
+                maxVerticalDistance: 100
             };
 
             // Get total number of tabs
@@ -151,58 +147,7 @@
 
             const middleClickListener = (e) => {
                 e.preventDefault();
-                // Only navigate if it wasn't a hold action
-                if (!instanceData.isMiddleButtonHeld) {
-                    this.navigateNext(wrapper);
-                }
-            };
-
-            // Middle button press-and-hold listeners
-            const middleMouseDownListener = (e) => {
-                e.preventDefault();
-                instanceData.isMiddleButtonHeld = false;
-                
-                // Start hold timer
-                instanceData.middleButtonHoldTimer = setTimeout(() => {
-                    instanceData.isMiddleButtonHeld = true;
-                    this.pauseGlobalAutoAdvance();
-                    console.log('⏸️ Auto-advance paused by middle button hold');
-                }, instanceData.holdDuration);
-            };
-
-            const middleMouseUpListener = (e) => {
-                e.preventDefault();
-                
-                // Clear hold timer
-                if (instanceData.middleButtonHoldTimer) {
-                    clearTimeout(instanceData.middleButtonHoldTimer);
-                    instanceData.middleButtonHoldTimer = null;
-                }
-                
-                // If it was a hold, resume auto-advance
-                if (instanceData.isMiddleButtonHeld) {
-                    this.startGlobalAutoAdvanceTimer();
-                    console.log('▶️ Auto-advance resumed after middle button release');
-                }
-                
-                // Reset hold state after a short delay to prevent click from firing
-                setTimeout(() => {
-                    instanceData.isMiddleButtonHeld = false;
-                }, 10);
-            };
-
-            // Mouse leave listener to handle case where mouse leaves button while held
-            const middleMouseLeaveListener = (e) => {
-                if (instanceData.middleButtonHoldTimer) {
-                    clearTimeout(instanceData.middleButtonHoldTimer);
-                    instanceData.middleButtonHoldTimer = null;
-                }
-                
-                if (instanceData.isMiddleButtonHeld) {
-                    this.startGlobalAutoAdvanceTimer();
-                    console.log('▶️ Auto-advance resumed after mouse left middle button');
-                    instanceData.isMiddleButtonHeld = false;
-                }
+                this.navigateNext(wrapper);
             };
 
             // Touch/swipe event listeners
@@ -235,15 +180,7 @@
             
             if (middleButton) {
                 middleButton.addEventListener('click', middleClickListener);
-                middleButton.addEventListener('mousedown', middleMouseDownListener);
-                middleButton.addEventListener('mouseup', middleMouseUpListener);
-                middleButton.addEventListener('mouseleave', middleMouseLeaveListener);
-                listeners.push(
-                    { element: middleButton, event: 'click', listener: middleClickListener },
-                    { element: middleButton, event: 'mousedown', listener: middleMouseDownListener },
-                    { element: middleButton, event: 'mouseup', listener: middleMouseUpListener },
-                    { element: middleButton, event: 'mouseleave', listener: middleMouseLeaveListener }
-                );
+                listeners.push({ element: middleButton, event: 'click', listener: middleClickListener });
             }
             
             instanceData.listeners = listeners;
@@ -437,8 +374,8 @@
             if (!instance) return;
 
             // Only resume if no timer is currently active
-            if (!this.globalAutoAdvanceTimer) {
-                this.startGlobalAutoAdvanceTimer();
+            if (!instance.autoAdvanceTimer) {
+                this.startAutoAdvanceTimer(wrapper);
                 console.log('▶️ Auto-advance resumed');
             }
         }
