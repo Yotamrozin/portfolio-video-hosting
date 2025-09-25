@@ -1,21 +1,7 @@
 /* Craft Menu CSS Classes - Performance Optimized */
+/* This file extends your existing CSS with additional performance classes */
 
-/* Display Control Classes */
-.craft-hidden {
-  display: none !important;
-}
-
-.craft-visible {
-  display: block !important;
-}
-
-.craft-reset-styles {
-  display: unset !important;
-  visibility: unset !important;
-  opacity: unset !important;
-}
-
-/* Theme Color Classes */
+/* Theme Color Classes - Work with your existing CSS custom properties */
 .craft-theme-default {
   --theme-color: #272727;
   --active-text-color: white;
@@ -41,7 +27,7 @@
   --active-text-color: #272727;
 }
 
-/* Heading Color Classes */
+/* Heading Color Classes - Work with your existing .crafty-heading */
 .craft-heading-default {
   color: white;
 }
@@ -51,7 +37,7 @@
   color: var(--theme-color);
 }
 
-/* Menu Background Classes */
+/* Menu Background Classes - Work with your existing [menu-list-wrapper] */
 .craft-menu-default {
   background-color: transparent;
 }
@@ -60,7 +46,7 @@
   background-color: rgba(var(--theme-rgb), 0.1);
 }
 
-/* Row Background Classes */
+/* Row Background Classes - Work with your existing [data-category-row] */
 .craft-row-default {
   background-color: transparent;
 }
@@ -69,7 +55,7 @@
   background-color: var(--theme-color);
 }
 
-/* Client Layout Classes */
+/* Client Layout Classes - Work with your existing [data-clients="layout"] */
 .craft-client-default {
   color: white;
 }
@@ -87,7 +73,7 @@
   color: var(--theme-color);
 }
 
-/* Animation Classes */
+/* Animation Classes - Work with your existing [data-category-example] */
 .craft-fade-in {
   opacity: 1;
   transform: translateY(0);
@@ -98,4 +84,14 @@
   opacity: 0;
   transform: translateY(8px);
   pointer-events: none;
+}
+
+/* Performance optimization classes */
+.craft-gpu-accelerated {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+.craft-no-transition {
+  transition: none !important;
 }

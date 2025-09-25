@@ -166,8 +166,9 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         
         // Hide this example immediately
-        group.classList.remove('fade-in', 'craft-fade-in');
-        group.classList.add('u-hidden', 'craft-hidden');
+        group.classList.remove('fade-in');
+        group.classList.add('u-hidden');
+        group.style.display = 'none';
         
         // If this should be shown and we haven't found a target yet, set it as target
         if (shouldShow && !targetExample) {
@@ -189,12 +190,12 @@ document.addEventListener("DOMContentLoaded", () => {
   function showSingleExample(group) {
     // Execute immediately - bypass batching for critical visibility updates
     const currentClasses = Array.from(group.classList);
-    const keepClasses = currentClasses.filter(cls => !["u-hidden", "fade-in", "fade-out", "craft-hidden", "craft-fade-in"].includes(cls));
+    const keepClasses = currentClasses.filter(cls => !["u-hidden", "fade-in", "fade-out"].includes(cls));
     group.className = keepClasses.join(" ").trim();
-    group.classList.add("craft-visible");
+    group.style.display = "block";
     
     requestAnimationFrame(() => {
-      group.classList.add("fade-in", "craft-fade-in");
+      group.classList.add("fade-in");
     });
   }
 
@@ -286,7 +287,7 @@ document.addEventListener("DOMContentLoaded", () => {
       previousActiveRow.classList.add("craft-row-default");
     }
 
-    // Heading color - use CSS custom property
+    // Heading color - use CSS classes + custom property
     if (dynamicHeadingA) {
       dynamicHeadingA.classList.remove("craft-heading-default");
       dynamicHeadingA.classList.add("craft-heading-themed");
@@ -298,21 +299,21 @@ document.addEventListener("DOMContentLoaded", () => {
       dynamicHeadingB.style.setProperty("--theme-color", cmsColor);
     }
 
-    // Menu background with transparency
+    // Menu background with transparency - use CSS classes + custom property
     if (menuListWrapper) {
       menuListWrapper.classList.remove("craft-menu-default");
       menuListWrapper.classList.add("craft-menu-themed");
       menuListWrapper.style.setProperty("--theme-rgb", hexToRgb(cmsColor));
     }
 
-    // Active category row background
+    // Active category row background - use CSS classes + custom property
     if (activeRow) {
       activeRow.classList.remove("craft-row-default");
       activeRow.classList.add("craft-row-active");
       activeRow.style.setProperty("--theme-color", cmsColor);
     }
 
-    // Clients layout color
+    // Clients layout color - use CSS classes + custom property
     if (clientLayout) {
       clientLayout.classList.remove("craft-client-default");
       clientLayout.classList.add("craft-client-themed");
@@ -326,7 +327,7 @@ document.addEventListener("DOMContentLoaded", () => {
       row.style.setProperty("--active-text-color", isActive ? "#272727" : cmsColor);
     });
 
-    // Client logos color
+    // Client logos color - use CSS classes + custom property
     clientLogos.forEach(logo => {
       const svgMarkup = logo.querySelector("[data-svg-markup]");
       if (svgMarkup) {
