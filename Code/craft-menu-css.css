@@ -1,135 +1,101 @@
-/* Subcategories */
-  .subcategory-group { display: none; }
-  [data-category-row].active-category .subcategory-group { display: flex; }
+/* Craft Menu CSS Classes - Performance Optimized */
 
-  /* Category rows - optimized hover with transform instead of color change */
-  [data-category-row] { 
-    color: var(--active-text-color, white);
-    transition: background-color 0.15s ease-out;
-    /* Removed color transition for better performance */
-  }
-  [data-category-row]:hover,
-  [data-category-row]:not(.active-category):hover { 
-    color: #272727;
-    /* Consider: transform: scale(1.02) for GPU-accelerated hover instead */
-  }
-
-  /* Examples: Ultra-simplified with translateY */
-  [data-category-example] {
-    position: relative;
-    opacity: 0;
-    transform: translateY(8px);
-    transition: opacity 0.25s ease-out, transform 0.25s ease-out;
-    pointer-events: none;
-    display: none;
-  }
-  [data-category-example].fade-in {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-    display: block;
-  }
-
-  /* Stagger children - REMOVED for better performance */
-  [data-category-example] [data-example-item] { 
-    opacity: 0; 
-    transform: translateY(6px);
-  }
-  
-  [data-category-example].fade-in [data-example-item] {
-    opacity: 1;
-    transform: translateY(0);
-    transition: opacity 0.2s ease-out, transform 0.2s ease-out;
-    /* No stagger delays - all animate together */
-  }
-
-  /* Heading container; letters animated via GSAP */
-  .crafty-heading {
-    position: absolute;
-    left: 0; right: 0;
-    top: auto;
-    pointer-events: none;
-    will-change: transform;
-  }
-  .crafty-heading .reveal-char {
-    display: inline-block;
-    transform: translateY(1em);
-    transition: transform 0.4s ease-out;
-    /* Pure CSS animation - no GSAP needed */
-  }
-  
-  .crafty-heading.animate .reveal-char {
-    transform: translateY(0);
-  }
-  
-  /* CSS-only stagger using animation-delay */
-  .crafty-heading.animate .reveal-char:nth-child(1) { transition-delay: 0.01s; }
-  .crafty-heading.animate .reveal-char:nth-child(2) { transition-delay: 0.02s; }
-  .crafty-heading.animate .reveal-char:nth-child(3) { transition-delay: 0.03s; }
-  .crafty-heading.animate .reveal-char:nth-child(4) { transition-delay: 0.04s; }
-  .crafty-heading.animate .reveal-char:nth-child(5) { transition-delay: 0.05s; }
-  .crafty-heading.animate .reveal-char:nth-child(6) { transition-delay: 0.06s; }
-  .crafty-heading.animate .reveal-char:nth-child(7) { transition-delay: 0.07s; }
-  .crafty-heading.animate .reveal-char:nth-child(8) { transition-delay: 0.08s; }
-  .crafty-heading.animate .reveal-char:nth-child(9) { transition-delay: 0.09s; }
-  .crafty-heading.animate .reveal-char:nth-child(10) { transition-delay: 0.10s; }
-  .crafty-heading.animate .reveal-char:nth-child(11) { transition-delay: 0.11s; }
-  .crafty-heading.animate .reveal-char:nth-child(12) { transition-delay: 0.12s; }
-  .crafty-heading.animate .reveal-char:nth-child(13) { transition-delay: 0.13s; }
-  .crafty-heading.animate .reveal-char:nth-child(14) { transition-delay: 0.14s; }
-  .crafty-heading.animate .reveal-char:nth-child(15) { transition-delay: 0.15s; }
-
-  /* Clients layout: default white + smooth theme transition */
-  [data-clients="layout"] { 
-    color: white; 
-    will-change: color;
-    transition: color .4s ease; 
-  }
-
-  .u-hidden { display: none !important; }
-
-  @media (prefers-reduced-motion: reduce) {
-    [data-category-example] { transition: none !important; transform: none !important; opacity: 1 !important; }
-    .crafty-heading .reveal-char { transform: none !important; opacity: 1 !important; }
-  }
-
-
-/* Updated selectors for new data attributes */
-
-/* Category label examples */
-[data-category-label] {
-  /* Your existing styles */
-}
-
-/* Subcategory label examples */
-[data-subcategory-label] {
-  /* Your existing styles */
-}
-
-/* Hide examples by default */
-[data-category-label].u-hidden,
-[data-subcategory-label].u-hidden {
+/* Display Control Classes */
+.craft-hidden {
   display: none !important;
-  opacity: 0;
 }
 
-/* Show examples with fade-in */
-[data-category-label].fade-in,
-[data-subcategory-label].fade-in {
+.craft-visible {
   display: block !important;
+}
+
+.craft-reset-styles {
+  display: unset !important;
+  visibility: unset !important;
+  opacity: unset !important;
+}
+
+/* Theme Color Classes */
+.craft-theme-default {
+  --theme-color: #272727;
+  --active-text-color: white;
+}
+
+.craft-theme-active {
+  --active-text-color: #272727;
+}
+
+/* Dynamic Theme Classes - These will be applied via JavaScript */
+.craft-theme-red {
+  --theme-color: #ff0000;
+  --active-text-color: #272727;
+}
+
+.craft-theme-blue {
+  --theme-color: #0000ff;
+  --active-text-color: #272727;
+}
+
+.craft-theme-green {
+  --theme-color: #00ff00;
+  --active-text-color: #272727;
+}
+
+/* Heading Color Classes */
+.craft-heading-default {
+  color: white;
+}
+
+.craft-heading-themed {
+  /* Color will be set via CSS custom property */
+  color: var(--theme-color);
+}
+
+/* Menu Background Classes */
+.craft-menu-default {
+  background-color: transparent;
+}
+
+.craft-menu-themed {
+  background-color: rgba(var(--theme-rgb), 0.1);
+}
+
+/* Row Background Classes */
+.craft-row-default {
+  background-color: transparent;
+}
+
+.craft-row-active {
+  background-color: var(--theme-color);
+}
+
+/* Client Layout Classes */
+.craft-client-default {
+  color: white;
+}
+
+.craft-client-themed {
+  color: var(--theme-color);
+}
+
+/* Logo Color Classes */
+.craft-logo-default {
+  color: white;
+}
+
+.craft-logo-themed {
+  color: var(--theme-color);
+}
+
+/* Animation Classes */
+.craft-fade-in {
   opacity: 1;
-  transition: opacity 0.3s ease-in-out;
+  transform: translateY(0);
+  pointer-events: auto;
 }
 
-/* Ensure proper visibility states */
-[data-category-label]:not(.u-hidden):not(.fade-in),
-[data-subcategory-label]:not(.u-hidden):not(.fade-in) {
-  display: none;
-}
-
-/* Animation states */
-[data-category-label].fade-out,
-[data-subcategory-label].fade-out {
+.craft-fade-out {
   opacity: 0;
-  transition: opacity 0.2s ease-out;
+  transform: translateY(8px);
+  pointer-events: none;
 }
