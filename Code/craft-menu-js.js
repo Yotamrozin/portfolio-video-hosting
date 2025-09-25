@@ -134,16 +134,10 @@ document.addEventListener("DOMContentLoaded", () => {
         if (activeSubcategory && subcategoryExample) {
             shouldShow = subcategoryExample === activeSubcategory;
         }
-        // If no subcategory match and we have an active category, check category with new logic
+        // If no subcategory match and we have an active category, check category
         else if (activeCategory && !activeSubcategory) {
-            // New matching logic: category example must match AND subcategory example must match the category
-            if (categoryExample && subcategoryExample) {
-                shouldShow = (categoryExample === activeCategory) && (subcategoryExample === activeCategory);
-            }
-            // Fallback: if only category example exists, match it
-            else if (categoryExample && !subcategoryExample) {
-                shouldShow = categoryExample === activeCategory;
-            }
+            // Simple category matching: just check if category example matches
+            shouldShow = categoryExample === activeCategory;
         }
         
         // Hide this example
