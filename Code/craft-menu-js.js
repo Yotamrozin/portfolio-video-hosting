@@ -27,8 +27,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const logoCategoryCache = new WeakMap();
 
   function batchDOMUpdates(callback) {
-    // Execute immediately for better responsiveness
-    callback();
+    // Add callback to queue
+    rafQueue.push(callback);
+    
+    // If we're not already scheduled, schedule a frame
+    if (!rafId) {
+      rafId = requestAnimationFrame(() => {
+        // Execute all queued callbacks
+        rafQueue.forEach(cb => cb());
+        rafQueue.length = 0; // Clear the queue
+        rafId = null; // Reset the flag
+      });
+    }
   }
 
   function slugify(str) {
