@@ -165,12 +165,10 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
         
-        // Hide this example
-        batchDOMUpdates(() => {
-            group.classList.remove('fade-in');
-            group.classList.add('u-hidden');
-            group.style.display = 'none';
-        });
+        // Hide this example immediately
+        group.classList.remove('fade-in');
+        group.classList.add('u-hidden');
+        group.style.display = 'none';
         
         // If this should be shown and we haven't found a target yet, set it as target
         if (shouldShow && !targetExample) {
