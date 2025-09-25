@@ -21,6 +21,9 @@ document.addEventListener("DOMContentLoaded", () => {
   // Also cache just category examples for the reset function
   const categoryOnlyExamples = section.querySelectorAll('[data-category-example]');
   
+  // Cache the default "Software + Tools" example
+  const softwareToolsExample = section.querySelector('[data-category-example="Software + Tools"]');
+  
 
   let isA = true;
   let activeCategory = null;
@@ -405,23 +408,8 @@ document.addEventListener("DOMContentLoaded", () => {
       });
 
       // Show the "Software + Tools" example instead of softwareGrid
-      const softwareToolsExample = document.querySelector('[data-category-example="Software + Tools"]');
-      console.log('Looking for Software + Tools example...');
-      console.log('Found:', !!softwareToolsExample);
-      
-      // Debug: Let's see what examples actually exist
-      const allExamples = document.querySelectorAll('[data-category-example]');
-      console.log('All category examples found:', allExamples.length);
-      allExamples.forEach((example, index) => {
-        const value = example.getAttribute('data-category-example');
-        console.log(`Example ${index}: "${value}"`);
-      });
-      
       if (softwareToolsExample) {
-        console.log('Showing Software + Tools example');
         showSingleExample(softwareToolsExample);
-      } else {
-        console.log('Software + Tools example not found!');
       }
 
       clientLogos.forEach(logo => {
