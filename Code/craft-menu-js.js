@@ -7,6 +7,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const subcategoryLabels = section.querySelectorAll("[data-subcategory-label]");
   const exampleGroups = section.querySelectorAll("[data-category-example]");
   const clientLogos = section.querySelectorAll("[data-category-logo]");
+  const softwareGrid = section.querySelector("[data-software-grid]");
   const clientWrapper = section.querySelector('[data-clients="wrapper"]');
   const clientDefault = section.querySelector('[data-clients="default"]');
   const clientLayout = section.querySelector('[data-clients="layout"]');
@@ -134,10 +135,16 @@ document.addEventListener("DOMContentLoaded", () => {
         if (activeSubcategory && subcategoryExample) {
             shouldShow = subcategoryExample === activeSubcategory;
         }
-        // If no subcategory match and we have an active category, check category
+        // If no subcategory match and we have an active category, check category with new logic
         else if (activeCategory && !activeSubcategory) {
-            // Simple category matching: just check if category example matches
-            shouldShow = categoryExample === activeCategory;
+            // New matching logic: category example must match AND subcategory example must match the category
+            if (categoryExample && subcategoryExample) {
+                shouldShow = (categoryExample === activeCategory) && (subcategoryExample === activeCategory);
+            }
+            // Fallback: if only category example exists, match it
+            else if (categoryExample && !subcategoryExample) {
+                shouldShow = categoryExample === activeCategory;
+            }
         }
         
         // Hide this example
@@ -382,7 +389,7 @@ document.addEventListener("DOMContentLoaded", () => {
         group.style.display = "none";
       });
 
-      // Show the "Software + Tools" example
+      // Show the "Software + Tools" example instead of softwareGrid
       const softwareToolsExample = document.querySelector('[data-category-example="Software + Tools"]');
       if (softwareToolsExample) {
         showSingleExample(softwareToolsExample);
