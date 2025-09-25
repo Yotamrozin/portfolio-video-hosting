@@ -196,9 +196,13 @@ document.addEventListener("DOMContentLoaded", () => {
       group.className = keepClasses.join(" ").trim();
       group.style.display = "block";
       
-      requestAnimationFrame(() => {
-        group.classList.add("fade-in");
-      });
+      // Add fade-in class immediately to make it visible
+      group.classList.add("fade-in");
+      
+      // Also ensure opacity is set for immediate visibility
+      group.style.opacity = "1";
+      group.style.transform = "translateY(0)";
+      group.style.pointerEvents = "auto";
     });
   }
 
