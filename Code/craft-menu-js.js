@@ -14,6 +14,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const dynamicHeadingA = section.querySelector('[data-dynamic-heading="a"]');
   const dynamicHeadingB = section.querySelector('[data-dynamic-heading="b"]');
   const menuListWrapper = section.querySelector("[menu-list-wrapper]");
+  
+  // Cache all example groups (both category and subcategory examples)
+  const allExampleGroups = section.querySelectorAll('[data-category-example], [data-subcategory-example]');
 
   let isA = true;
   let activeCategory = null;
@@ -131,11 +134,9 @@ document.addEventListener("DOMContentLoaded", () => {
   function showRelevantExamples() {
     console.log(`🎯 Category: "${activeCategory}" | Subcategory: "${activeSubcategory}"`);
     
-    const exampleGroups = document.querySelectorAll('[data-category-example], [data-subcategory-example]');
-    
     let targetExample = null;
     
-    exampleGroups.forEach((group, index) => {
+    allExampleGroups.forEach((group, index) => {
         const categoryExample = group.getAttribute('data-category-example');
         const subcategoryExample = group.getAttribute('data-subcategory-example');
         
