@@ -196,13 +196,9 @@ document.addEventListener("DOMContentLoaded", () => {
       group.className = keepClasses.join(" ").trim();
       group.style.display = "block";
       
-      // Add fade-in class immediately to make it visible
-      group.classList.add("fade-in");
-      
-      // Also ensure opacity is set for immediate visibility
-      group.style.opacity = "1";
-      group.style.transform = "translateY(0)";
-      group.style.pointerEvents = "auto";
+      requestAnimationFrame(() => {
+        group.classList.add("fade-in");
+      });
     });
   }
 
@@ -404,11 +400,8 @@ document.addEventListener("DOMContentLoaded", () => {
       if (clientWrapper) clientWrapper.classList.add("u-hidden");
       if (clientDefault) clientDefault.classList.remove("u-hidden");
 
-      // Hide all examples first (except Software + Tools)
+      // Hide all examples first
       exampleGroups.forEach(group => {
-        // Skip the Software + Tools example - we'll show it instead
-        if (group === softwareToolsExample) return;
-        
         group.classList.remove("fade-in", "fade-out");
         group.classList.add("u-hidden");
         group.style.display = "none";
@@ -442,4 +435,3 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize
   resetCrafty();
 });
-
