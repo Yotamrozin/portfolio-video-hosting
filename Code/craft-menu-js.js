@@ -26,42 +26,64 @@ document.addEventListener("DOMContentLoaded", () => {
   const colorCache = new Map();
   const logoCategoryCache = new WeakMap();
 
-  function batchDOMUpdates(callback) {
-    // Execute immediately for better responsiveness
-    callback();
-  }
+// Replace existing batchDOMUpdates
+const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  function slugify(str) {
-    const cached = colorCache.get(`slug_${str}`);
-    if (cached) return cached;
-    
-    const result = (str || "")
-      .trim()
-      .toLowerCase()
-      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-      .replace(/[\s\/&]+/g, "-")
-      .replace(/[^\w-]+/g, "")
-      .replace(/-+/g, "-")
-      .replace(/^-+|-+$/g, "");
-    
-    colorCache.set(`slug_${str}`, result);
-    return result;
+function batchDOMUpdates(callback) {
+  // run callback inside rAF to batch the style recalculations, but still synchronous-ish.
+  if (typeof callback !== 'function') return;
+  // If user prefers reduced motion, we keep immediate execution to preserve responsiveness.
+  if (prefersReducedMotion) {
+    callback();
+    return;
   }
+  // schedule writes for the next frame
+  window.requestAnimationFrame(() => {
+    try { callback(); } catch (e) { console.warn('batchDOMUpdates error', e); }
+  });
+}
+
+// Replace slugify implementation
+const _slugCache = new Map();
+const _reNonWord = /[^\w-]+/g;
+const _reSpaceGroup = /[-\s\/&]+/g;
+const _reTrimHyphens = /^-+|-+$/g;
+
+    function slugify(str) {
+      if (!str) return '';
+      if (_slugCache.has(str)) return _slugCache.get(str);
+
+      // Normalise (strip diacritics); keep this as it is important for CMS text
+      const normalized = String(str).trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+      const s = normalized
+        .replace(_reSpaceGroup, '-')
+        .replace(_reNonWord, '')
+        .replace(/--+/g, '-') // collapse multiple hyphens
+        .replace(_reTrimHyphens, '');
+
+      _slugCache.set(str, s);
+      return s;
+    }
+
 
   // Removed GSAP dependency entirely
-  function buildHeadingCharsHTML(text) {
-    const cached = colorCache.get(`chars_${text}`);
-    if (cached) return cached;
-    
-    const result = (text || "")
-      .split("")
-      .map(ch => ch === " "
-        ? '<span class="reveal-char" aria-hidden="true">&nbsp;</span>'
-        : `<span class="reveal-char" aria-hidden="true">${ch}</span>`)
-      .join("");
-    
-    colorCache.set(`chars_${text}`, result);
-    return result;
+  function buildHeadingCharsElement(text) {
+    const frag = document.createDocumentFragment();
+    const wrapper = document.createElement('span');
+    wrapper.className = 'reveal-chars-wrapper'; // container to append
+    wrapper.setAttribute('aria-hidden', 'true');
+  
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      const span = document.createElement('span');
+      span.className = 'reveal-char';
+      // preserve whitespace
+      span.innerHTML = ch === ' ' ? '&nbsp;' : ch;
+      wrapper.appendChild(span);
+    }
+  
+    frag.appendChild(wrapper);
+    return frag;
   }
 
   // Pure CSS heading animation - no GSAP needed
