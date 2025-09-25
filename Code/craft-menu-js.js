@@ -17,6 +17,12 @@ document.addEventListener("DOMContentLoaded", () => {
   
   // Cache all example groups (both category and subcategory examples)
   const allExampleGroups = section.querySelectorAll('[data-category-example], [data-subcategory-example]');
+  
+  // Also cache just category examples for the reset function
+  const categoryOnlyExamples = section.querySelectorAll('[data-category-example]');
+  
+  // Cache the default "Software + Tools" example
+  const softwareToolsExample = section.querySelector('[data-category-example="Software + Tools"]');
 
   let isA = true;
   let activeCategory = null;
@@ -394,14 +400,13 @@ document.addEventListener("DOMContentLoaded", () => {
       if (clientDefault) clientDefault.classList.remove("u-hidden");
 
       // Hide all examples first
-      exampleGroups.forEach(group => {
+      allExampleGroups.forEach(group => {
         group.classList.remove("fade-in", "fade-out");
         group.classList.add("u-hidden");
         group.style.display = "none";
       });
 
       // Show the "Software + Tools" example instead of softwareGrid
-      const softwareToolsExample = document.querySelector('[data-category-example="Software + Tools"]');
       if (softwareToolsExample) {
         showSingleExample(softwareToolsExample);
       }
