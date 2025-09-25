@@ -400,8 +400,11 @@ document.addEventListener("DOMContentLoaded", () => {
       if (clientWrapper) clientWrapper.classList.add("u-hidden");
       if (clientDefault) clientDefault.classList.remove("u-hidden");
 
-      // Hide all examples first
+      // Hide all examples first (except Software + Tools)
       exampleGroups.forEach(group => {
+        // Skip the Software + Tools example - we'll show it instead
+        if (group === softwareToolsExample) return;
+        
         group.classList.remove("fade-in", "fade-out");
         group.classList.add("u-hidden");
         group.style.display = "none";
