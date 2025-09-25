@@ -256,122 +256,64 @@ document.addEventListener("DOMContentLoaded", () => {
     return result;
   }
 
-  function hexToRgb(hex) {
-    if (!hex) return "0,0,0";
-    const cacheKey = `rgb_${hex}`;
-    const cached = colorCache.get(cacheKey);
-    if (cached) return cached;
-
-    let r = 0, g = 0, b = 0;
-    if (hex.length === 4) {
-      r = parseInt(hex[1] + hex[1], 16);
-      g = parseInt(hex[2] + hex[2], 16);
-      b = parseInt(hex[3] + hex[3], 16);
-    } else if (hex.length === 7) {
-      r = parseInt(hex[1] + hex[2], 16);
-      g = parseInt(hex[3] + hex[4], 16);
-      b = parseInt(hex[5] + hex[6], 16);
-    }
-    const result = `${r},${g},${b}`;
-    colorCache.set(cacheKey, result);
-    return result;
-  }
-
   function applyThemeColors(cmsColor, activeRow) {
     if (!cmsColor) return;
     
     // Apply colors immediately without batching for better responsiveness
     // Reset previous row background
     if (previousActiveRow && previousActiveRow !== activeRow) {
-      previousActiveRow.classList.remove("craft-row-active");
-      previousActiveRow.classList.add("craft-row-default");
+      previousActiveRow.style.backgroundColor = "";
     }
 
-    // Heading color - use CSS classes + custom property
-    if (dynamicHeadingA) {
-      dynamicHeadingA.classList.remove("craft-heading-default");
-      dynamicHeadingA.classList.add("craft-heading-themed");
-      dynamicHeadingA.style.setProperty("--theme-color", cmsColor);
-    }
-    if (dynamicHeadingB) {
-      dynamicHeadingB.classList.remove("craft-heading-default");
-      dynamicHeadingB.classList.add("craft-heading-themed");
-      dynamicHeadingB.style.setProperty("--theme-color", cmsColor);
-    }
+    // Heading color
+    if (dynamicHeadingA) dynamicHeadingA.style.color = cmsColor;
+    if (dynamicHeadingB) dynamicHeadingB.style.color = cmsColor;
 
-    // Menu background with transparency - use CSS classes + custom property
+    // Menu background with transparency
     if (menuListWrapper) {
-      menuListWrapper.classList.remove("craft-menu-default");
-      menuListWrapper.classList.add("craft-menu-themed");
-      menuListWrapper.style.setProperty("--theme-rgb", hexToRgb(cmsColor));
+      const bgColor = cmsColor.startsWith("#") ? hexToRgba(cmsColor, 0.1) : cmsColor;
+      menuListWrapper.style.backgroundColor = bgColor;
     }
 
-    // Active category row background - use CSS classes + custom property
-    if (activeRow) {
-      activeRow.classList.remove("craft-row-default");
-      activeRow.classList.add("craft-row-active");
-      activeRow.style.setProperty("--theme-color", cmsColor);
-    }
+    // Active category row background
+    if (activeRow) activeRow.style.backgroundColor = cmsColor;
 
-    // Clients layout color - use CSS classes + custom property
-    if (clientLayout) {
-      clientLayout.classList.remove("craft-client-default");
-      clientLayout.classList.add("craft-client-themed");
-      clientLayout.style.setProperty("--theme-color", cmsColor);
-    }
+    // Clients layout color
+    if (clientLayout) clientLayout.style.color = cmsColor;
 
     // Category row font colors - batch these for efficiency
+    const fragment = document.createDocumentFragment();
     categoryRows.forEach(row => {
       const isActive = row === activeRow;
       row.style.setProperty("--theme-color", cmsColor);
       row.style.setProperty("--active-text-color", isActive ? "#272727" : cmsColor);
     });
 
-    // Client logos color - use CSS classes + custom property
+    // Client logos color
     clientLogos.forEach(logo => {
       const svgMarkup = logo.querySelector("[data-svg-markup]");
-      if (svgMarkup) {
-        svgMarkup.classList.remove("craft-logo-default");
-        svgMarkup.classList.add("craft-logo-themed");
-        svgMarkup.style.setProperty("--theme-color", cmsColor);
-      }
+      if (svgMarkup) svgMarkup.style.color = cmsColor;
     });
   }
 
   function resetColorsToDefault() {
     // Apply resets immediately without batching
-    if (dynamicHeadingA) {
-      dynamicHeadingA.classList.remove("craft-heading-themed");
-      dynamicHeadingA.classList.add("craft-heading-default");
-    }
-    if (dynamicHeadingB) {
-      dynamicHeadingB.classList.remove("craft-heading-themed");
-      dynamicHeadingB.classList.add("craft-heading-default");
-    }
-    if (menuListWrapper) {
-      menuListWrapper.classList.remove("craft-menu-themed");
-      menuListWrapper.classList.add("craft-menu-default");
-    }
+    if (dynamicHeadingA) dynamicHeadingA.style.color = "";
+    if (dynamicHeadingB) dynamicHeadingB.style.color = "";
+    if (menuListWrapper) menuListWrapper.style.backgroundColor = "";
 
     // Reset ALL category row backgrounds immediately
     categoryRows.forEach(row => {
-      row.classList.remove("craft-row-active");
-      row.classList.add("craft-row-default");
+      row.style.backgroundColor = "";
       row.style.setProperty("--active-text-color", "white");
     });
 
     clientLogos.forEach(logo => {
       const svgMarkup = logo.querySelector("[data-svg-markup]");
-      if (svgMarkup) {
-        svgMarkup.classList.remove("craft-logo-themed");
-        svgMarkup.classList.add("craft-logo-default");
-      }
+      if (svgMarkup) svgMarkup.style.color = "";
     });
 
-    if (clientLayout) {
-      clientLayout.classList.remove("craft-client-themed");
-      clientLayout.classList.add("craft-client-default");
-    }
+    if (clientLayout) clientLayout.style.color = "white";
   }
 
   function handleCategorySelection(row, categoryName, headingText) {
