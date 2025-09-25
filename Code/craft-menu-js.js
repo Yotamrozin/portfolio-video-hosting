@@ -7,7 +7,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const subcategoryLabels = section.querySelectorAll("[data-subcategory-label]");
   const exampleGroups = section.querySelectorAll("[data-category-example]");
   const clientLogos = section.querySelectorAll("[data-category-logo]");
-  const softwareGrid = section.querySelector("[data-software-grid]");
   const clientWrapper = section.querySelector('[data-clients="wrapper"]');
   const clientDefault = section.querySelector('[data-clients="default"]');
   const clientLayout = section.querySelector('[data-clients="layout"]');
@@ -378,15 +377,22 @@ document.addEventListener("DOMContentLoaded", () => {
     batchDOMUpdates(() => {
       categoryRows.forEach(row => row.classList.remove("active-category"));
       
-      if (softwareGrid) softwareGrid.classList.remove("u-hidden");
+      // Hide client wrapper and show default
       if (clientWrapper) clientWrapper.classList.add("u-hidden");
       if (clientDefault) clientDefault.classList.remove("u-hidden");
 
+      // Hide all examples first
       exampleGroups.forEach(group => {
         group.classList.remove("fade-in", "fade-out");
         group.classList.add("u-hidden");
         group.style.display = "none";
       });
+
+      // Show the "Software + Tools" example
+      const softwareToolsExample = document.querySelector('[data-category-example="Software + Tools"]');
+      if (softwareToolsExample) {
+        showSingleExample(softwareToolsExample);
+      }
 
       clientLogos.forEach(logo => {
         // Find the parent container to show
