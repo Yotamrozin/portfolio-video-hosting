@@ -190,15 +190,14 @@ document.addEventListener("DOMContentLoaded", () => {
 }
 
   function showSingleExample(group) {
-    batchDOMUpdates(() => {
-      const currentClasses = Array.from(group.classList);
-      const keepClasses = currentClasses.filter(cls => !["u-hidden", "fade-in", "fade-out"].includes(cls));
-      group.className = keepClasses.join(" ").trim();
-      group.style.display = "block";
-      
-      requestAnimationFrame(() => {
-        group.classList.add("fade-in");
-      });
+    // Execute immediately - bypass batching for critical visibility updates
+    const currentClasses = Array.from(group.classList);
+    const keepClasses = currentClasses.filter(cls => !["u-hidden", "fade-in", "fade-out"].includes(cls));
+    group.className = keepClasses.join(" ").trim();
+    group.style.display = "block";
+    
+    requestAnimationFrame(() => {
+      group.classList.add("fade-in");
     });
   }
 
