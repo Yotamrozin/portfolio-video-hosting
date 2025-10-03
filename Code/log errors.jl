@@ -1,338 +1,92 @@
-=== DEBUGGING EXAMPLE MATCHING ===
-craft-menu-js.js:129 Active category: Motion
-craft-menu-js.js:130 Active subcategory: null
-craft-menu-js.js:131 Total example groups found: 36
-craft-menu-js.js:138 
---- Example Group 1 ---
-craft-menu-js.js:139 Element: <div data-subcategory-example=​"Software + Tools" data-category-example=​"Software + Tools" role=​"listitem" class=​"w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Software + Tools"
-craft-menu-js.js:141 Current classes: (2) ['w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Software + Tools"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Software + Tools"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 2 ---
-craft-menu-js.js:139 Element: <div data-subcategory-example=​"Web Dev" data-category-example=​"Web + Brand" role=​"listitem" class=​"w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Web + Brand"
-craft-menu-js.js:141 Current classes: (2) ['w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Web + Brand"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Web + Brand"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 3 ---
-craft-menu-js.js:139 Element: <div data-subcategory-example=​"Design" data-category-example=​"Web + Brand" role=​"listitem" class=​"w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Web + Brand"
-craft-menu-js.js:141 Current classes: (2) ['w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Web + Brand"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Web + Brand"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 4 ---
-craft-menu-js.js:139 Element: <div data-subcategory-example=​"Development" data-category-example=​"Web + Brand" role=​"listitem" class=​"w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Web + Brand"
-craft-menu-js.js:141 Current classes: (2) ['w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Web + Brand"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Web + Brand"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 5 ---
-craft-menu-js.js:139 Element: <div data-subcategory-example=​"Research" data-category-example=​"Generative AI" role=​"listitem" class=​"w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Generative AI"
-craft-menu-js.js:141 Current classes: (2) ['w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Generative AI"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Generative AI"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 6 ---
-craft-menu-js.js:139 Element: <div data-subcategory-example=​"Pipeline" data-category-example=​"Generative AI" role=​"listitem" class=​"w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Generative AI"
-craft-menu-js.js:141 Current classes: (2) ['w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Generative AI"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Generative AI"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 7 ---
-craft-menu-js.js:139 Element: <div data-subcategory-example=​"Production-Ready" data-category-example=​"Generative AI" role=​"listitem" class=​"w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Generative AI"
-craft-menu-js.js:141 Current classes: (2) ['w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Generative AI"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Generative AI"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 8 ---
-craft-menu-js.js:139 Element: <div data-subcategory-example=​"Illustration" data-category-example=​"Web + Brand" role=​"listitem" class=​"w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Web + Brand"
-craft-menu-js.js:141 Current classes: (2) ['w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Web + Brand"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Web + Brand"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 9 ---
-craft-menu-js.js:139 Element: <div data-subcategory-example=​"Print" data-category-example=​"Creative Lead" role=​"listitem" class=​"w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Creative Lead"
-craft-menu-js.js:141 Current classes: (2) ['w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Creative Lead"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Creative Lead"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 10 ---
-craft-menu-js.js:139 Element: <div data-subcategory-example=​"Web Design" data-category-example=​"Web + Brand" role=​"listitem" class=​"w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Web + Brand"
-craft-menu-js.js:141 Current classes: (2) ['w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Web + Brand"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Web + Brand"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 11 ---
-craft-menu-js.js:139 Element: <div data-subcategory-example=​"Social Change" data-category-example=​"Creative Lead" role=​"listitem" class=​"w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Creative Lead"
-craft-menu-js.js:141 Current classes: (2) ['w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Creative Lead"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Creative Lead"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 12 ---
-craft-menu-js.js:139 Element: <div data-subcategory-example=​"Cross-Function" data-category-example=​"Creative Lead" role=​"listitem" class=​"w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Creative Lead"
-craft-menu-js.js:141 Current classes: (2) ['w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Creative Lead"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Creative Lead"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 13 ---
-craft-menu-js.js:139 Element: <div data-subcategory-example=​"Team Leadership" data-category-example=​"Creative Lead" role=​"listitem" class=​"w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Creative Lead"
-craft-menu-js.js:141 Current classes: (2) ['w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Creative Lead"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Creative Lead"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 14 ---
-craft-menu-js.js:139 Element: <div data-subcategory-example=​"Social Content" data-category-example=​"Web + Brand" role=​"listitem" class=​"w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Web + Brand"
-craft-menu-js.js:141 Current classes: (2) ['w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Web + Brand"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Web + Brand"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 15 ---
-craft-menu-js.js:139 Element: <div data-subcategory-example=​"Interactive" data-category-example=​"Motion" role=​"listitem" class=​"w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Motion"
-craft-menu-js.js:141 Current classes: (2) ['w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Motion"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Motion"', matches: true}
-craft-menu-js.js:164 Final decision - Should show: true
-craft-menu-js.js:168 *** TARGET EXAMPLE FOUND ***
-craft-menu-js.js:138 
---- Example Group 16 ---
-craft-menu-js.js:139 Element: <div data-subcategory-example=​"Explainers" data-category-example=​"Motion" role=​"listitem" class=​"w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Motion"
-craft-menu-js.js:141 Current classes: (2) ['w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Motion"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Motion"', matches: true}
-craft-menu-js.js:164 Final decision - Should show: true
-craft-menu-js.js:168 *** TARGET EXAMPLE FOUND ***
-craft-menu-js.js:138 
---- Example Group 17 ---
-craft-menu-js.js:139 Element: <div data-subcategory-example=​"Motion Branding" data-category-example=​"Motion" role=​"listitem" class=​"w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Motion"
-craft-menu-js.js:141 Current classes: (2) ['w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Motion"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Motion"', matches: true}
-craft-menu-js.js:164 Final decision - Should show: true
-craft-menu-js.js:168 *** TARGET EXAMPLE FOUND ***
-craft-menu-js.js:138 
---- Example Group 18 ---
-craft-menu-js.js:139 Element: <div data-category-example=​"Software + Tools" role=​"listitem" class=​"crafty-example-wrapper w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Software + Tools"
-craft-menu-js.js:141 Current classes: (3) ['crafty-example-wrapper', 'w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Software + Tools"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Software + Tools"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 19 ---
-craft-menu-js.js:139 Element: <div data-category-example=​"Web + Brand" role=​"listitem" class=​"crafty-example-wrapper w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Web + Brand"
-craft-menu-js.js:141 Current classes: (3) ['crafty-example-wrapper', 'w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Web + Brand"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Web + Brand"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 20 ---
-craft-menu-js.js:139 Element: <div data-category-example=​"Web + Brand" role=​"listitem" class=​"crafty-example-wrapper w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Web + Brand"
-craft-menu-js.js:141 Current classes: (3) ['crafty-example-wrapper', 'w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Web + Brand"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Web + Brand"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 21 ---
-craft-menu-js.js:139 Element: <div data-category-example=​"Web + Brand" role=​"listitem" class=​"crafty-example-wrapper w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Web + Brand"
-craft-menu-js.js:141 Current classes: (3) ['crafty-example-wrapper', 'w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Web + Brand"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Web + Brand"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 22 ---
-craft-menu-js.js:139 Element: <div data-category-example=​"Generative AI" role=​"listitem" class=​"crafty-example-wrapper w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Generative AI"
-craft-menu-js.js:141 Current classes: (3) ['crafty-example-wrapper', 'w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Generative AI"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Generative AI"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 23 ---
-craft-menu-js.js:139 Element: <div data-category-example=​"Generative AI" role=​"listitem" class=​"crafty-example-wrapper w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Generative AI"
-craft-menu-js.js:141 Current classes: (3) ['crafty-example-wrapper', 'w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Generative AI"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Generative AI"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 24 ---
-craft-menu-js.js:139 Element: <div data-category-example=​"Generative AI" role=​"listitem" class=​"crafty-example-wrapper w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Generative AI"
-craft-menu-js.js:141 Current classes: (3) ['crafty-example-wrapper', 'w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Generative AI"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Generative AI"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 25 ---
-craft-menu-js.js:139 Element: <div data-category-example=​"Web + Brand" role=​"listitem" class=​"crafty-example-wrapper w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Web + Brand"
-craft-menu-js.js:141 Current classes: (3) ['crafty-example-wrapper', 'w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Web + Brand"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Web + Brand"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 26 ---
-craft-menu-js.js:139 Element: <div data-category-example=​"Creative Lead" role=​"listitem" class=​"crafty-example-wrapper w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Creative Lead"
-craft-menu-js.js:141 Current classes: (3) ['crafty-example-wrapper', 'w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Creative Lead"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Creative Lead"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 27 ---
-craft-menu-js.js:139 Element: <div data-category-example=​"Web + Brand" role=​"listitem" class=​"crafty-example-wrapper w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Web + Brand"
-craft-menu-js.js:141 Current classes: (3) ['crafty-example-wrapper', 'w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Web + Brand"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Web + Brand"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 28 ---
-craft-menu-js.js:139 Element: <div data-category-example=​"Creative Lead" role=​"listitem" class=​"crafty-example-wrapper w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Creative Lead"
-craft-menu-js.js:141 Current classes: (3) ['crafty-example-wrapper', 'w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Creative Lead"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Creative Lead"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 29 ---
-craft-menu-js.js:139 Element: <div data-category-example=​"Creative Lead" role=​"listitem" class=​"crafty-example-wrapper w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Creative Lead"
-craft-menu-js.js:141 Current classes: (3) ['crafty-example-wrapper', 'w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Creative Lead"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Creative Lead"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 30 ---
-craft-menu-js.js:139 Element: <div data-category-example=​"Creative Lead" role=​"listitem" class=​"crafty-example-wrapper w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Creative Lead"
-craft-menu-js.js:141 Current classes: (3) ['crafty-example-wrapper', 'w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Creative Lead"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Creative Lead"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 31 ---
-craft-menu-js.js:139 Element: <div data-category-example=​"Web + Brand" role=​"listitem" class=​"crafty-example-wrapper w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Web + Brand"
-craft-menu-js.js:141 Current classes: (3) ['crafty-example-wrapper', 'w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Web + Brand"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Web + Brand"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 32 ---
-craft-menu-js.js:139 Element: <div data-category-example=​"Motion" role=​"listitem" class=​"crafty-example-wrapper w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Motion"
-craft-menu-js.js:141 Current classes: (3) ['crafty-example-wrapper', 'w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Motion"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Motion"', matches: true}
-craft-menu-js.js:164 Final decision - Should show: true
-craft-menu-js.js:168 *** TARGET EXAMPLE FOUND ***
-craft-menu-js.js:138 
---- Example Group 33 ---
-craft-menu-js.js:139 Element: <div data-category-example=​"Motion" role=​"listitem" class=​"crafty-example-wrapper w-dyn-item u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Motion"
-craft-menu-js.js:141 Current classes: (3) ['crafty-example-wrapper', 'w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Motion"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Motion"', matches: true}
-craft-menu-js.js:164 Final decision - Should show: true
-craft-menu-js.js:168 *** TARGET EXAMPLE FOUND ***
-craft-menu-js.js:138 
---- Example Group 34 ---
-craft-menu-js.js:139 Element: <div data-category-example=​"Motion" role=​"listitem" class=​"crafty-example-wrapper w-dyn-item fade-in" style=​"display:​ block;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "Motion"
-craft-menu-js.js:141 Current classes: (3) ['crafty-example-wrapper', 'w-dyn-item', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"Motion"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"Motion"', matches: true}
-craft-menu-js.js:164 Final decision - Should show: true
-craft-menu-js.js:168 *** TARGET EXAMPLE FOUND ***
-craft-menu-js.js:138 
---- Example Group 35 ---
-craft-menu-js.js:139 Element: <div data-category-example=​"motion" class=​"crafty-example-wrapper u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "motion"
-craft-menu-js.js:141 Current classes: (2) ['crafty-example-wrapper', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"motion"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"motion"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:138 
---- Example Group 36 ---
-craft-menu-js.js:139 Element: <div data-category-example=​"web-design" class=​"crafty-example-wrapper u-hidden" style=​"display:​ none;​">​…​</div>​
-craft-menu-js.js:140 data-category-example value: "web-design"
-craft-menu-js.js:141 Current classes: (2) ['crafty-example-wrapper', 'u-hidden']
-craft-menu-js.js:142 Current display style: none
-craft-menu-js.js:149 Subcategory match check: {hasSubcategory: false, subcategoryName: '"null"', exampleValue: '"web-design"', matches: null}
-craft-menu-js.js:156 Category match check: {noSubcategory: true, hasCategory: true, categoryName: '"Motion"', exampleValue: '"web-design"', matches: false}
-craft-menu-js.js:164 Final decision - Should show: false
-craft-menu-js.js:172 
-=== FINAL RESULTS ===
-craft-menu-js.js:173 Target example selected: <div data-category-example=​"Motion" role=​"listitem" class=​"crafty-example-wrapper w-dyn-item fade-in" style=​"display:​ block;​">​…​</div>​
-craft-menu-js.js:174 Will proceed to show target: true
+🎬 Video Player Script Starting...
+your-design-dream-team:696 📦 Wrapper Element: <div id=​"video1" f-data-video=​"wrapper" data-w-id=​"e51bdb0b-99c0-3140-3dc6-7cc9af30f61a" class=​"html-video-wrapper" style=​"aspect-ratio:​ 1080 /​ 1350 !important;​ width:​ 100% !important;​ max-width:​ 100% !important;​ height:​ auto !important;​">​…​</div>​
+your-design-dream-team:707 🎥 Video Element: <video class=​"video-player-style" f-data-video=​"video-element" playsinline>​…​</video>​media
+your-design-dream-team:708 📐 Wrapper: <div id=​"video1" f-data-video=​"wrapper" data-w-id=​"e51bdb0b-99c0-3140-3dc6-7cc9af30f61a" class=​"html-video-wrapper" style=​"aspect-ratio:​ 1080 /​ 1350 !important;​ width:​ 100% !important;​ max-width:​ 100% !important;​ height:​ auto !important;​">​…​</div>​
+your-design-dream-team:709 🖼️ Poster: <div f-data-video=​"poster-button" class=​"video-play-overlay-3 is-gradient">​…​</div>​flex
+your-design-dream-team:713 🎮 Video Controls: <div f-data-video=​"video-controls" style=​"color:​#ff90c5" class=​"video-controls-wrapper is-blurred">​…​</div>​grid
+your-design-dream-team:734 🎮 Controls found: {play: true, pause: true, fullscreen: true, minimize: true, replay: true, …}
+your-design-dream-team:873 🔍 Initial video readyState: 0
+your-design-dream-team:893 🔄 Starting periodic dimension check
+your-design-dream-team:1386 Animation script initialized
+your-design-dream-team:1613 Found 2 project grid images
+your-design-dream-team:1782 Dark variant detected, applying colors
+your-design-dream-team:1792 continuing to implement color script
+your-design-dream-team:896 ✅ Periodic check found dimensions, setting aspect ratio
+your-design-dream-team:881 ⏰ 50ms delayed check - readyState: 3
+your-design-dream-team:883 ⚡ 50ms delayed check - setting aspect ratio
+your-design-dream-team:915 🔍 === COMPREHENSIVE DEBUGGING ===
+your-design-dream-team:918 📋 HTML HIERARCHY:
+your-design-dream-team:923 0: <div id="video1" class="html-video-wrapper">
+your-design-dream-team:923   1: <div class="video-player-wrapper-2">
+your-design-dream-team:923     2: <div class="container-large-2">
+your-design-dream-team:923       3: <section class="section_player-2">
+your-design-dream-team:923         4: <div class="video-player-section_layout u-grid-autofit">
+your-design-dream-team:923           5: <div class="video-player_contain u-container">
+your-design-dream-team:923             6: <div class="video-section-wrapper">
+your-design-dream-team:923               7: <section class="section_wrap u-section">
+your-design-dream-team:923                 8: <body class="body">
+your-design-dream-team:923                   9: <html class="w-mod-js wf-oswald-n2-active wf-oswald-n3-active wf-oswald-n4-active wf-oswald-n5-active wf-oswald-n6-active wf-oswald-n7-active wf-active w-mod-ix">
+your-design-dream-team:929 🎨 ALL CSS RULES:
+4your-design-dream-team:960 ⚠️ Could not access stylesheet: Failed to read the 'cssRules' property from 'CSSStyleSheet': Cannot access rules
+your-design-dream-team:968 📋 Rule 1 (specificity: 11): {selector: '.html-video-wrapper video', styles: 'width: 100%; height: 100%; object-fit: contain;', source: 'inline'}
+your-design-dream-team:968 📋 Rule 2 (specificity: 10): {selector: '.html-video-wrapper', styles: 'width: 100%; max-width: 100%; aspect-ratio: 9 / 16; display: block; overflow: hidden;', source: 'inline'}
+your-design-dream-team:976 📊 COMPUTED STYLES:
+your-design-dream-team:981 Level 0 (div#video1.html-video-wrapper): {aspectRatio: '9 / 16', width: '1328.8px', height: '2362.3px', maxWidth: '100%', maxHeight: 'none', …}
+your-design-dream-team:981 Level 1 (div.video-player-wrapper-2): {aspectRatio: 'auto', width: '1328.8px', height: '588.15px', maxWidth: 'none', maxHeight: 'none', …}
+your-design-dream-team:981 Level 2 (div.container-large-2): {aspectRatio: 'auto', width: '1328.8px', height: '588.15px', maxWidth: 'none', maxHeight: 'none', …}
+your-design-dream-team:981 Level 3 (section.section_player-2): {aspectRatio: 'auto', width: '1328.8px', height: '588.15px', maxWidth: 'none', maxHeight: 'none', …}
+your-design-dream-team:981 Level 4 (div.video-player-section_layout.u-grid-autofit): {aspectRatio: 'auto', width: '1328.8px', height: '588.15px', maxWidth: 'none', maxHeight: 'none', …}
+your-design-dream-team:996 🔧 JAVASCRIPT MODIFICATIONS:
+your-design-dream-team:997 Inline styles: 
+your-design-dream-team:998 Dataset: DOMStringMap {wId: 'e51bdb0b-99c0-3140-3dc6-7cc9af30f61a'}
+your-design-dream-team:999 Attributes: (4) ['id="video1"', 'f-data-video="wrapper"', 'data-w-id="e51bdb0b-99c0-3140-3dc6-7cc9af30f61a"', 'class="html-video-wrapper"']
+your-design-dream-team:1002 🎨 CSS CUSTOM PROPERTIES:
+your-design-dream-team:1011 Custom properties: []
+your-design-dream-team:856 📊 Video loadedmetadata event fired
+your-design-dream-team:860 📁 Video loadeddata event fired
+your-design-dream-team:864 ▶️ Video canplay event fired
+your-design-dream-team:753 🔄 setAspectRatio called
+your-design-dream-team:754 📊 Video dimensions: {videoWidth: 1080, videoHeight: 1350, readyState: 4}
+your-design-dream-team:778 🔍 Current wrapperElement styles: {aspectRatio: '9 / 16', width: '1328.8px', height: '2362.3px', maxWidth: '100%', maxHeight: 'none', …}
+your-design-dream-team:798 🎯 Found CSS rule, modifying it directly
+your-design-dream-team:825 🔍 After setting aspect ratio: {aspectRatio: '1080 / 1350', width: '1328.8px', height: '1661px'}
+your-design-dream-team:833 📏 Actual element dimensions: {width: 1328.800048828125, height: 1661, aspectRatio: 0.8000000293968242}
+your-design-dream-team:839 ✅ Aspect ratio set: 1080 / 1350 (1080x1350)
+your-design-dream-team:753 🔄 setAspectRatio called
+your-design-dream-team:754 📊 Video dimensions: {videoWidth: 1080, videoHeight: 1350, readyState: 4}
+your-design-dream-team:778 🔍 Current wrapperElement styles: {aspectRatio: '1080 / 1350', width: '1328.8px', height: '1661px', maxWidth: '100%', maxHeight: 'none', …}
+your-design-dream-team:798 🎯 Found CSS rule, modifying it directly
+your-design-dream-team:825 🔍 After setting aspect ratio: {aspectRatio: '1080 / 1350', width: '1328.8px', height: '1661px'}
+your-design-dream-team:833 📏 Actual element dimensions: {width: 1328.800048828125, height: 1661, aspectRatio: 0.8000000293968242}
+your-design-dream-team:839 ✅ Aspect ratio set: 1080 / 1350 (1080x1350)
+your-design-dream-team:753 🔄 setAspectRatio called
+your-design-dream-team:754 📊 Video dimensions: {videoWidth: 1080, videoHeight: 1350, readyState: 4}
+your-design-dream-team:778 🔍 Current wrapperElement styles: {aspectRatio: '1080 / 1350', width: '1328.8px', height: '1661px', maxWidth: '100%', maxHeight: 'none', …}
+your-design-dream-team:798 🎯 Found CSS rule, modifying it directly
+your-design-dream-team:825 🔍 After setting aspect ratio: {aspectRatio: '1080 / 1350', width: '1328.8px', height: '1661px'}
+your-design-dream-team:833 📏 Actual element dimensions: {width: 1328.800048828125, height: 1661, aspectRatio: 0.8000000293968242}
+your-design-dream-team:839 ✅ Aspect ratio set: 1080 / 1350 (1080x1350)
+your-design-dream-team:753 🔄 setAspectRatio called
+your-design-dream-team:754 📊 Video dimensions: {videoWidth: 1080, videoHeight: 1350, readyState: 4}
+your-design-dream-team:778 🔍 Current wrapperElement styles: {aspectRatio: '1080 / 1350', width: '1328.8px', height: '1661px', maxWidth: '100%', maxHeight: 'none', …}
+your-design-dream-team:798 🎯 Found CSS rule, modifying it directly
+your-design-dream-team:825 🔍 After setting aspect ratio: {aspectRatio: '1080 / 1350', width: '1328.8px', height: '1661px'}
+your-design-dream-team:833 📏 Actual element dimensions: {width: 1328.800048828125, height: 1661, aspectRatio: 0.8000000293968242}
+your-design-dream-team:839 ✅ Aspect ratio set: 1080 / 1350 (1080x1350)
+your-design-dream-team:753 🔄 setAspectRatio called
+your-design-dream-team:754 📊 Video dimensions: {videoWidth: 1080, videoHeight: 1350, readyState: 4}
+your-design-dream-team:778 🔍 Current wrapperElement styles: {aspectRatio: '1080 / 1350', width: '1328.8px', height: '1661px', maxWidth: '100%', maxHeight: 'none', …}
+your-design-dream-team:798 🎯 Found CSS rule, modifying it directly
+your-design-dream-team:825 🔍 After setting aspect ratio: {aspectRatio: '1080 / 1350', width: '1328.8px', height: '1661px'}
+your-design-dream-team:833 📏 Actual element dimensions: {width: 1328.800048828125, height: 1661, aspectRatio: 0.8000000293968242}
+your-design-dream-team:839 ✅ Aspect ratio set: 1080 / 1350 (1080x1350)
+your-design-dream-team:868 🎯 Video canplaythrough event fired
+your-design-dream-team:753 🔄 setAspectRatio called
+your-design-dream-team:754 📊 Video dimensions: {videoWidth: 1080, videoHeight: 1350, readyState: 4}
+your-design-dream-team:778 🔍 Current wrapperElement styles: {aspectRatio: '1080 / 1350', width: '1328.8px', height: '1661px', maxWidth: '100%', maxHeight: 'none', …}
+your-design-dream-team:798 🎯 Found CSS rule, modifying it directly
+your-design-dream-team:825 🔍 After setting aspect ratio: {aspectRatio: '1080 / 1350', width: '1328.8px', height: '1661px'}
+your-design-dream-team:833 📏 Actual element dimensions: {width: 1328.800048828125, height: 1661, aspectRatio: 0.8000000293968242}
+your-design-dream-team:839 ✅ Aspect ratio set: 1080 / 1350 (1080x1350)
+your-design-dream-team:1623 Images loaded, setting up animations
+your-design-dream-team:1683 ScrollTrigger refreshed
