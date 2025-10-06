@@ -12,13 +12,6 @@ document.addEventListener("DOMContentLoaded", () => {
     const flash = item.querySelector('[hover="opacity-flash"]');
     const fadeEl = item.querySelector('[hover="opacity-fade"]');
     
-    // Debug logging
-    const playerId = getVideoPlayerId(item);
-    if (playerId) {
-      console.log('Found video element in row:', playerId);
-    } else {
-      console.log('No video element found in row');
-    }
 
     // store original font color of the item
     const originalColor = getComputedStyle(item).color;
@@ -56,13 +49,10 @@ document.addEventListener("DOMContentLoaded", () => {
       // Play video thumbnail if it exists
       const currentPlayerId = getVideoPlayerId(item);
       if (currentPlayerId && window.playThumbnailVideo) {
-        console.log('Hover enter - attempting to play video:', currentPlayerId);
         // Small delay to ensure smooth transition with other animations
         setTimeout(() => {
           window.playThumbnailVideo(currentPlayerId);
         }, 100);
-      } else {
-        console.log('Hover enter - no video to play:', { playerId: currentPlayerId, hasFunction: !!window.playThumbnailVideo });
       }
     });
 
@@ -83,10 +73,7 @@ document.addEventListener("DOMContentLoaded", () => {
       // Pause video thumbnail if it exists
       const currentPlayerId = getVideoPlayerId(item);
       if (currentPlayerId && window.pauseThumbnailVideo) {
-        console.log('Hover leave - attempting to pause video:', currentPlayerId);
         window.pauseThumbnailVideo(currentPlayerId);
-      } else {
-        console.log('Hover leave - no video to pause:', { playerId: currentPlayerId, hasFunction: !!window.pauseThumbnailVideo });
       }
     });
   });

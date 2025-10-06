@@ -24,7 +24,6 @@
   function initializeThumbnailSystem() {
     // Observe videos as they enter the viewport
     const lazyVideos = document.querySelectorAll('.lazy-video');
-    console.log('Found', lazyVideos.length, 'lazy video elements');
     
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
@@ -47,7 +46,6 @@
           
           // Add player ID to element for hover manager to find
           el.setAttribute('data-player-id', playerId);
-          console.log('Added player ID to element:', playerId);
 
           // Initialize Video.js player
           const player = videojs(el, {
@@ -59,13 +57,20 @@
             preload: 'metadata', // Load metadata but don't play
           });
 
+          // Apply size constraints to the video element
+          const videoElement = player.el();
+          videoElement.style.maxWidth = '25rem';
+          videoElement.style.maxHeight = '25rem';
+          videoElement.style.width = '100%';
+          videoElement.style.height = 'auto';
+
           // Store player reference
           window.thumbnailPlayers.set(playerId, player);
-          console.log('Player initialized and stored:', playerId);
 
           // Limit playback to low resolution for thumbnails
           player.on('loadedmetadata', function() {
-            const tech = player.tech();
+            // Use the safer way to access tech
+            const tech = player.tech && player.tech();
             if (tech && tech.vhs && tech.vhs.representations) {
               const reps = tech.vhs.representations();
               const maxWidth = 400; // 25rem ≈ 400px at default font size
@@ -99,24 +104,16 @@
 
   // Expose global functions for hover manager to use
   window.playThumbnailVideo = function(playerId) {
-    console.log('Attempting to play video:', playerId);
     const player = window.thumbnailPlayers.get(playerId);
     if (player && player.paused()) {
-      console.log('Playing video:', playerId);
-      player.play().catch(error => console.log('Video play prevented:', error));
-    } else {
-      console.log('Player not found or already playing:', playerId);
+      player.play().catch(error => {}); // Silent error handling
     }
   };
 
   window.pauseThumbnailVideo = function(playerId) {
-    console.log('Attempting to pause video:', playerId);
     const player = window.thumbnailPlayers.get(playerId);
     if (player && !player.paused()) {
-      console.log('Pausing video:', playerId);
       player.pause();
-    } else {
-      console.log('Player not found or already paused:', playerId);
     }
   };
 
@@ -127,6 +124,20 @@
     initializeThumbnailSystem();
   }
   
-  console.log('Thumbnail video control functions initialized');
+  // Add CSS to ensure size constraints
+  const style = document.createElement('style');
+  style.textContent = `
+    .lazy-video {
+      max-width: 25rem !important;
+      max-height: 25rem !important;
+      width: 100% !important;
+      height: auto !important;
+    }
+    .video-js {
+      max-width: 25rem !important;
+      max-height: 25rem !important;
+    }
+  `;
+  document.head.appendChild(style);
 })();
 </script>
