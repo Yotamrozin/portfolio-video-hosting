@@ -5,6 +5,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const title = item.querySelector('[hover="title"]');
     const flash = item.querySelector('[hover="opacity-flash"]');
     const fadeEl = item.querySelector('[hover="opacity-fade"]');
+    
+    // Find the video thumbnail in this row
+    const videoElement = item.querySelector('.lazy-video');
+    const playerId = videoElement ? videoElement.getAttribute('data-player-id') : null;
 
     // store original font color of the item
     const originalColor = getComputedStyle(item).color;
@@ -38,6 +42,14 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         );
       }
+
+      // Play video thumbnail if it exists
+      if (playerId && window.playThumbnailVideo) {
+        // Small delay to ensure smooth transition with other animations
+        setTimeout(() => {
+          window.playThumbnailVideo(playerId);
+        }, 100);
+      }
     });
 
     item.addEventListener("mouseleave", () => {
@@ -52,6 +64,11 @@ document.addEventListener("DOMContentLoaded", () => {
       // Hide fade element smoothly
       if (fadeEl) {
         gsap.to(fadeEl, { opacity: 0, duration: 0.3, ease: "power1.inOut" });
+      }
+
+      // Pause video thumbnail if it exists
+      if (playerId && window.pauseThumbnailVideo) {
+        window.pauseThumbnailVideo(playerId);
       }
     });
   });
