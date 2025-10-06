@@ -1,10 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
   const items = document.querySelectorAll(".project-list-item");
 
-  // Function to get video player ID from an item
-  function getVideoPlayerId(item) {
-    const videoElement = item.querySelector('.lazy-video');
-    return videoElement ? videoElement.getAttribute('data-player-id') : null;
+  // Function to get video element from an item
+  function getVideoElement(item) {
+    return item.querySelector('.lazy-video');
   }
 
   items.forEach(item => {
@@ -47,11 +46,13 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // Play video thumbnail if it exists
-      const currentPlayerId = getVideoPlayerId(item);
-      if (currentPlayerId && window.playThumbnailVideo) {
+      const videoElement = getVideoElement(item);
+      if (videoElement) {
         // Small delay to ensure smooth transition with other animations
         setTimeout(() => {
-          window.playThumbnailVideo(currentPlayerId);
+          if (videoElement.paused) {
+            videoElement.play().catch(() => {}); // Silent error handling
+          }
         }, 100);
       }
     });
@@ -71,9 +72,9 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // Pause video thumbnail if it exists
-      const currentPlayerId = getVideoPlayerId(item);
-      if (currentPlayerId && window.pauseThumbnailVideo) {
-        window.pauseThumbnailVideo(currentPlayerId);
+      const videoElement = getVideoElement(item);
+      if (videoElement && !videoElement.paused) {
+        videoElement.pause();
       }
     });
   });
