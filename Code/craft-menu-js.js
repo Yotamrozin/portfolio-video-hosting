@@ -360,6 +360,24 @@ document.addEventListener("DOMContentLoaded", () => {
     const categoryName = row.getAttribute("data-category-row");
     const headingText = labelEl.innerText;
 
+    // Store original background color
+    const originalBgColor = getComputedStyle(row).backgroundColor;
+
+    // Add hover effects
+    row.addEventListener("mouseenter", () => {
+      // Only change background if this row is not currently active
+      if (row !== previousActiveRow) {
+        row.style.backgroundColor = "white";
+      }
+    });
+
+    row.addEventListener("mouseleave", () => {
+      // Only reset background if this row is not currently active
+      if (row !== previousActiveRow) {
+        row.style.backgroundColor = originalBgColor;
+      }
+    });
+
     labelEl.addEventListener("click", e => {
       e.stopPropagation();
       handleCategorySelection(row, categoryName, headingText);
