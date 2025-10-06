@@ -1,7 +1,6 @@
 <video
   class="video-js vjs-default-skin lazy-video"
   playsinline
-  autoplay
   muted
   loop
   preload="metadata"
@@ -78,17 +77,28 @@
 
   // Expose global functions for hover manager to use
   window.playThumbnailVideo = function(playerId) {
+    console.log('Attempting to play video:', playerId);
     const player = window.thumbnailPlayers.get(playerId);
     if (player && player.paused()) {
+      console.log('Playing video:', playerId);
       player.play().catch(error => console.log('Video play prevented:', error));
+    } else {
+      console.log('Player not found or already playing:', playerId);
     }
   };
 
   window.pauseThumbnailVideo = function(playerId) {
+    console.log('Attempting to pause video:', playerId);
     const player = window.thumbnailPlayers.get(playerId);
     if (player && !player.paused()) {
+      console.log('Pausing video:', playerId);
       player.pause();
+    } else {
+      console.log('Player not found or already paused:', playerId);
     }
   };
+
+  // Ensure functions are available immediately
+  console.log('Thumbnail video control functions initialized');
 })();
 </script>

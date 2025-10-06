@@ -9,6 +9,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // Find the video thumbnail in this row
     const videoElement = item.querySelector('.lazy-video');
     const playerId = videoElement ? videoElement.getAttribute('data-player-id') : null;
+    
+    // Debug logging
+    if (videoElement) {
+      console.log('Found video element in row:', playerId);
+    } else {
+      console.log('No video element found in row');
+    }
 
     // store original font color of the item
     const originalColor = getComputedStyle(item).color;
@@ -45,10 +52,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Play video thumbnail if it exists
       if (playerId && window.playThumbnailVideo) {
+        console.log('Hover enter - attempting to play video:', playerId);
         // Small delay to ensure smooth transition with other animations
         setTimeout(() => {
           window.playThumbnailVideo(playerId);
         }, 100);
+      } else {
+        console.log('Hover enter - no video to play:', { playerId, hasFunction: !!window.playThumbnailVideo });
       }
     });
 
@@ -68,7 +78,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Pause video thumbnail if it exists
       if (playerId && window.pauseThumbnailVideo) {
+        console.log('Hover leave - attempting to pause video:', playerId);
         window.pauseThumbnailVideo(playerId);
+      } else {
+        console.log('Hover leave - no video to pause:', { playerId, hasFunction: !!window.pauseThumbnailVideo });
       }
     });
   });
