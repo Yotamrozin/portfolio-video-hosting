@@ -1,17 +1,20 @@
 document.addEventListener("DOMContentLoaded", () => {
   const items = document.querySelectorAll(".project-list-item");
 
+  // Function to get video player ID from an item
+  function getVideoPlayerId(item) {
+    const videoElement = item.querySelector('.lazy-video');
+    return videoElement ? videoElement.getAttribute('data-player-id') : null;
+  }
+
   items.forEach(item => {
     const title = item.querySelector('[hover="title"]');
     const flash = item.querySelector('[hover="opacity-flash"]');
     const fadeEl = item.querySelector('[hover="opacity-fade"]');
     
-    // Find the video thumbnail in this row
-    const videoElement = item.querySelector('.lazy-video');
-    const playerId = videoElement ? videoElement.getAttribute('data-player-id') : null;
-    
     // Debug logging
-    if (videoElement) {
+    const playerId = getVideoPlayerId(item);
+    if (playerId) {
       console.log('Found video element in row:', playerId);
     } else {
       console.log('No video element found in row');
@@ -51,14 +54,15 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // Play video thumbnail if it exists
-      if (playerId && window.playThumbnailVideo) {
-        console.log('Hover enter - attempting to play video:', playerId);
+      const currentPlayerId = getVideoPlayerId(item);
+      if (currentPlayerId && window.playThumbnailVideo) {
+        console.log('Hover enter - attempting to play video:', currentPlayerId);
         // Small delay to ensure smooth transition with other animations
         setTimeout(() => {
-          window.playThumbnailVideo(playerId);
+          window.playThumbnailVideo(currentPlayerId);
         }, 100);
       } else {
-        console.log('Hover enter - no video to play:', { playerId, hasFunction: !!window.playThumbnailVideo });
+        console.log('Hover enter - no video to play:', { playerId: currentPlayerId, hasFunction: !!window.playThumbnailVideo });
       }
     });
 
@@ -77,11 +81,12 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       // Pause video thumbnail if it exists
-      if (playerId && window.pauseThumbnailVideo) {
-        console.log('Hover leave - attempting to pause video:', playerId);
-        window.pauseThumbnailVideo(playerId);
+      const currentPlayerId = getVideoPlayerId(item);
+      if (currentPlayerId && window.pauseThumbnailVideo) {
+        console.log('Hover leave - attempting to pause video:', currentPlayerId);
+        window.pauseThumbnailVideo(currentPlayerId);
       } else {
-        console.log('Hover leave - no video to pause:', { playerId, hasFunction: !!window.pauseThumbnailVideo });
+        console.log('Hover leave - no video to pause:', { playerId: currentPlayerId, hasFunction: !!window.pauseThumbnailVideo });
       }
     });
   });
