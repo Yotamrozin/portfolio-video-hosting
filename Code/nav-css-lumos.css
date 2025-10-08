@@ -168,19 +168,31 @@ html:has(.nav_1_banner_wrap:not(.w-condition-invisible)):not(.hide-nav-banner) {
 
 /* Smooth transitions for all animated properties */
 .nav_1_component {
-    transition: all 0.4s ease-in-out;
+    transition: all 0.4s cubic-bezier(0.21, -0.22, 0, 1.629);
 }
 
 /* IMPORTANT: Make the navbar actually use the CSS variable */
 .nav_1_wrap {
     height: var(--nav_1--height) !important;
-    transition: height 0.4s ease-in-out, background-color 0.4s ease-in-out;
+    /* Set initial margin values explicitly for smooth transitions */
+    margin-top: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    border-radius: 0 !important;
+    transition: height 0.4s cubic-bezier(0.21, -0.22, 0, 1.629), 
+                background-color 0.4s ease-in-out,
+                width 0.4s cubic-bezier(0.21, -0.22, 0, 1.629),
+                margin-top 0.4s cubic-bezier(0.21, -0.22, 0, 1.629),
+                margin-left 0.4s cubic-bezier(0.21, -0.22, 0, 1.629),
+                margin-right 0.4s cubic-bezier(0.21, -0.22, 0, 1.629),
+                border-radius 0.4s cubic-bezier(0.21, -0.22, 0, 1.629);
 }
 
 /* Scrolled state styles - IMPORTANT: This affects ALL variants */
 .nav_1_component.is-scrolled {
-    --nav-height: 6rem !important; /* Reduced height when scrolled - force override */
-    --nav_1--height: 6rem !important; /* Also override the nav_1--height variable */
+    --nav-height: 4.5rem !important; /* Reduced height when scrolled - force override */
+    --nav_1--height: 4.5rem !important; /* Also override the nav_1--height variable */
 }
 
 /* Logo scaling animation - IMPORTANT: This affects ALL variants */
@@ -217,4 +229,10 @@ html:has(.nav_1_banner_wrap:not(.w-condition-invisible)):not(.hide-nav-banner) {
 /* Force height override for scrolled state */
 .nav_1_component.is-scrolled .nav_1_wrap {
     height: var(--nav-height) !important;
+    width: calc(100% - var(--site--margin) * 2) !important;
+    /* Use explicit margin values instead of 'auto' for smooth transitions */
+    margin-top: var(--_spacing---space--3) !important;
+    margin-left: var(--site--margin) !important;
+    margin-right: var(--site--margin) !important;
+    border-radius: var(--radius--main) !important;
 }

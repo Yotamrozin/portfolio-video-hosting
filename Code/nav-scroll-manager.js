@@ -1,9 +1,12 @@
-// Navbar Scroll Animation and Color Management System - Fixed Version 4
+// Navbar Scroll Animation and Color Management System - Fixed Version 5
 class NavbarScrollManager {
     constructor() {
         this.navbar = document.querySelector('.nav_1_component');
+        this.navWraps = null; // Will store both desktop and mobile nav wraps
+        this.mobileMenuButton = null; // Mobile hamburger button
         this.scrollThreshold = window.innerHeight * 0.9;
         this.isScrolled = false;
+        this.isMobileMenuOpen = false; // Track mobile menu state
         this.currentThemeColor = null;
         this.originalVariant = null;
         this.originalBackground = null;
@@ -28,6 +31,15 @@ class NavbarScrollManager {
             return;
         }
         
+        // Store ALL nav wraps (both desktop and mobile)
+        this.navWraps = this.navbar.querySelectorAll('.nav_1_wrap');
+        if (this.navWraps.length === 0) {
+            return;
+        }
+        
+        // Store the mobile menu button
+        this.mobileMenuButton = this.navbar.querySelector('.w-nav-button');
+        
         // Store the original variant and background
         this.originalVariant = this.navbar.getAttribute('data-wf--nav--variant') || 'base';
         this.originalBackground = this.getComputedBackground();
@@ -39,6 +51,9 @@ class NavbarScrollManager {
         
         // Set up event listeners for all variants (height/logo animations)
         this.setupEventListeners();
+        
+        // Set up mobile menu observer
+        this.setupMobileMenuObserver();
         
         // Only set up color for Base variant (one-time read, no live listeners)
         if (this.originalVariant === 'base') {
@@ -63,9 +78,9 @@ class NavbarScrollManager {
     }
     
     getComputedBackground() {
-        const navWrap = this.navbar.querySelector('.nav_1_wrap');
-        if (navWrap) {
-            const computedStyle = window.getComputedStyle(navWrap);
+        // Get background from first nav wrap (they should have the same original background)
+        if (this.navWraps && this.navWraps.length > 0) {
+            const computedStyle = window.getComputedStyle(this.navWraps[0]);
             return computedStyle.backgroundColor;
         }
         return null;
@@ -80,6 +95,46 @@ class NavbarScrollManager {
                 this.updateNavbarState();
             }
         });
+    }
+    
+    setupMobileMenuObserver() {
+        if (!this.mobileMenuButton) return;
+        
+        // Create a MutationObserver to watch for class changes on the mobile menu button
+        this.menuObserver = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                if (mutation.type === 'attributes' && mutation.attributeName === 'class') {
+                    const isOpen = this.mobileMenuButton.classList.contains('w--open');
+                    
+                    if (isOpen !== this.isMobileMenuOpen) {
+                        this.isMobileMenuOpen = isOpen;
+                        this.handleMobileMenuToggle(isOpen);
+                    }
+                }
+            });
+        });
+        
+        // Start observing the mobile menu button
+        this.menuObserver.observe(this.mobileMenuButton, {
+            attributes: true,
+            attributeFilter: ['class']
+        });
+    }
+    
+    handleMobileMenuToggle(isOpen) {
+        if (isOpen) {
+            // Mobile menu opened - force remove scrolled state
+            this.navbar.classList.remove('is-scrolled');
+            this.updateNavbarBackground();
+            
+            // Apply base colors if base variant
+            if (this.originalVariant === 'base') {
+                this.applyProjectColors(true);
+            }
+        } else {
+            // Mobile menu closed - restore normal scroll behavior
+            this.updateNavbarState();
+        }
     }
     
     throttledScrollHandler() {
@@ -107,12 +162,18 @@ class NavbarScrollManager {
         if (shouldBeScrolled !== this.isScrolled) {
             this.isScrolled = shouldBeScrolled;
             
-            // Always toggle the scrolled class for height/logo animations
-            this.navbar.classList.toggle('is-scrolled', this.isScrolled);
-            
-            // Only apply color changes for Base variant
-            if (this.originalVariant === 'base') {
-                this.applyProjectColors(true);
+            // Only apply scroll animations if mobile menu is NOT open
+            if (!this.isMobileMenuOpen) {
+                // Always toggle the scrolled class for height/logo/width/margin/border-radius animations
+                this.navbar.classList.toggle('is-scrolled', this.isScrolled);
+                
+                // Always update navbar background for all variants
+                this.updateNavbarBackground();
+                
+                // Only apply color changes for Base variant
+                if (this.originalVariant === 'base') {
+                    this.applyProjectColors(true);
+                }
             }
             
             this.dispatchNavbarStateChange();
@@ -131,8 +192,10 @@ class NavbarScrollManager {
         }
         
         const color = this.currentThemeColor;
-        const textColor = this.isScrolled ? '#ffffff' : color;
-        const borderColor = this.isScrolled ? '#ffffff' : color;
+        // If mobile menu is open, always use theme colors (not white)
+        const shouldUseScrolledColors = this.isScrolled && !this.isMobileMenuOpen;
+        const textColor = shouldUseScrolledColors ? '#ffffff' : color;
+        const borderColor = shouldUseScrolledColors ? '#ffffff' : color;
         
         // Only update if colors actually changed (prevents flickering)
         if (forceUpdate || this.hasColorsChanged(textColor, borderColor)) {
@@ -181,27 +244,26 @@ class NavbarScrollManager {
         
         // Update placeholder styles
         this.updatePlaceholderStyles(textColor);
-        
-        // Update navbar background
-        this.updateNavbarBackground();
     }
     
     updateNavbarBackground() {
-        const navWrap = this.navbar.querySelector('.nav_1_wrap');
-        if (!navWrap) return;
+        if (!this.navWraps || this.navWraps.length === 0) return;
         
-        if (this.isScrolled) {
-            // Use the actual background-2 color we extracted
-            if (this.background2Color) {
-                navWrap.style.backgroundColor = this.background2Color;
+        // Apply background to ALL nav wraps (both desktop and mobile)
+        this.navWraps.forEach(navWrap => {
+            if (this.isScrolled) {
+                // Use the actual background-2 color we extracted
+                if (this.background2Color) {
+                    navWrap.style.backgroundColor = this.background2Color;
+                } else {
+                    // Fallback to a dark color
+                    navWrap.style.backgroundColor = '#272727';
+                }
             } else {
-                // Fallback to a dark color
-                navWrap.style.backgroundColor = '#1a1a1a';
+                // Restore original background
+                navWrap.style.backgroundColor = this.originalBackground || '';
             }
-        } else {
-            // Restore original background
-            navWrap.style.backgroundColor = this.originalBackground || '';
-        }
+        });
     }
     
     updatePlaceholderStyles(color) {
@@ -236,12 +298,18 @@ class NavbarScrollManager {
         window.removeEventListener('scroll', this.scrollHandler);
         window.removeEventListener('resize', this.resizeHandler);
         
+        // Disconnect mobile menu observer
+        if (this.menuObserver) {
+            this.menuObserver.disconnect();
+        }
+        
         this.navbar.classList.remove('is-scrolled');
     }
     
     getState() {
         return {
             isScrolled: this.isScrolled,
+            isMobileMenuOpen: this.isMobileMenuOpen,
             variant: this.navbar.getAttribute('data-wf--nav--variant'),
             scrollY: window.scrollY,
             threshold: this.scrollThreshold
