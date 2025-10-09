@@ -368,6 +368,12 @@ class PageLoadTracker {
     document.body.style.position = 'fixed';
     document.body.style.top = `-${this.scrollY}px`;
     document.body.style.width = '100%';
+    
+    // Disable GSAP ScrollTrigger during loading
+    if (typeof gsap !== 'undefined' && gsap.ScrollTrigger) {
+      gsap.ScrollTrigger.getAll().forEach(trigger => trigger.disable());
+      console.log('ScrollTrigger disabled during loading');
+    }
   }
 
   enableScroll() {
@@ -379,6 +385,18 @@ class PageLoadTracker {
     
     // Restore scroll position
     window.scrollTo(0, this.scrollY || 0);
+    
+    // Re-enable and refresh GSAP ScrollTrigger after layout restoration
+    if (typeof gsap !== 'undefined' && gsap.ScrollTrigger) {
+      // Small delay to ensure layout is fully restored
+      setTimeout(() => {
+        // Re-enable all triggers
+        gsap.ScrollTrigger.getAll().forEach(trigger => trigger.enable());
+        // Refresh to recalculate positions
+        gsap.ScrollTrigger.refresh();
+        console.log('ScrollTrigger re-enabled and refreshed after loader');
+      }, 100);
+    }
   }
 
   // Public API for manual control

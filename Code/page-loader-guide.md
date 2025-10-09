@@ -193,6 +193,12 @@ If using Webflow:
 - Ensure videos have `preload="auto"` or `preload="metadata"`
 - Videos without preload won't load until played
 
+### GSAP ScrollTrigger animations fire prematurely
+- **Fixed automatically**: The script now disables ScrollTrigger during loading
+- All triggers are re-enabled and refreshed when the loader completes
+- This prevents scroll animations from firing while the page is loading
+- Check console for "ScrollTrigger re-enabled and refreshed" message
+
 ## Performance Considerations
 
 - Script is lightweight (~6KB unminified)
