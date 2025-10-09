@@ -35,6 +35,9 @@ class PageLoadTracker {
     this.trackedResources = new Set();
     this.resourceTypes = ['img', 'script', 'link', 'video', 'audio', 'iframe'];
     
+    // Scroll management
+    this.scrollY = 0;
+    
     // Bind methods
     this.updateProgress = this.updateProgress.bind(this);
     this.completeLoading = this.completeLoading.bind(this);
@@ -54,6 +57,9 @@ class PageLoadTracker {
       console.warn('PageLoadTracker: Loader elements not found. Looking for [data-loader-percent] and [data-loader-bar]');
       return;
     }
+
+    // Disable scrolling while loading
+    this.disableScroll();
 
     // Start tracking
     this.trackDOMProgress();
@@ -287,6 +293,9 @@ class PageLoadTracker {
     this.loaderElement.style.transition = `opacity ${this.config.fadeOutDuration}ms ease-out`;
     this.loaderElement.style.opacity = '0';
     
+    // Re-enable scrolling
+    this.enableScroll();
+    
     // Remove from DOM after fade out
     setTimeout(() => {
       if (this.loaderElement && this.loaderElement.parentNode) {
@@ -297,7 +306,39 @@ class PageLoadTracker {
       
       // Trigger custom event
       document.dispatchEvent(new CustomEvent('pageLoadComplete'));
+      
+      // Trigger Webflow animations
+      if (typeof Webflow !== 'undefined') {
+        try {
+          const wfIx = Webflow.require("ix2");
+          wfIx.emit("page-fully-loaded");
+        } catch (e) {
+          console.warn('Could not trigger Webflow animations:', e);
+        }
+      }
     }, this.config.fadeOutDuration);
+  }
+
+  disableScroll() {
+    // Store current scroll position
+    this.scrollY = window.scrollY;
+    
+    // Apply styles to prevent scrolling
+    document.body.style.overflow = 'hidden';
+    document.body.style.position = 'fixed';
+    document.body.style.top = `-${this.scrollY}px`;
+    document.body.style.width = '100%';
+  }
+
+  enableScroll() {
+    // Remove scroll prevention styles
+    document.body.style.overflow = '';
+    document.body.style.position = '';
+    document.body.style.top = '';
+    document.body.style.width = '';
+    
+    // Restore scroll position
+    window.scrollTo(0, this.scrollY || 0);
   }
 
   // Public API for manual control
