@@ -47,8 +47,8 @@ class PageLoadTracker {
     this.loaderElement = document.querySelector('[data-loader]') || 
                         document.querySelector('.loader') ||
                         document.querySelector('#loader');
-    this.percentElement = loaderElement.querySelector('[data-loader-percent]');
-    this.barElement = loaderElement.querySelector('[data-loader-bar]');
+    this.percentElement = document.querySelector('[data-loader-percent]');
+    this.barElement = document.querySelector('[data-loader-bar]');
 
     if (!this.percentElement || !this.barElement) {
       console.warn('PageLoadTracker: Loader elements not found. Looking for [data-loader-percent] and [data-loader-bar]');
