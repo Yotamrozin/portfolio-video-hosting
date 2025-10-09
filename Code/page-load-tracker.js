@@ -38,6 +38,11 @@ class PageLoadTracker {
     // Scroll management
     this.scrollY = 0;
     
+    // Percentage animation
+    this.currentDisplayPercentage = 0;
+    this.targetPercentage = 0;
+    this.isAnimating = false;
+    
     // Bind methods
     this.updateProgress = this.updateProgress.bind(this);
     this.completeLoading = this.completeLoading.bind(this);
@@ -253,21 +258,44 @@ class PageLoadTracker {
   }
 
   updateUI(progress) {
-    const percentage = Math.round(progress * 100);
+    this.targetPercentage = Math.round(progress * 100);
     
-    if (this.percentElement) {
-      this.percentElement.textContent = `${percentage}%`;
+    // Start animation if not already running
+    if (!this.isAnimating) {
+      this.animatePercentage();
     }
     
     if (this.barElement) {
       // Update width for horizontal bars or height for vertical bars
-      this.barElement.style.width = `${percentage}%`;
+      this.barElement.style.width = `${this.targetPercentage}%`;
       // Alternatively, for vertical bars, uncomment:
-      // this.barElement.style.height = `${percentage}%`;
+      // this.barElement.style.height = `${this.targetPercentage}%`;
       
       // Optional: update custom property for more flexible styling
-      this.barElement.style.setProperty('--progress', percentage);
+      this.barElement.style.setProperty('--progress', this.targetPercentage);
     }
+  }
+
+  animatePercentage() {
+    this.isAnimating = true;
+    
+    const animate = () => {
+      if (this.currentDisplayPercentage < this.targetPercentage) {
+        this.currentDisplayPercentage += 1;
+        if (this.percentElement) {
+          this.percentElement.textContent = `${this.currentDisplayPercentage}%`;
+        }
+        requestAnimationFrame(animate);
+      } else {
+        this.currentDisplayPercentage = this.targetPercentage;
+        if (this.percentElement) {
+          this.percentElement.textContent = `${this.currentDisplayPercentage}%`;
+        }
+        this.isAnimating = false;
+      }
+    };
+    
+    requestAnimationFrame(animate);
   }
 
   completeLoading() {
@@ -310,11 +338,23 @@ class PageLoadTracker {
       // Trigger Webflow animations
       if (typeof Webflow !== 'undefined') {
         try {
-            const wfIx = Webflow.require("ix3")
-            wfIx.emit("page-fully-loaded");
+          const wfIx = Webflow.require("ix3")
+          wfIx.emit("page-fully-loaded");
         } catch (e) {
           console.warn('Could not trigger Webflow animations:', e);
         }
+      }
+      
+      // Trigger Rive animations
+      if (window.riveInstances && Array.isArray(window.riveInstances)) {
+        window.riveInstances.forEach((riveInstance, index) => {
+          try {
+            riveInstance.play();
+            console.log(`Started Rive animation ${index + 1}`);
+          } catch (e) {
+            console.warn(`Could not start Rive animation ${index + 1}:`, e);
+          }
+        });
       }
     }, this.config.fadeOutDuration);
   }
