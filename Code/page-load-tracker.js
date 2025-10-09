@@ -360,12 +360,6 @@ class PageLoadTracker {
     // Prevent scrolling without affecting layout (no position: fixed)
     document.documentElement.style.overflow = 'hidden';
     document.body.style.overflow = 'hidden';
-    
-    // Disable GSAP ScrollTrigger during loading
-    if (typeof gsap !== 'undefined' && gsap.ScrollTrigger) {
-      gsap.ScrollTrigger.getAll().forEach(trigger => trigger.disable());
-      console.log('ScrollTrigger disabled during loading');
-    }
   }
 
   enableScroll() {
@@ -373,16 +367,13 @@ class PageLoadTracker {
     document.documentElement.style.overflow = '';
     document.body.style.overflow = '';
     
-    // Re-enable GSAP ScrollTrigger
+    // Optional: Refresh ScrollTrigger just to be safe
     if (typeof gsap !== 'undefined' && gsap.ScrollTrigger) {
       // Small delay to ensure overflow is fully restored
       setTimeout(() => {
-        // Re-enable all triggers and refresh
-        gsap.ScrollTrigger.getAll().forEach(trigger => trigger.enable());
         gsap.ScrollTrigger.refresh();
-        
-        console.log('ScrollTrigger re-enabled and refreshed after loader');
-      }, 100);
+        console.log('ScrollTrigger refreshed after loader (optional safety check)');
+      }, 50);
     }
   }
 

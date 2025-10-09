@@ -194,12 +194,12 @@ If using Webflow:
 - Videos without preload won't load until played
 
 ### GSAP ScrollTrigger animations fire prematurely
-- **Fixed automatically**: The script now disables ScrollTrigger during loading
-- Uses `overflow: hidden` (not `position: fixed`) to prevent layout shifts
-- All triggers are re-enabled and refreshed when the loader completes
-- This prevents scroll animations from firing while the page is loading
-- Check console for "ScrollTrigger re-enabled and refreshed" message
-- No layout shifts means ScrollTrigger calculates positions correctly from the start
+- **Fixed automatically**: Uses `overflow: hidden` to prevent scrolling without layout shifts
+- No `position: fixed` means no layout recalculation needed
+- ScrollTrigger calculates positions correctly from the start
+- Optional safety refresh runs when loader completes
+- User cannot scroll during loading, so triggers won't fire prematurely
+- Simple, clean solution with minimal code
 
 ## Performance Considerations
 
