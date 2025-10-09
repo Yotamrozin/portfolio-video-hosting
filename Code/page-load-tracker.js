@@ -57,7 +57,6 @@ class PageLoadTracker {
 
     // Start tracking
     this.trackDOMProgress();
-    this.trackResources();
     this.setupPerformanceObserver();
     
     // Initial update
