@@ -35,9 +35,6 @@ class PageLoadTracker {
     this.trackedResources = new Set();
     this.resourceTypes = ['img', 'script', 'link', 'video', 'audio', 'iframe'];
     
-    // Scroll management
-    this.scrollY = 0;
-    
     // Percentage animation
     this.currentDisplayPercentage = 0;
     this.targetPercentage = 0;
@@ -360,14 +357,9 @@ class PageLoadTracker {
   }
 
   disableScroll() {
-    // Store current scroll position
-    this.scrollY = window.scrollY;
-    
-    // Apply styles to prevent scrolling
+    // Prevent scrolling without affecting layout (no position: fixed)
+    document.documentElement.style.overflow = 'hidden';
     document.body.style.overflow = 'hidden';
-    document.body.style.position = 'fixed';
-    document.body.style.top = `-${this.scrollY}px`;
-    document.body.style.width = '100%';
     
     // Disable GSAP ScrollTrigger during loading
     if (typeof gsap !== 'undefined' && gsap.ScrollTrigger) {
@@ -378,22 +370,17 @@ class PageLoadTracker {
 
   enableScroll() {
     // Remove scroll prevention styles
+    document.documentElement.style.overflow = '';
     document.body.style.overflow = '';
-    document.body.style.position = '';
-    document.body.style.top = '';
-    document.body.style.width = '';
     
-    // Restore scroll position
-    window.scrollTo(0, this.scrollY || 0);
-    
-    // Re-enable and refresh GSAP ScrollTrigger after layout restoration
+    // Re-enable GSAP ScrollTrigger
     if (typeof gsap !== 'undefined' && gsap.ScrollTrigger) {
-      // Small delay to ensure layout is fully restored
+      // Small delay to ensure overflow is fully restored
       setTimeout(() => {
-        // Re-enable all triggers
+        // Re-enable all triggers and refresh
         gsap.ScrollTrigger.getAll().forEach(trigger => trigger.enable());
-        // Refresh to recalculate positions
         gsap.ScrollTrigger.refresh();
+        
         console.log('ScrollTrigger re-enabled and refreshed after loader');
       }, 100);
     }

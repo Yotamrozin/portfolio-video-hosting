@@ -195,9 +195,11 @@ If using Webflow:
 
 ### GSAP ScrollTrigger animations fire prematurely
 - **Fixed automatically**: The script now disables ScrollTrigger during loading
+- Uses `overflow: hidden` (not `position: fixed`) to prevent layout shifts
 - All triggers are re-enabled and refreshed when the loader completes
 - This prevents scroll animations from firing while the page is loading
 - Check console for "ScrollTrigger re-enabled and refreshed" message
+- No layout shifts means ScrollTrigger calculates positions correctly from the start
 
 ## Performance Considerations
 
