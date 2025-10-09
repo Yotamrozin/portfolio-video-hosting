@@ -408,4 +408,3 @@ window.addEventListener('load', () => {
     }
   }, 3000); // Give it 3 seconds after window.load
 });
-
