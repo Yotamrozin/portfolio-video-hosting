@@ -310,8 +310,8 @@ class PageLoadTracker {
       // Trigger Webflow animations
       if (typeof Webflow !== 'undefined') {
         try {
-          const wfIx = Webflow.require("ix2");
-          wfIx.emit("page-fully-loaded");
+            const wfIx = Webflow.require("ix3")
+            wfIx.emit("page-fully-loaded");
         } catch (e) {
           console.warn('Could not trigger Webflow animations:', e);
         }
