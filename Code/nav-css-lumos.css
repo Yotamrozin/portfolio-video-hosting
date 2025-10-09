@@ -1,6 +1,6 @@
    
 :root {
-	--nav-height: 8.5rem; /* This will be animated by Webflow */
+	--nav-height: 8rem; /* This will be animated by Webflow */
 	--nav_1--height: var(--nav-height);
 	--nav_1--banner-height: 2.4rem;
 	--nav_1--height-total: var(--nav_1--height);
@@ -17,6 +17,12 @@
 
 /* on smaller screens */
 @media (width < 60em) {
+	/* Make mobile navbar smaller */
+	.nav_1_component {
+		--nav-height: 6rem !important;
+		--nav_1--height: 6rem !important;
+	}
+	
 	/* disable scroll when mobile menu is open */
 	body:has(.nav_1_component .w-nav-button.w--open) { overflow: hidden; }
 }

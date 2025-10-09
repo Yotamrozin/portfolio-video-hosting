@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Minimal Loader Example</title>
+  <style>
+    /* ===== COPY THIS CSS TO YOUR PROJECT ===== */
+    .page-loader {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: #ffffff;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 99999;
+      transition: opacity 400ms ease-out;
+    }
+
+    .page-loader__percent {
+      font-size: 64px;
+      font-weight: 700;
+      color: #1a1a1a;
+      margin-bottom: 24px;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
+    }
+
+    .page-loader__bar-container {
+      width: 320px;
+      height: 6px;
+      background: #e5e5e5;
+      border-radius: 3px;
+      overflow: hidden;
+    }
+
+    .page-loader__bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+      border-radius: 3px;
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== COPY THIS HTML TO YOUR PROJECT ===== -->
+  <div class="page-loader" data-loader>
+    <div class="page-loader__percent" data-loader-percent>0%</div>
+    <div class="page-loader__bar-container">
+      <div class="page-loader__bar" data-loader-bar></div>
+    </div>
+  </div>
+
+  <!-- Your existing page content here -->
+  <h1>Your Page Content</h1>
+  
+  <!-- ===== INCLUDE THE SCRIPT BEFORE CLOSING BODY TAG ===== -->
+  <script src="page-load-tracker.js"></script>
+
+</body>
+</html>
+

@@ -11,6 +11,7 @@ class NavbarScrollManager {
         this.originalVariant = null;
         this.originalBackground = null;
         this.background2Color = null;
+        this.storedColorsBeforeMenu = null; // Store colors before mobile menu opens
         
         // Performance optimizations
         this.scrollHandler = this.throttledScrollHandler.bind(this);
@@ -123,18 +124,99 @@ class NavbarScrollManager {
     
     handleMobileMenuToggle(isOpen) {
         if (isOpen) {
+            // Store current colors before changing them
+            this.storeCurrentColors();
+            
             // Mobile menu opened - force remove scrolled state
             this.navbar.classList.remove('is-scrolled');
             this.updateNavbarBackground();
             
-            // Apply base colors if base variant
+            // Apply colors based on variant
             if (this.originalVariant === 'base') {
                 this.applyProjectColors(true);
+            } else if (this.originalVariant === 'project-dark') {
+                // For dark variant, apply dark text color when menu opens
+                this.applyDarkMobileMenuColors();
             }
         } else {
-            // Mobile menu closed - restore normal scroll behavior
+            // Mobile menu closed - restore previous colors
+            if (this.originalVariant === 'project-dark' && this.storedColorsBeforeMenu) {
+                this.restoreStoredColors();
+            }
+            // Restore normal scroll behavior
             this.updateNavbarState();
         }
+    }
+    
+    storeCurrentColors() {
+        // Store the current colors before mobile menu opens
+        if (!this.cachedElements) {
+            this.cachedElements = {
+                font: document.querySelectorAll('[project-font-color="true"]'),
+                bg: document.querySelectorAll('[project-bg-color="true"]'),
+                border: document.querySelectorAll('[project-border-color="true"]')
+            };
+        }
+        
+        this.storedColorsBeforeMenu = {
+            font: [],
+            border: []
+        };
+        
+        // Store font colors
+        this.cachedElements.font.forEach(element => {
+            this.storedColorsBeforeMenu.font.push({
+                element: element,
+                color: window.getComputedStyle(element).color
+            });
+        });
+        
+        // Store border colors
+        this.cachedElements.border.forEach(element => {
+            this.storedColorsBeforeMenu.border.push({
+                element: element,
+                color: window.getComputedStyle(element).borderColor
+            });
+        });
+    }
+    
+    restoreStoredColors() {
+        // Restore the colors that were active before menu opened
+        if (!this.storedColorsBeforeMenu) return;
+        
+        // Restore font colors
+        this.storedColorsBeforeMenu.font.forEach(item => {
+            item.element.style.color = item.color;
+        });
+        
+        // Restore border colors
+        this.storedColorsBeforeMenu.border.forEach(item => {
+            item.element.style.borderColor = item.color;
+        });
+    }
+    
+    applyDarkMobileMenuColors() {
+        // Apply dark text color (#272727) for dark variant mobile menu
+        const darkColor = '#272727';
+        
+        // Cache selectors for better performance
+        if (!this.cachedElements) {
+            this.cachedElements = {
+                font: document.querySelectorAll('[project-font-color="true"]'),
+                bg: document.querySelectorAll('[project-bg-color="true"]'),
+                border: document.querySelectorAll('[project-border-color="true"]')
+            };
+        }
+        
+        // Apply dark text color
+        this.cachedElements.font.forEach(element => {
+            element.style.color = darkColor;
+        });
+        
+        // Apply dark border color
+        this.cachedElements.border.forEach(element => {
+            element.style.borderColor = darkColor;
+        });
     }
     
     throttledScrollHandler() {

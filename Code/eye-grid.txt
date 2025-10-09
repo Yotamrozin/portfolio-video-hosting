@@ -1,0 +1,167 @@
+<canvas id="eyeCanvas"></canvas>
+
+    <style>
+    body {
+        margin: 0;
+        min-height: 100vh;
+    }
+
+    #eyeCanvas {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: -1;
+        display: none; /* Hidden by default on mobile/tablet */
+    }
+
+    /* Only show on desktop (1025px and above) */
+    @media (min-width: 1025px) {
+        #eyeCanvas {
+        display: block;
+        }
+    }
+    </style>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        // Only run on desktop (1025px and above)
+        if (window.matchMedia("(max-width: 1024px)").matches) {
+        return; // Exit early on mobile/tablet
+        }
+
+    const canvas = document.getElementById("eyeCanvas");
+    const ctx = canvas.getContext("2d");
+    let width, height;
+
+    const eyeColor = "{{wf {\"path\":\"colour:hex\",\"type\":\"PlainText\"} }}" || "#ffffff";
+
+        function resize() {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+        }
+
+        resize();
+        window.addEventListener("resize", resize);
+
+        const eyeSpacing = 45;
+        const eyeWidth = 20;
+        const eyeHeight = 22;
+        const irisRadius = 4;
+        const interactionRadius = 180;
+        const repelStrength = 26;
+        const blinkProbability = 0.0003;
+        const memorySmoothing = 0.02; // lower = longer memory
+
+
+        const eyes = [];
+
+        for (let y = eyeSpacing / 2; y < height; y += eyeSpacing) {
+        for (let x = eyeSpacing / 2; x < width; x += eyeSpacing) {
+            eyes.push({
+            x,
+            y,
+            offsetX: 0,
+            offsetY: 0,
+            irisOffsetX: 0,
+            irisOffsetY: 0,
+            blink: 1,
+            blinkTarget: 1,
+            proximity: 0,
+            });
+        }
+        }
+
+        let mouseX = width / 2;
+        let mouseY = height / 2;
+        let clickSurprise = 1;
+
+        document.addEventListener("mousemove", (e) => {
+        const rect = canvas.getBoundingClientRect();
+        mouseX = e.clientX - rect.left;
+        mouseY = e.clientY - rect.top;
+        });
+
+        document.addEventListener("click", () => {
+        clickSurprise = 0;
+        });
+
+        function drawAlmondEye(cx, cy, w, h, blink, color) {
+        const halfW = w / 2;
+        const halfH = (h / 2) * blink;
+
+        ctx.beginPath();
+        ctx.moveTo(cx - halfW, cy);
+        ctx.quadraticCurveTo(cx, cy - halfH, cx + halfW, cy);
+        ctx.quadraticCurveTo(cx, cy + halfH, cx - halfW, cy);
+        ctx.fillStyle = color;
+        ctx.fill();
+        }
+
+        function animate() {
+        ctx.clearRect(0, 0, width, height);
+        clickSurprise += (1 - clickSurprise) * 0.03;
+
+        for (const eye of eyes) {
+            const dx = eye.x - mouseX;
+            const dy = eye.y - mouseY;
+            const dist = Math.hypot(dx, dy);
+
+            // More lingering entry/exit memory
+            const targetProximity = dist < interactionRadius
+            ? 1 - dist / interactionRadius
+            : 0;
+            eye.proximity += (targetProximity - eye.proximity) * memorySmoothing;
+
+            const angle = Math.atan2(dy, dx);
+            const repel = Math.pow(eye.proximity, 2.5);
+            const targetOffset = repel * repelStrength;
+
+            eye.offsetX += ((Math.cos(angle) * targetOffset - eye.offsetX) * 0.12);
+            eye.offsetY += ((Math.sin(angle) * targetOffset - eye.offsetY) * 0.12);
+
+            // Iris movement
+            const maxIrisOffsetX = (eyeWidth / 2) - irisRadius - 1;
+            const maxIrisOffsetY = (eyeHeight / 2) - irisRadius - 1;
+
+            const targetIrisOffsetX = Math.max(-maxIrisOffsetX, Math.min(maxIrisOffsetX, (mouseX - eye.x) * 0.1));
+            const targetIrisOffsetY = Math.max(-maxIrisOffsetY, Math.min(maxIrisOffsetY, (mouseY - eye.y) * 0.1));
+
+            eye.irisOffsetX += ((targetIrisOffsetX * eye.proximity - eye.irisOffsetX) * 0.12);
+            eye.irisOffsetY += ((targetIrisOffsetY * eye.proximity - eye.irisOffsetY) * 0.12);
+
+            // Blink randomly when near
+            if (dist < interactionRadius && Math.random() < blinkProbability) {
+            eye.blinkTarget = 0;
+            }
+
+            // Click reaction only for eyes in range
+            const targetBlink = dist < interactionRadius
+            ? Math.min(eye.blinkTarget, clickSurprise)
+            : eye.blinkTarget;
+
+            eye.blink += (targetBlink - eye.blink) * 0.07;
+
+            if (Math.abs(eye.blink - eye.blinkTarget) < 0.05) {
+            eye.blinkTarget = 1;
+            }
+
+            const centerX = eye.x + eye.offsetX;
+            const centerY = eye.y + eye.offsetY;
+
+            drawAlmondEye(centerX, centerY, eyeWidth, eyeHeight, eye.blink, eyeColor);
+
+            // Iris
+            ctx.beginPath();
+            ctx.arc(centerX + eye.irisOffsetX, centerY + eye.irisOffsetY, irisRadius, 0, 2 * Math.PI);
+            ctx.fillStyle = "#272727";
+            ctx.fill();
+        }
+
+        requestAnimationFrame(animate);
+        }
+
+        animate();
+    });
+    </script>
