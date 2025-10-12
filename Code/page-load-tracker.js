@@ -144,10 +144,15 @@ class PageLoadTracker {
     }
 
     // Skip lazy-loaded videos - they shouldn't be tracked for initial load
-    if (element.tagName === 'VIDEO' && 
-        (element.hasAttribute('loading') && element.getAttribute('loading') === 'lazy' ||
-         element.hasAttribute('preload') && element.getAttribute('preload') === 'none')) {
-      return;
+    if (element.tagName === 'VIDEO') {
+      const loading = element.getAttribute('loading');
+      const preload = element.getAttribute('preload');
+      const isLazy = loading === 'lazy' || preload === 'none' || preload === 'metadata';
+      
+      if (isLazy) {
+        console.log(`⏭️ Skipping lazy video: ${this.getShortUrl(src)} [${this.getElementSection(element)}]`);
+        return;
+      }
     }
 
     this.trackedResources.add(src);
@@ -158,7 +163,8 @@ class PageLoadTracker {
       type: element.tagName.toLowerCase(),
       startTime: performance.now(),
       size: this.getResourceSize(element),
-      status: 'pending'
+      status: 'pending',
+      element: element // Store element reference for section detection
     };
     this.resourceDetails.set(src, resourceInfo);
 
@@ -445,7 +451,9 @@ class PageLoadTracker {
   logResourceStarted(resourceInfo) {
     if (!this.config.enableDebugLogging) return;
     
-    console.log(`🔄 Loading ${resourceInfo.type.toUpperCase()}: ${this.getShortUrl(resourceInfo.url)} (${resourceInfo.size})`);
+    const section = this.getElementSection(resourceInfo.element);
+    const sectionInfo = section ? ` [${section}]` : '';
+    console.log(`🔄 Loading ${resourceInfo.type.toUpperCase()}: ${this.getShortUrl(resourceInfo.url)} (${resourceInfo.size})${sectionInfo}`);
     this.updateDebugPanel();
   }
 
@@ -472,6 +480,50 @@ class PageLoadTracker {
     } catch {
       return url.split('/').pop() || url;
     }
+  }
+
+  getElementSection(element) {
+    if (!element) return null;
+    
+    // Look for common section identifiers
+    const sectionSelectors = [
+      '[data-section]',
+      '.section',
+      '.hero',
+      '.portfolio',
+      '.gallery',
+      '.projects',
+      '.work',
+      '.about',
+      '.contact',
+      '.footer',
+      '.header',
+      '.nav'
+    ];
+    
+    let current = element;
+    while (current && current !== document.body) {
+      // Check for data-section attribute
+      if (current.hasAttribute('data-section')) {
+        return current.getAttribute('data-section');
+      }
+      
+      // Check for common class names
+      for (const selector of sectionSelectors) {
+        if (current.matches && current.matches(selector)) {
+          return selector.replace(/[\[\].]/g, '');
+        }
+      }
+      
+      // Check for ID
+      if (current.id) {
+        return `#${current.id}`;
+      }
+      
+      current = current.parentElement;
+    }
+    
+    return 'unknown-section';
   }
 
   // Debug panel methods
