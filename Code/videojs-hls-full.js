@@ -72,6 +72,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // Initialize Video.js player
   let player;
   let isVideoJSInitialized = false;
+  let loadingTimeout;
+  let retryCount = 0;
+  const MAX_RETRIES = 3;
+  const LOADING_TIMEOUT = 30000; // 30 seconds
 
   function initializeVideoJS() {
     if (isVideoJSInitialized || !video) return;
@@ -105,7 +109,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     console.log("🔗 HLS URL found:", hlsUrl);
     
-    // Initialize Video.js player
+    // Initialize Video.js player with enhanced HLS configuration
     player = videojs(video, {
       controls: false, // We'll use our custom controls
       fluid: true,
@@ -118,9 +122,26 @@ document.addEventListener("DOMContentLoaded", () => {
       }],
       html5: {
         vhs: {
-          overrideNative: true
+          overrideNative: true,
+          // Enhanced HLS configuration for better reliability
+          enableLowInitialPlaylist: true,
+          smoothQualityChange: true,
+          allowSeeksWithinUnsafeLiveWindow: true,
+          // Retry configuration
+          maxPlaylistRetries: 5,
+          playlistLoadTimeout: 10000,
+          manifestLoadTimeout: 10000,
+          // Bandwidth configuration
+          bandwidth: 4194304, // 4 Mbps default
+          // Live edge configuration
+          liveRangeSafeTimeDelta: 30,
+          liveRangeSafeTimeDeltaMultiple: 1.5
         }
-      }
+      },
+      // Additional player options for reliability
+      preload: 'metadata',
+      autoplay: false,
+      muted: false
     });
     
     isVideoJSInitialized = true;
@@ -128,6 +149,62 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Set up Video.js event listeners
     setupVideoJSEvents();
+    
+    // Set up loading timeout
+    setupLoadingTimeout();
+  }
+
+  // Set up loading timeout to prevent infinite loading
+  function setupLoadingTimeout() {
+    if (loadingTimeout) {
+      clearTimeout(loadingTimeout);
+    }
+    
+    loadingTimeout = setTimeout(() => {
+      if (player && player.readyState() < 2) {
+        console.warn("⏰ Loading timeout reached, attempting recovery...");
+        handleLoadingTimeout();
+      }
+    }, LOADING_TIMEOUT);
+  }
+
+  // Handle loading timeout
+  function handleLoadingTimeout() {
+    if (retryCount < MAX_RETRIES) {
+      retryCount++;
+      console.log(`🔄 Retry attempt ${retryCount}/${MAX_RETRIES}`);
+      
+      // Clear the timeout
+      if (loadingTimeout) {
+        clearTimeout(loadingTimeout);
+        loadingTimeout = null;
+      }
+      
+      // Reset player state
+      if (player) {
+        player.reset();
+        player.load();
+        setupLoadingTimeout();
+      }
+    } else {
+      console.error("❌ Max retries reached, showing error message");
+      showLoadingError();
+    }
+  }
+
+  // Show loading error message
+  function showLoadingError() {
+    console.error("❌ Video failed to load after multiple attempts");
+    // You could show a user-friendly error message here
+    // For now, we'll just log it
+  }
+
+  // Clear loading timeout when video starts loading successfully
+  function clearLoadingTimeout() {
+    if (loadingTimeout) {
+      clearTimeout(loadingTimeout);
+      loadingTimeout = null;
+    }
   }
 
   function setupVideoJSEvents() {
@@ -136,18 +213,34 @@ document.addEventListener("DOMContentLoaded", () => {
     // Video.js ready event
     player.ready(() => {
       console.log("🎯 Video.js player ready");
+      clearLoadingTimeout();
       setAspectRatio();
+    });
+    
+    // Video.js loadstart event - video starts loading
+    player.on('loadstart', () => {
+      console.log("🔄 Video.js loadstart event fired");
+      setupLoadingTimeout();
+    });
+    
+    // Video.js canplay event - video can start playing
+    player.on('canplay', () => {
+      console.log("✅ Video.js canplay event fired");
+      clearLoadingTimeout();
+      retryCount = 0; // Reset retry count on successful load
     });
     
     // Video.js loadedmetadata event
     player.on('loadedmetadata', () => {
       console.log("📊 Video.js loadedmetadata event fired");
+      clearLoadingTimeout();
       setAspectRatio();
     });
     
     // Video.js play event
     player.on('play', () => {
       console.log("▶️ Video.js play event fired");
+      clearLoadingTimeout();
       if (poster) poster.style.display = "none";
       if (play) play.style.display = "none";
       if (pause) pause.style.display = "inline-block";
@@ -185,17 +278,47 @@ document.addEventListener("DOMContentLoaded", () => {
       if (duration) duration.textContent = formatTime(player.duration());
     });
     
-    // Video.js error event - handle loading failures
+    // Video.js waiting event - video is buffering
+    player.on('waiting', () => {
+      console.log("⏳ Video.js waiting event fired - buffering");
+    });
+    
+    // Video.js canplaythrough event - video can play through without buffering
+    player.on('canplaythrough', () => {
+      console.log("✅ Video.js canplaythrough event fired");
+      clearLoadingTimeout();
+    });
+    
+    // Enhanced error handling with retry mechanism
     player.on('error', (error) => {
       console.error("❌ Video.js error:", player.error());
+      clearLoadingTimeout();
       
-      // Try to reload the video once if it fails
-      if (!player.hasStarted_) {
-        console.log("🔄 Attempting to reload video...");
-        setTimeout(() => {
-          player.src({ src: player.currentSource().src, type: player.currentSource().type });
-          player.load();
-        }, 1000);
+      const errorCode = player.error() ? player.error().code : 'unknown';
+      console.error("❌ Error code:", errorCode);
+      
+      // Handle different types of errors
+      if (errorCode === 4) { // MEDIA_ERR_SRC_NOT_SUPPORTED
+        console.error("❌ Media source not supported");
+        handleLoadingTimeout();
+      } else if (errorCode === 3) { // MEDIA_ERR_DECODE
+        console.error("❌ Media decode error");
+        handleLoadingTimeout();
+      } else if (errorCode === 2) { // MEDIA_ERR_NETWORK
+        console.error("❌ Network error");
+        handleLoadingTimeout();
+      } else {
+        // For other errors, try to reload once
+        if (!player.hasStarted_ && retryCount < MAX_RETRIES) {
+          console.log("🔄 Attempting to reload video...");
+          setTimeout(() => {
+            player.src({ src: player.currentSource().src, type: player.currentSource().type });
+            player.load();
+            setupLoadingTimeout();
+          }, 1000);
+        } else {
+          handleLoadingTimeout();
+        }
       }
     });
   }
@@ -489,6 +612,26 @@ window.addEventListener("resize", () => {
     setupControlEventListeners();
   }, 100);
 
+  // Cleanup function to prevent memory leaks
+  function cleanup() {
+    if (loadingTimeout) {
+      clearTimeout(loadingTimeout);
+      loadingTimeout = null;
+    }
+    if (player) {
+      player.dispose();
+      player = null;
+    }
+    isVideoJSInitialized = false;
+    retryCount = 0;
+  }
+
+  // Cleanup on page unload
+  window.addEventListener('beforeunload', cleanup);
+  window.addEventListener('unload', cleanup);
+
+  // Expose cleanup function globally for manual cleanup if needed
+  window.videoPlayerCleanup = cleanup;
 
 });
 

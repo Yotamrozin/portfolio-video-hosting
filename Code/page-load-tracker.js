@@ -639,13 +639,31 @@ class PageLoadTracker {
   }
 }
 
-// Auto-initialize when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    window.pageLoadTracker = new PageLoadTracker();
-  });
-} else {
+// Smart initialization - detect navigation vs fresh load
+const initializePageLoadTracker = () => {
+  // Check if this is a navigation (back/forward) or fresh load
+  const isNavigation = window.performance.navigation.type === 2 || // Back/forward
+                      window.performance.getEntriesByType('navigation')[0]?.type === 'back_forward';
+  
+  // Check if assets are likely cached (quick load times)
+  const navigationEntry = window.performance.getEntriesByType('navigation')[0];
+  const loadTime = navigationEntry ? navigationEntry.loadEventEnd - navigationEntry.loadEventStart : 0;
+  const isLikelyCached = loadTime < 100; // Less than 100ms suggests cached content
+  
+  if (isNavigation || isLikelyCached) {
+    // Skip loader for navigation - assets are likely cached
+    console.log('🚀 Navigation detected - skipping loader');
+    return;
+  }
+  
+  // Only show loader for fresh loads
   window.pageLoadTracker = new PageLoadTracker();
+};
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initializePageLoadTracker);
+} else {
+  initializePageLoadTracker();
 }
 
 // Fallback: ensure loader hides even if something goes wrong
