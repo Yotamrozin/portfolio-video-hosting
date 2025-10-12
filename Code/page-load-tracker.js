@@ -143,6 +143,13 @@ class PageLoadTracker {
       return;
     }
 
+    // Skip lazy-loaded videos - they shouldn't be tracked for initial load
+    if (element.tagName === 'VIDEO' && 
+        (element.hasAttribute('loading') && element.getAttribute('loading') === 'lazy' ||
+         element.hasAttribute('preload') && element.getAttribute('preload') === 'none')) {
+      return;
+    }
+
     this.trackedResources.add(src);
     
     // Store resource details
