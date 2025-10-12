@@ -16,6 +16,8 @@ class PageLoadTracker {
       minDisplayTime: 500, // Minimum time to show loader (ms)
       fadeOutDuration: 400, // Fade out animation duration (ms)
       updateThrottle: 16, // Update UI every 16ms (60fps)
+      enableDebugLogging: true, // Show detailed loading info in console
+      enableDebugPanel: false, // Show visual debug panel
     };
 
     // State
@@ -34,6 +36,8 @@ class PageLoadTracker {
     // Resource tracking
     this.trackedResources = new Set();
     this.resourceTypes = ['img', 'script', 'link', 'video', 'audio', 'iframe'];
+    this.resourceDetails = new Map(); // Track detailed info about each resource
+    this.loadingResources = new Set(); // Currently loading resources
     
     // Percentage animation
     this.currentDisplayPercentage = 0;
@@ -66,6 +70,11 @@ class PageLoadTracker {
     // Start tracking
     this.trackDOMProgress();
     this.setupPerformanceObserver();
+    
+    // Setup debug panel if enabled
+    if (this.config.enableDebugPanel) {
+      this.createDebugPanel();
+    }
     
     // Initial update
     this.updateUI(0);
@@ -135,24 +144,52 @@ class PageLoadTracker {
     }
 
     this.trackedResources.add(src);
+    
+    // Store resource details
+    const resourceInfo = {
+      url: src,
+      type: element.tagName.toLowerCase(),
+      startTime: performance.now(),
+      size: this.getResourceSize(element),
+      status: 'pending'
+    };
+    this.resourceDetails.set(src, resourceInfo);
 
     // Check if already loaded
     if (this.isElementLoaded(element)) {
+      resourceInfo.status = 'loaded';
+      resourceInfo.endTime = performance.now();
+      resourceInfo.duration = resourceInfo.endTime - resourceInfo.startTime;
       this.loadedResources++;
+      this.logResourceLoaded(resourceInfo);
       this.updateProgress();
       return;
     }
 
     // Track loading
+    this.loadingResources.add(src);
+    resourceInfo.status = 'loading';
+    this.logResourceStarted(resourceInfo);
+
     const onLoad = () => {
+      resourceInfo.status = 'loaded';
+      resourceInfo.endTime = performance.now();
+      resourceInfo.duration = resourceInfo.endTime - resourceInfo.startTime;
+      this.loadingResources.delete(src);
       this.loadedResources++;
+      this.logResourceLoaded(resourceInfo);
       this.updateProgress();
       cleanup();
     };
 
     const onError = () => {
+      resourceInfo.status = 'error';
+      resourceInfo.endTime = performance.now();
+      resourceInfo.duration = resourceInfo.endTime - resourceInfo.startTime;
+      this.loadingResources.delete(src);
       console.warn('Failed to load resource:', src);
       this.loadedResources++; // Count errors as loaded to prevent hanging
+      this.logResourceError(resourceInfo);
       this.updateProgress();
       cleanup();
     };
@@ -386,6 +423,190 @@ class PageLoadTracker {
     }
   }
 
+  // Resource size estimation
+  getResourceSize(element) {
+    if (element.tagName === 'IMG') {
+      return `${element.naturalWidth || '?'}x${element.naturalHeight || '?'}`;
+    }
+    if (element.tagName === 'VIDEO') {
+      return `${element.videoWidth || '?'}x${element.videoHeight || '?'}`;
+    }
+    return 'unknown';
+  }
+
+  // Debug logging methods
+  logResourceStarted(resourceInfo) {
+    if (!this.config.enableDebugLogging) return;
+    
+    console.log(`🔄 Loading ${resourceInfo.type.toUpperCase()}: ${this.getShortUrl(resourceInfo.url)} (${resourceInfo.size})`);
+    this.updateDebugPanel();
+  }
+
+  logResourceLoaded(resourceInfo) {
+    if (!this.config.enableDebugLogging) return;
+    
+    const duration = Math.round(resourceInfo.duration);
+    console.log(`✅ Loaded ${resourceInfo.type.toUpperCase()}: ${this.getShortUrl(resourceInfo.url)} (${duration}ms)`);
+    this.updateDebugPanel();
+  }
+
+  logResourceError(resourceInfo) {
+    if (!this.config.enableDebugLogging) return;
+    
+    const duration = Math.round(resourceInfo.duration);
+    console.error(`❌ Failed ${resourceInfo.type.toUpperCase()}: ${this.getShortUrl(resourceInfo.url)} (${duration}ms)`);
+    this.updateDebugPanel();
+  }
+
+  getShortUrl(url) {
+    try {
+      const urlObj = new URL(url);
+      return urlObj.pathname.split('/').pop() || urlObj.hostname;
+    } catch {
+      return url.split('/').pop() || url;
+    }
+  }
+
+  // Debug panel methods
+  createDebugPanel() {
+    if (this.debugPanel) return;
+    
+    this.debugPanel = document.createElement('div');
+    this.debugPanel.id = 'page-load-debug-panel';
+    this.debugPanel.style.cssText = `
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      width: 300px;
+      max-height: 400px;
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      font-family: monospace;
+      font-size: 12px;
+      padding: 10px;
+      border-radius: 5px;
+      z-index: 10000;
+      overflow-y: auto;
+      border: 1px solid #333;
+    `;
+    
+    document.body.appendChild(this.debugPanel);
+    this.updateDebugPanel();
+  }
+
+  updateDebugPanel() {
+    if (!this.debugPanel) return;
+    
+    const loadingCount = this.loadingResources.size;
+    const loadedCount = this.loadedResources;
+    const totalCount = this.totalResources;
+    const progress = totalCount > 0 ? Math.round((loadedCount / totalCount) * 100) : 0;
+    
+    let html = `
+      <div style="margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px;">
+        <strong>Page Load Debug</strong><br>
+        Progress: ${progress}% (${loadedCount}/${totalCount})<br>
+        Currently loading: ${loadingCount}
+      </div>
+    `;
+    
+    // Show currently loading resources
+    if (loadingCount > 0) {
+      html += '<div style="margin-bottom: 10px;"><strong>Loading:</strong><br>';
+      this.loadingResources.forEach(url => {
+        const info = this.resourceDetails.get(url);
+        if (info) {
+          const elapsed = Math.round(performance.now() - info.startTime);
+          html += `🔄 ${info.type.toUpperCase()}: ${this.getShortUrl(url)} (${elapsed}ms)<br>`;
+        }
+      });
+      html += '</div>';
+    }
+    
+    // Show recently loaded resources (last 5)
+    const loadedResources = Array.from(this.resourceDetails.values())
+      .filter(info => info.status === 'loaded')
+      .sort((a, b) => b.endTime - a.endTime)
+      .slice(0, 5);
+    
+    if (loadedResources.length > 0) {
+      html += '<div><strong>Recently loaded:</strong><br>';
+      loadedResources.forEach(info => {
+        html += `✅ ${info.type.toUpperCase()}: ${this.getShortUrl(info.url)} (${Math.round(info.duration)}ms)<br>`;
+      });
+      html += '</div>';
+    }
+    
+    this.debugPanel.innerHTML = html;
+  }
+
+  // Performance analysis methods
+  getPerformanceReport() {
+    const resources = Array.from(this.resourceDetails.values());
+    const loadedResources = resources.filter(r => r.status === 'loaded');
+    const errorResources = resources.filter(r => r.status === 'error');
+    
+    const report = {
+      totalResources: this.totalResources,
+      loadedResources: this.loadedResources,
+      errorResources: errorResources.length,
+      loadingTime: performance.now() - this.startTime,
+      resourcesByType: {},
+      slowestResources: [],
+      largestResources: []
+    };
+    
+    // Group by type
+    loadedResources.forEach(resource => {
+      if (!report.resourcesByType[resource.type]) {
+        report.resourcesByType[resource.type] = { count: 0, totalTime: 0 };
+      }
+      report.resourcesByType[resource.type].count++;
+      report.resourcesByType[resource.type].totalTime += resource.duration;
+    });
+    
+    // Find slowest resources
+    report.slowestResources = loadedResources
+      .sort((a, b) => b.duration - a.duration)
+      .slice(0, 5)
+      .map(r => ({
+        url: r.url,
+        type: r.type,
+        duration: Math.round(r.duration),
+        size: r.size
+      }));
+    
+    return report;
+  }
+
+  logPerformanceReport() {
+    const report = this.getPerformanceReport();
+    
+    console.group('📊 Page Load Performance Report');
+    console.log(`Total loading time: ${Math.round(report.loadingTime)}ms`);
+    console.log(`Resources loaded: ${report.loadedResources}/${report.totalResources}`);
+    console.log(`Errors: ${report.errorResources}`);
+    
+    console.group('Resources by type:');
+    Object.entries(report.resourcesByType).forEach(([type, data]) => {
+      const avgTime = Math.round(data.totalTime / data.count);
+      console.log(`${type.toUpperCase()}: ${data.count} files, avg ${avgTime}ms each`);
+    });
+    console.groupEnd();
+    
+    if (report.slowestResources.length > 0) {
+      console.group('Slowest resources:');
+      report.slowestResources.forEach(resource => {
+        console.log(`${resource.type.toUpperCase()}: ${this.getShortUrl(resource.url)} (${resource.duration}ms)`);
+      });
+      console.groupEnd();
+    }
+    
+    console.groupEnd();
+    
+    return report;
+  }
+
   // Public API for manual control
   setProgress(percentage) {
     this.updateUI(percentage / 100);
@@ -393,6 +614,28 @@ class PageLoadTracker {
 
   hide() {
     this.fadeOutLoader();
+  }
+
+  // Debug controls
+  enableDebugMode() {
+    this.config.enableDebugLogging = true;
+    this.config.enableDebugPanel = true;
+    this.createDebugPanel();
+    console.log('🔍 Debug mode enabled');
+  }
+
+  disableDebugMode() {
+    this.config.enableDebugLogging = false;
+    this.config.enableDebugPanel = false;
+    if (this.debugPanel) {
+      this.debugPanel.remove();
+      this.debugPanel = null;
+    }
+    console.log('🔍 Debug mode disabled');
+  }
+
+  showPerformanceReport() {
+    return this.logPerformanceReport();
   }
 }
 
@@ -410,6 +653,39 @@ window.addEventListener('load', () => {
   setTimeout(() => {
     if (window.pageLoadTracker && document.querySelector('[data-loader]')) {
       window.pageLoadTracker.completeLoading();
+      
+      // Auto-generate performance report when loading completes
+      if (window.pageLoadTracker.config.enableDebugLogging) {
+        setTimeout(() => {
+          window.pageLoadTracker.showPerformanceReport();
+        }, 1000);
+      }
     }
   }, 3000); // Give it 3 seconds after window.load
 });
+
+// Global debug controls
+window.enablePageLoadDebug = () => {
+  if (window.pageLoadTracker) {
+    window.pageLoadTracker.enableDebugMode();
+  } else {
+    console.warn('PageLoadTracker not initialized yet');
+  }
+};
+
+window.disablePageLoadDebug = () => {
+  if (window.pageLoadTracker) {
+    window.pageLoadTracker.disableDebugMode();
+  } else {
+    console.warn('PageLoadTracker not initialized yet');
+  }
+};
+
+window.showPageLoadReport = () => {
+  if (window.pageLoadTracker) {
+    return window.pageLoadTracker.showPerformanceReport();
+  } else {
+    console.warn('PageLoadTracker not initialized yet');
+    return null;
+  }
+};
