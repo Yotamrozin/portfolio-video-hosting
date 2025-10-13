@@ -382,11 +382,13 @@ class PageLoadTracker {
       // Trigger custom event
       document.dispatchEvent(new CustomEvent('pageLoadComplete'));
       
-      // Trigger Webflow animations
+      // Trigger Webflow animations with better error handling
       if (typeof Webflow !== 'undefined') {
         try {
-          const wfIx = Webflow.require("ix3")
-          wfIx.emit("page-fully-loaded");
+          const wfIx = Webflow.require("ix3");
+          if (wfIx && typeof wfIx.emit === 'function') {
+            wfIx.emit("page-fully-loaded");
+          }
         } catch (e) {
           console.warn('Could not trigger Webflow animations:', e);
         }
@@ -744,10 +746,12 @@ const initializePageLoadTracker = () => {
   window.pageLoadTracker = new PageLoadTracker();
 };
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initializePageLoadTracker);
+// Use requestIdleCallback for non-blocking initialization
+if (window.requestIdleCallback) {
+  requestIdleCallback(initializePageLoadTracker, { timeout: 2000 });
 } else {
-  initializePageLoadTracker();
+  // Fallback for browsers without requestIdleCallback
+  setTimeout(initializePageLoadTracker, 100);
 }
 
 // Fallback: ensure loader hides even if something goes wrong
@@ -791,3 +795,4 @@ window.showPageLoadReport = () => {
     return null;
   }
 };
+
