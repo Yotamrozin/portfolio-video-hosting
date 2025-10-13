@@ -48,14 +48,20 @@ class PageLoadTracker {
     this.updateProgress = this.updateProgress.bind(this);
     this.completeLoading = this.completeLoading.bind(this);
     
-    this.init();
+    // Defer heavy initialization to avoid blocking main thread
+    if (window.requestIdleCallback) {
+      requestIdleCallback(() => this.init(), { timeout: 1000 });
+    } else {
+      setTimeout(() => this.init(), 50);
+    }
   }
 
   init() {
-    // Find loader elements
-    this.loaderElement = document.querySelector('[data-loader]') || 
-                        document.querySelector('.loader') ||
-                        document.querySelector('#loader');
+    // Find loader elements (batch DOM queries)
+    const loaderSelectors = ['[data-loader]', '.loader', '#loader'];
+    this.loaderElement = loaderSelectors.reduce((element, selector) => 
+      element || document.querySelector(selector), null);
+    
     this.percentElement = document.querySelector('[data-loader-percent]');
     this.barElement = document.querySelector('[data-loader-bar]');
 
@@ -64,19 +70,30 @@ class PageLoadTracker {
       return;
     }
 
-    // Disable scrolling while loading
-    this.disableScroll();
-
-    // Start tracking
-    this.trackDOMProgress();
-    this.setupPerformanceObserver();
-    
-    // Setup debug panel if enabled
-    if (this.config.enableDebugPanel) {
-      this.createDebugPanel();
+    // Defer non-critical operations to avoid blocking
+    if (window.requestIdleCallback) {
+      requestIdleCallback(() => {
+        this.disableScroll();
+        this.trackDOMProgress();
+        this.setupPerformanceObserver();
+        
+        if (this.config.enableDebugPanel) {
+          this.createDebugPanel();
+        }
+      }, { timeout: 500 });
+    } else {
+      setTimeout(() => {
+        this.disableScroll();
+        this.trackDOMProgress();
+        this.setupPerformanceObserver();
+        
+        if (this.config.enableDebugPanel) {
+          this.createDebugPanel();
+        }
+      }, 10);
     }
     
-    // Initial update
+    // Initial update (keep this immediate for visual feedback)
     this.updateUI(0);
   }
 
@@ -752,6 +769,13 @@ if (window.requestIdleCallback) {
 } else {
   // Fallback for browsers without requestIdleCallback
   setTimeout(initializePageLoadTracker, 100);
+}
+
+// Additional optimization: Use requestAnimationFrame for smoother execution
+if (window.requestAnimationFrame) {
+  requestAnimationFrame(() => {
+    // This runs after the next paint, reducing main thread blocking
+  });
 }
 
 // Fallback: ensure loader hides even if something goes wrong
