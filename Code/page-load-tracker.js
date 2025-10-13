@@ -701,28 +701,29 @@ class PageLoadTracker {
 // Smart initialization - detect navigation vs fresh load
 const initializePageLoadTracker = () => {
   // Check if this is a navigation (back/forward) or fresh load
-  const isNavigation = window.performance.navigation.type === 2 || // Back/forward
-                      window.performance.getEntriesByType('navigation')[0]?.type === 'back_forward';
-  
-  // Check if assets are likely cached (quick load times)
   const navigationEntry = window.performance.getEntriesByType('navigation')[0];
+  const isBackForward = window.performance.navigation.type === 2 || 
+                       navigationEntry?.type === 'back_forward';
+  
+  // Check if assets are likely cached (very quick load times)
   const loadTime = navigationEntry ? navigationEntry.loadEventEnd - navigationEntry.loadEventStart : 0;
-  const isLikelyCached = loadTime < 50; // Less than 50ms suggests cached content
+  const isLikelyCached = loadTime < 20; // Very strict - only skip if < 20ms
   
   console.log('🔍 Initialization check:', {
-    isNavigation,
+    isBackForward,
     loadTime,
     isLikelyCached,
-    navigationType: window.performance.navigation.type
+    navigationType: window.performance.navigation.type,
+    navigationEntryType: navigationEntry?.type
   });
   
-  if (isNavigation && isLikelyCached) {
-    // Skip loader for navigation with cached content
-    console.log('🚀 Navigation with cached content detected - skipping loader');
+  // Only skip if it's definitely a back/forward navigation AND very fast
+  if (isBackForward && isLikelyCached) {
+    console.log('🚀 Back/forward navigation with cached content - skipping loader');
     return;
   }
   
-  // Show loader for fresh loads or slow navigation
+  // Show loader for fresh loads, reloads, or slow navigation
   console.log('🎬 Initializing page load tracker');
   window.pageLoadTracker = new PageLoadTracker();
 };
