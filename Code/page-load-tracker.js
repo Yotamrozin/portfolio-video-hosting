@@ -700,6 +700,10 @@ class PageLoadTracker {
 
 // Smart initialization - detect navigation vs fresh load
 const initializePageLoadTracker = () => {
+  // Browser detection
+  const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+  const isChrome = navigator.userAgent.toLowerCase().includes('chrome');
+  
   // Check if this is a navigation (back/forward) or fresh load
   const navigationEntry = window.performance.getEntriesByType('navigation')[0];
   const isBackForward = window.performance.navigation.type === 2 || 
@@ -710,17 +714,29 @@ const initializePageLoadTracker = () => {
   const isLikelyCached = loadTime < 20; // Very strict - only skip if < 20ms
   
   console.log('🔍 Initialization check:', {
+    browser: isFirefox ? 'Firefox' : isChrome ? 'Chrome' : 'Other',
     isBackForward,
     loadTime,
     isLikelyCached,
     navigationType: window.performance.navigation.type,
-    navigationEntryType: navigationEntry?.type
+    navigationEntryType: navigationEntry?.type,
+    userAgent: navigator.userAgent.substring(0, 50) + '...'
   });
   
-  // Only skip if it's definitely a back/forward navigation AND very fast
-  if (isBackForward && isLikelyCached) {
-    console.log('🚀 Back/forward navigation with cached content - skipping loader');
-    return;
+  // Firefox-specific: Be more conservative with skipping loader
+  if (isFirefox) {
+    console.log('🦊 Firefox detected - using conservative loader behavior');
+    // Only skip for very obvious back/forward with very fast load
+    if (isBackForward && loadTime < 10) {
+      console.log('🚀 Firefox: Back/forward with very fast load - skipping loader');
+      return;
+    }
+  } else {
+    // Chrome/Brave: Use normal logic
+    if (isBackForward && isLikelyCached) {
+      console.log('🚀 Chrome/Brave: Back/forward navigation with cached content - skipping loader');
+      return;
+    }
   }
   
   // Show loader for fresh loads, reloads, or slow navigation
