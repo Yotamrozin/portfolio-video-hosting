@@ -1,59 +1,12 @@
-
 /* ================================
-   GLOBAL ANIMATION REGISTRY
+   STREAMLINED ANIMATION SYSTEM
    ================================ */
 
-/* === ANIMATION MAP ===
- * 
- * HOVER ANIMATIONS:
- * - Transform:
- *   - scale-up-backout: Scales up with bouncy effect
- *   - slide-right-backout: Slides right with bouncy effect
- *   - slide-left-backout: Slides left with bouncy effect
- * - Opacity:
- *   - flash: Flash effect
- *   - fade-in: Fade in
- *   - fade-out: Fade out
- * - Color:
- *   - white: Changes text color to white
- *   - primary: Changes text color to primary color
- *   - secondary: Changes text color to secondary color
- * - Background:
- *   - primary: Changes background to primary color
- *   - secondary: Changes background to secondary color
- *   - dark: Changes background to dark color
- * 
- * SCROLL ANIMATIONS:
- * - Basic:
- *   - slide-up: Gentle slide up animation
- *   - slide-right: Gentle slide right animation
- *   - scale-up: Gentle scale up animation
- *   - fade-in: Fade in animation
- * - Bouncy:
- *   - slide-up-backout: Bouncy slide up animation
- *   - scale-up-backout: Bouncy scale up animation
- * - Staggered:
- *   - slide-right-stagger: Staggered slide right animation
- *   - scale-up-stagger: Staggered scale up animation
- *   - slide-up-stagger: Staggered slide up animation
- *   - slide-up-backout-stagger: Staggered bouncy slide up animation
- *   - scale-up-backout-stagger: Staggered bouncy scale up animation
- */
+/* Only includes CSS rules that are actually used in the project */
 
-/* === TRANSFORMS === */
-/* Scale Up Backout */
-[hover-transform="scale-up-backout"],
-.u-animate-contained [hover-transform="scale-up-backout"] {
-  transform: scale(1);
-  transition: transform 0.4s cubic-bezier(0.404, 0.967, 0.076, 1.429);
-  will-change: transform;
-}
-[hover-transform="scale-up-backout"]:hover,
-.u-animate-contained:hover [hover-transform="scale-up-backout"] {
-  transform: scale(1.035);
-}
+/* === USED HOVER ANIMATIONS === */
 
-/* Slide Right Backout */
+/* Slide Right Backout - Used in project rows */
 [hover-transform="slide-right-backout"],
 .u-animate-contained [hover-transform="slide-right-backout"] {
   transform: translateX(0);
@@ -65,7 +18,7 @@
   transform: translateX(1.5rem);
 }
 
-/* Slide Left Backout */
+/* Slide Left Backout - Used in project rows */
 [hover-transform="slide-left-backout"],
 .u-animate-contained [hover-transform="slide-left-backout"] {
   transform: translateX(0);
@@ -77,7 +30,20 @@
   transform: translateX(-1.5rem);
 }
 
-/* === OPACITY === */
+/* Darken Color - Used in project rows */
+[hover-color="darken"],
+.u-animate-contained [hover-color="darken"] {
+  color: inherit;
+  transition: color 0.3s ease;
+  will-change: color;
+}
+[hover-color="darken"]:hover,
+.u-animate-contained:hover [hover-color="darken"],
+.u-animate-contained:hover [hover-color="darken"] * {
+  color: #272727 !important;
+}
+
+/* Flash Opacity - Used in project rows */
 [hover-opacity="flash"],
 .u-animate-contained [hover-opacity="flash"] {
   position: absolute;
@@ -95,7 +61,7 @@
   animation: flash-opacity 0.4s ease forwards;
 }
 
-/* === FADE OVERLAY === */
+/* Fade Overlay - Used in project rows */
 [hover-opacity="fade"],
 [hover="opacity-fade"],
 .u-animate-contained [hover-opacity="fade"],
@@ -114,136 +80,6 @@
   opacity: 1;
 }
 
-/* === COLORS === */
-/* Flash White */
-[hover-color="flash-white"],
-.u-animate-contained [hover-color="flash-white"] {
-  color: inherit;
-  will-change: color;
-}
-[hover-color="flash-white"]:hover,
-.u-animate-contained:hover [hover-color="flash-white"] {
-  animation: color-flash-white 0.4s ease forwards;
-}
-
-/* Darken from current color */
-[hover-color="darken"],
-.u-animate-contained [hover-color="darken"] {
-  color: inherit;
-  transition: color 0.3s ease;
-  will-change: color;
-}
-[hover-color="darken"]:hover,
-.u-animate-contained:hover [hover-color="darken"],
-.u-animate-contained:hover [hover-color="darken"] * {
-  color: #272727 !important;
-}
- 
-
-/* Lighten from current color */
-[hover-color="lighten"],
-.u-animate-contained [hover-color="lighten"] {
-  color: inherit;
-  transition: color 0.3s ease;
-  will-change: color;
-}
-[hover-color="lighten"]:hover,
-.u-animate-contained:hover [hover-color="lighten"] {
-  color: #ffffff;
-}
-
-/* === BACKGROUND COLORS === */
-[hover-bg-color="lavender"],
-.u-animate-contained [hover-bg-color="lavender"],
-[hover-bg-color="white"],
-.u-animate-contained [hover-bg-color="white"],
-[hover-bg-color="dark"],
-.u-animate-contained [hover-bg-color="dark"] {
-  background-color: transparent;
-  transition: background-color 0.3s ease;
-  will-change: background-color;
-}
-
-[hover-bg-color="lavender"]:hover,
-.u-animate-contained:hover [hover-bg-color="lavender"] {
-  background-color: var(--accent-lavender);
-}
-
-[hover-bg-color="white"]:hover,
-.u-animate-contained:hover [hover-bg-color="white"] {
-  background-color: var(--light-100);
-}
-
-[hover-bg-color="dark"]:hover,
-.u-animate-contained:hover [hover-bg-color="dark"] {
-  background-color: var(--dark-900);
-}
-
-/* === FONT COLORS === */
-[hover-font-color="grey"],
-.u-animate-contained [hover-font-color="grey"],
-[hover-font-color="white"],
-.u-animate-contained [hover-font-color="white"],
-[hover-font-color="dark"],
-.u-animate-contained [hover-font-color="dark"] {
-  color: inherit;
-  transition: color 0.3s ease;
-  will-change: color;
-}
-
-[hover-font-color="grey"]:hover,
-.u-animate-contained:hover [hover-font-color="grey"] { color: #666666; }
-[hover-font-color="white"]:hover,
-.u-animate-contained:hover [hover-font-color="white"] { color: #ffffff; }
-[hover-font-color="dark"]:hover,
-.u-animate-contained:hover [hover-font-color="dark"] { color: #272727; }
-
-/* === LEGACY SUPPORT === */
-[hover-move="slide-left"],
-.u-animate-contained [hover-move="slide-left"] {
-  transform: translateX(0);
-  transition: transform 0.35s cubic-bezier(0.404, 0.967, 0.076, 1.429), color 0.3s ease;
-  will-change: transform, color;
-}
-[hover-move="slide-left"]:hover,
-.u-animate-contained:hover [hover-move="slide-left"] {
-  transform: translateX(-1.5rem);
-  color: #272727;
-}
-
-/* Parent container hover states */
-.project-list-item:hover,
-.project-list-item-wrapper:hover,
-.u-animate-contained:hover {
-  color: #272727;
-}
-
-
-/* === MULTI-ANIMATION COORDINATION === */
-[hover-transform][hover-color],
-.u-animate-contained [hover-transform][hover-color] {
-  transition: transform 0.35s cubic-bezier(0.404, 0.967, 0.076, 1.429),
-              color 0.3s ease;
-}
-
-[hover-transform][hover-bg-color],
-.u-animate-contained [hover-transform][hover-bg-color] {
-  transition: transform 0.35s cubic-bezier(0.404, 0.967, 0.076, 1.429),
-              background-color 0.3s ease;
-}
-
-[hover-color][hover-bg-color],
-.u-animate-contained [hover-color][hover-bg-color] {
-  transition: color 0.3s ease, background-color 0.3s ease;
-}
-
-[hover-transform][hover-color][hover-bg-color],
-.u-animate-contained [hover-transform][hover-color][hover-bg-color] {
-  transition: transform 0.35s cubic-bezier(0.404, 0.967, 0.076, 1.429),
-              color 0.3s ease,
-              background-color 0.3s ease;
-}
-
 /* === KEYFRAMES === */
 @keyframes flash-opacity {
   0% { opacity: 0; }
@@ -251,25 +87,8 @@
   100% { opacity: 0; }
 }
 
-@keyframes color-flash-white {
-  0%, 50% { color: #ffffff; }
-  100% { color: inherit; }
-}
-
-/* === Z-INDEX MANAGEMENT === */
-.u-zindex-1 { z-index: 1; }
-.u-zindex-2 { z-index: 2; }
-.u-zindex-5 { z-index: 5; }
-.u-zindex-10 { z-index: 10; }
-
-
-
-/* ================================
-   SCROLL ANIMATIONS
-  ================================ */
-
+/* === SCROLL ANIMATIONS === */
 /* Base styles for all scroll animations */
-/* Replace the existing [scroll-animate] rule with: */
 [scroll-animate] {
   opacity: 0;
   transition: opacity 0.3s ease; /* Fallback transition */
@@ -284,48 +103,15 @@ html:not(.gsap-loaded) [scroll-animate] {
 /* Ensure stagger containers are always visible */
 [scroll-animate*="stagger"] {
   opacity: 1 !important;
-}
-
-/* IMPORTANT FIX: Stagger containers should be visible immediately */
-[scroll-animate*="stagger"] {
-  opacity: 1 !important;
   transform: none !important;
 }
 
-/* ================================
-   SCROLL ANIMATIONS REMOVED
-   ================================ */
-
-/* 
- * All scroll animations are now handled by GSAP for better performance.
- * This includes:
- * - slide-up, slide-down, slide-left, slide-right
- * - fade-in, scale-up
- * - slide-up-backout, scale-up-backout
- * - All stagger variants and delay classes
- * 
- * See gsap-scroll-animation.js for the new implementation.
- */
 [scroll-animate*="stagger"] > * {
   opacity: 0;
 }
 
-/* Potential Conflicts
-1. Double Animation Triggers: Solution 1's `checkInitialVisibility()` function might conflict with Solution 2's CSS transitions, causing elements to animate twice or have competing opacity values.
-2. CSS Override Issues: The `!important` rules in Solution 2 might prevent Solution 1's GSAP animations from working properly.
-3. Debug Console Spam: The debug mode will log continuously, making it hard to see actual errors.
-
-Recommended Fix
-Remove Solution 2 CSS changes** and keep only Solution 1 + debug mode. Here's what to do:
-
-### 1. Revert CSS Changes
-In <mcfile name="css-animation-system.css" path="d:\Dropbox\Yotam\Work Projects\Portfolio\Website 2025\Code\portfolio-video-hosting\Code\css-animation-system.css"></mcfile>, change back to:
-```css
-[scroll-animate] {
-  opacity: 0;
-}
-
-[scroll-animate*="stagger"] > * {
-  opacity: 0;
-}
-```
+/* === Z-INDEX MANAGEMENT === */
+.u-zindex-1 { z-index: 1; }
+.u-zindex-2 { z-index: 2; }
+.u-zindex-5 { z-index: 5; }
+.u-zindex-10 { z-index: 10; }
