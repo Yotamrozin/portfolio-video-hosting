@@ -402,13 +402,25 @@ class PageLoadTracker {
       // Trigger Webflow animations with better error handling
       if (typeof Webflow !== 'undefined') {
         try {
-          const wfIx = Webflow.require("ix3");
-          if (wfIx && typeof wfIx.emit === 'function') {
-            wfIx.emit("page-fully-loaded");
-          }
+          // Wait a bit for Webflow to be fully ready
+          setTimeout(() => {
+            try {
+              const wfIx = Webflow.require("ix3");
+              if (wfIx && typeof wfIx.emit === 'function') {
+                wfIx.emit("page-fully-loaded");
+                console.log('✅ Webflow animations triggered successfully');
+              } else {
+                console.warn('⚠️ Webflow ix3 not available or emit function missing');
+              }
+            } catch (innerError) {
+              console.warn('⚠️ Error triggering Webflow animations:', innerError.message);
+            }
+          }, 100);
         } catch (e) {
-          console.warn('Could not trigger Webflow animations:', e);
+          console.warn('⚠️ Could not trigger Webflow animations:', e.message);
         }
+      } else {
+        console.warn('⚠️ Webflow not available');
       }
       
       // Trigger Rive animations
