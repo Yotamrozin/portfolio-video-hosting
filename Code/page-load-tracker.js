@@ -707,15 +707,23 @@ const initializePageLoadTracker = () => {
   // Check if assets are likely cached (quick load times)
   const navigationEntry = window.performance.getEntriesByType('navigation')[0];
   const loadTime = navigationEntry ? navigationEntry.loadEventEnd - navigationEntry.loadEventStart : 0;
-  const isLikelyCached = loadTime < 100; // Less than 100ms suggests cached content
+  const isLikelyCached = loadTime < 50; // Less than 50ms suggests cached content
   
-  if (isNavigation || isLikelyCached) {
-    // Skip loader for navigation - assets are likely cached
-    console.log('🚀 Navigation detected - skipping loader');
+  console.log('🔍 Initialization check:', {
+    isNavigation,
+    loadTime,
+    isLikelyCached,
+    navigationType: window.performance.navigation.type
+  });
+  
+  if (isNavigation && isLikelyCached) {
+    // Skip loader for navigation with cached content
+    console.log('🚀 Navigation with cached content detected - skipping loader');
     return;
   }
   
-  // Only show loader for fresh loads
+  // Show loader for fresh loads or slow navigation
+  console.log('🎬 Initializing page load tracker');
   window.pageLoadTracker = new PageLoadTracker();
 };
 
