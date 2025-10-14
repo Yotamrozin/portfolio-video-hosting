@@ -63,6 +63,7 @@ class MinimalPageLoadTracker {
     const deferredInit = () => {
       this.disableScroll();
       this.trackDOMProgress();
+      this.trackAllResources();
     };
 
     if (window.requestIdleCallback) {
@@ -90,6 +91,12 @@ class MinimalPageLoadTracker {
 
     updateDOMProgress();
     document.addEventListener('readystatechange', updateDOMProgress);
+    
+    // Also track when window loads
+    window.addEventListener('load', () => {
+      this.domProgress = 100;
+      this.updateProgress();
+    });
   }
 
   disableScroll() {
@@ -153,6 +160,15 @@ class MinimalPageLoadTracker {
       const elements = document.querySelectorAll(tagName);
       elements.forEach(element => this.trackElement(element));
     });
+    
+    // Force completion after a reasonable time
+    setTimeout(() => {
+      if (this.loadedResources < this.totalResources) {
+        console.log(`Minimal tracker: Forcing completion (${this.loadedResources}/${this.totalResources})`);
+        this.loadedResources = this.totalResources;
+        this.updateProgress();
+      }
+    }, 10000); // 10 second timeout
   }
 
   updateProgress() {
@@ -161,11 +177,16 @@ class MinimalPageLoadTracker {
     
     const domProgress = this.domProgress || 0;
     const resourceProgress = this.totalResources > 0 ? 
-      (this.loadedResources / this.totalResources) * 100 : 0;
+      (this.loadedResources / this.totalResources) * 100 : 100;
     
     const totalProgress = (domProgress * domWeight) + (resourceProgress * resourceWeight);
     
-    this.updateUI(totalProgress);
+    // Ensure we don't get stuck at low percentages
+    if (totalProgress >= 95) {
+      this.updateUI(100);
+    } else {
+      this.updateUI(totalProgress);
+    }
   }
 
   updateUI(percentage) {
@@ -194,6 +215,9 @@ class MinimalPageLoadTracker {
   fadeOutLoader() {
     if (!this.loaderElement) return;
 
+    console.log('🎬 Minimal tracker: Starting fade out');
+
+    // Enable scroll immediately
     this.enableScroll();
 
     // Simple fade out
@@ -203,39 +227,46 @@ class MinimalPageLoadTracker {
     setTimeout(() => {
       if (this.loaderElement) {
         this.loaderElement.style.display = 'none';
+        console.log('✅ Minimal tracker: Loader hidden');
       }
     }, this.config.fadeOutDuration);
 
-    // Trigger Webflow animations (essential)
-    if (typeof Webflow !== 'undefined') {
-      try {
-        setTimeout(() => {
-          try {
-            const wfIx = Webflow.require("ix3");
-            if (wfIx && typeof wfIx.emit === 'function') {
-              wfIx.emit("page-fully-loaded");
-            }
-          } catch (innerError) {
-            console.warn('⚠️ Error triggering Webflow animations:', innerError.message);
+    // Trigger Webflow animations (essential) - with better timing
+    setTimeout(() => {
+      if (typeof Webflow !== 'undefined') {
+        try {
+          const wfIx = Webflow.require("ix3");
+          if (wfIx && typeof wfIx.emit === 'function') {
+            wfIx.emit("page-fully-loaded");
+            console.log('✅ Minimal tracker: Webflow animations triggered');
+          } else {
+            console.warn('⚠️ Minimal tracker: Webflow ix3 not available');
           }
-        }, 100);
-      } catch (e) {
-        console.warn('⚠️ Could not trigger Webflow animations:', e.message);
+        } catch (innerError) {
+          console.warn('⚠️ Minimal tracker: Error triggering Webflow animations:', innerError.message);
+        }
+      } else {
+        console.warn('⚠️ Minimal tracker: Webflow not available');
       }
-    }
+    }, 200);
 
     // Trigger Rive animations (essential)
-    if (window.riveInstances && Array.isArray(window.riveInstances)) {
-      window.riveInstances.forEach((riveInstance, index) => {
-        try {
-          if (riveInstance && typeof riveInstance.play === 'function') {
-            riveInstance.play();
+    setTimeout(() => {
+      if (window.riveInstances && Array.isArray(window.riveInstances)) {
+        window.riveInstances.forEach((riveInstance, index) => {
+          try {
+            if (riveInstance && typeof riveInstance.play === 'function') {
+              riveInstance.play();
+              console.log(`✅ Minimal tracker: Rive animation ${index + 1} started`);
+            }
+          } catch (error) {
+            console.warn(`⚠️ Minimal tracker: Error starting Rive animation ${index + 1}:`, error.message);
           }
-        } catch (error) {
-          console.warn(`⚠️ Error starting Rive animation ${index + 1}:`, error.message);
-        }
-      });
-    }
+        });
+      } else {
+        console.log('ℹ️ Minimal tracker: No Rive instances found');
+      }
+    }, 300);
   }
 }
 
