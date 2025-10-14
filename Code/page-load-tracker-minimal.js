@@ -1,10 +1,9 @@
 /**
- * Minimal Page Load Progress Tracker
- * Ultra-lightweight version for performance testing
- * Only tracks essential loading progress without animations, logging, or debug features
+ * Ultra-Minimal Page Load Tracker
+ * Performance testing version - no percentage tracking, just essential functionality
  */
 
-class MinimalPageLoadTracker {
+class UltraMinimalPageLoadTracker {
   constructor() {
     // Minimal configuration
     this.config = {
@@ -13,22 +12,10 @@ class MinimalPageLoadTracker {
     };
 
     // Essential state only
-    this.totalResources = 0;
-    this.loadedResources = 0;
     this.startTime = performance.now();
 
     // UI Elements
     this.loaderElement = null;
-    this.percentElement = null;
-    this.barElement = null;
-
-    // Resource tracking (minimal)
-    this.trackedResources = new Set();
-    this.resourceTypes = ['img', 'script', 'link', 'video', 'audio', 'iframe'];
-    
-    // Bind methods
-    this.updateProgress = this.updateProgress.bind(this);
-    this.completeLoading = this.completeLoading.bind(this);
     
     // Ultra-aggressive deferral
     if (window.requestIdleCallback) {
@@ -43,60 +30,37 @@ class MinimalPageLoadTracker {
   }
 
   init() {
-    // Find loader elements (minimal DOM queries)
+    // Find loader element only
     this.loaderElement = document.querySelector('[data-loader]') || 
                         document.querySelector('.loader') || 
                         document.querySelector('#loader');
-    
-    this.percentElement = document.querySelector('[data-loader-percent]');
-    this.barElement = document.querySelector('[data-loader-bar]');
 
-    if (!this.percentElement || !this.barElement) {
-      console.warn('MinimalPageLoadTracker: Loader elements not found');
+    if (!this.loaderElement) {
+      console.warn('UltraMinimalPageLoadTracker: Loader element not found');
       return;
     }
 
-    // Initial update
-    this.updateUI(0);
+    // Disable scroll immediately
+    this.disableScroll();
 
-    // Defer non-critical operations
-    const deferredInit = () => {
-      this.disableScroll();
-      this.trackDOMProgress();
-      this.trackAllResources();
-    };
-
-    if (window.requestIdleCallback) {
-      requestIdleCallback(deferredInit, { timeout: 1000 });
-    } else {
-      setTimeout(deferredInit, 50);
-    }
+    // Wait for page to be ready, then complete
+    this.waitForCompletion();
   }
 
-  trackDOMProgress() {
-    const updateDOMProgress = () => {
-      switch (document.readyState) {
-        case 'loading':
-          this.domProgress = 10;
-          break;
-        case 'interactive':
-          this.domProgress = 50;
-          break;
-        case 'complete':
-          this.domProgress = 100;
-          break;
+  waitForCompletion() {
+    const checkCompletion = () => {
+      const elapsedTime = performance.now() - this.startTime;
+      
+      // Complete after minimum display time
+      if (elapsedTime >= this.config.minDisplayTime) {
+        this.completeLoading();
+      } else {
+        setTimeout(checkCompletion, 100);
       }
-      this.updateProgress();
     };
 
-    updateDOMProgress();
-    document.addEventListener('readystatechange', updateDOMProgress);
-    
-    // Also track when window loads
-    window.addEventListener('load', () => {
-      this.domProgress = 100;
-      this.updateProgress();
-    });
+    // Start checking
+    setTimeout(checkCompletion, this.config.minDisplayTime);
   }
 
   disableScroll() {
@@ -109,98 +73,6 @@ class MinimalPageLoadTracker {
     document.body.style.overflow = '';
   }
 
-  trackElement(element) {
-    if (!element || this.trackedResources.has(element)) return;
-
-    this.trackedResources.add(element);
-    this.totalResources++;
-
-    // Skip lazy videos
-    if (element.tagName === 'VIDEO' && 
-        (element.loading === 'lazy' || element.preload === 'none' || element.preload === 'metadata')) {
-      return;
-    }
-
-    const onLoad = () => {
-      this.loadedResources++;
-      this.updateProgress();
-    };
-
-    const onError = () => {
-      this.loadedResources++;
-      this.updateProgress();
-    };
-
-    if (element.tagName === 'IMG') {
-      if (element.complete) {
-        onLoad();
-      } else {
-        element.addEventListener('load', onLoad);
-        element.addEventListener('error', onError);
-      }
-    } else if (element.tagName === 'SCRIPT') {
-      if (element.readyState === 'complete' || element.readyState === 'loaded') {
-        onLoad();
-      } else {
-        element.addEventListener('load', onLoad);
-        element.addEventListener('error', onError);
-      }
-    } else if (element.tagName === 'LINK') {
-      if (element.sheet) {
-        onLoad();
-      } else {
-        element.addEventListener('load', onLoad);
-        element.addEventListener('error', onError);
-      }
-    }
-  }
-
-  trackAllResources() {
-    this.resourceTypes.forEach(tagName => {
-      const elements = document.querySelectorAll(tagName);
-      elements.forEach(element => this.trackElement(element));
-    });
-    
-    // Force completion after a reasonable time
-    setTimeout(() => {
-      if (this.loadedResources < this.totalResources) {
-        console.log(`Minimal tracker: Forcing completion (${this.loadedResources}/${this.totalResources})`);
-        this.loadedResources = this.totalResources;
-        this.updateProgress();
-      }
-    }, 10000); // 10 second timeout
-  }
-
-  updateProgress() {
-    const domWeight = 0.3;
-    const resourceWeight = 0.7;
-    
-    const domProgress = this.domProgress || 0;
-    const resourceProgress = this.totalResources > 0 ? 
-      (this.loadedResources / this.totalResources) * 100 : 100;
-    
-    const totalProgress = (domProgress * domWeight) + (resourceProgress * resourceWeight);
-    
-    // Ensure we don't get stuck at low percentages
-    if (totalProgress >= 95) {
-      this.updateUI(100);
-    } else {
-      this.updateUI(totalProgress);
-    }
-  }
-
-  updateUI(percentage) {
-    if (!this.percentElement || !this.barElement) return;
-
-    // Simple, non-animated updates
-    this.percentElement.textContent = Math.round(percentage) + '%';
-    this.barElement.style.width = percentage + '%';
-
-    // Complete loading when ready
-    if (percentage >= 100) {
-      this.completeLoading();
-    }
-  }
 
   completeLoading() {
     const elapsedTime = performance.now() - this.startTime;
@@ -271,7 +143,7 @@ class MinimalPageLoadTracker {
 }
 
 // Initialize when DOM is ready
-function initializeMinimalPageLoadTracker() {
+function initializeUltraMinimalPageLoadTracker() {
   // Check if this is a navigation vs fresh load
   const isBackForward = window.performance.navigation.type === 2;
   const loadTime = performance.now();
@@ -279,30 +151,30 @@ function initializeMinimalPageLoadTracker() {
 
   // Skip loader for cached navigations
   if (isBackForward && isLikelyCached) {
-    console.log('🚀 Navigation detected - skipping minimal loader');
+    console.log('🚀 Navigation detected - skipping ultra-minimal loader');
     return;
   }
 
-  console.log('🎬 Initializing minimal page load tracker');
-  new MinimalPageLoadTracker();
+  console.log('🎬 Initializing ultra-minimal page load tracker');
+  new UltraMinimalPageLoadTracker();
 }
 
 // Start tracking when DOM is ready
 if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initializeMinimalPageLoadTracker);
+  document.addEventListener('DOMContentLoaded', initializeUltraMinimalPageLoadTracker);
 } else {
-  initializeMinimalPageLoadTracker();
+  initializeUltraMinimalPageLoadTracker();
 }
 
 // Global functions for external access
-window.enableMinimalPageLoadDebug = function() {
-  console.log('Minimal tracker debug enabled');
+window.enableUltraMinimalPageLoadDebug = function() {
+  console.log('Ultra-minimal tracker debug enabled');
 };
 
-window.disableMinimalPageLoadDebug = function() {
-  console.log('Minimal tracker debug disabled');
+window.disableUltraMinimalPageLoadDebug = function() {
+  console.log('Ultra-minimal tracker debug disabled');
 };
 
-window.showMinimalPageLoadReport = function() {
-  console.log('Minimal tracker report requested');
+window.showUltraMinimalPageLoadReport = function() {
+  console.log('Ultra-minimal tracker report requested');
 };
