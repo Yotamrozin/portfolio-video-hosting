@@ -16,11 +16,8 @@
         }
 
         init() {
-            console.log('🎯 Tab Navigation Manager initializing...');
-            
             // Prevent double initialization
             if (this.isInitialized) {
-                console.log('⚠️ Tab Navigation Manager already initialized, skipping...');
                 return;
             }
             
@@ -48,7 +45,6 @@
             const tabWrappers = document.querySelectorAll('[data-tabs="wrapper"]');
             
             if (tabWrappers.length === 0) {
-                console.warn('⚠️ No tab-wrapper elements found');
                 return;
             }
 
@@ -56,7 +52,6 @@
                 this.initializeTabWrapper(wrapper, index);
             });
 
-            console.log('✅ Tab Navigation Manager initialized successfully!');
         }
 
         initializeTabWrapper(wrapper, index) {
@@ -66,12 +61,10 @@
             const middleButton = wrapper.querySelector('[data-tabs="middle"]');
 
             if (!tabsElement) {
-                console.warn(`⚠️ No tabs element found in wrapper ${index}`);
                 return;
             }
 
             if (!nextButton || !prevButton) {
-                console.warn(`⚠️ Navigation buttons not found in wrapper ${index}`);
                 return;
             }
 
@@ -100,7 +93,6 @@
             instanceData.totalTabs = tabLinks.length;
 
             if (instanceData.totalTabs === 0) {
-                console.warn(`⚠️ No tab links found in wrapper ${index}`);
                 return;
             }
 
@@ -127,7 +119,6 @@
                         if (activeIndex !== -1) {
                             const oldIndex = instanceData.currentIndex;
                             instanceData.currentIndex = activeIndex;
-                            console.log(`🎯 Tab changed: ${oldIndex} → ${activeIndex} (${activeIndex + 1} of ${instanceData.totalTabs})`);
                         }
                     }
                     debounceTimer = null;
@@ -214,14 +205,11 @@
             
             // Always reset the global auto-advance timer on any navigation
             this.resetGlobalAutoAdvanceTimer();
-            
-            console.log(`🔍 NavigateNext - currentIndex: ${instance.currentIndex}, totalTabs: ${instance.totalTabs}`);
 
             // Check if we're at the last tab - trigger Swiper category change
             if (instance.currentIndex >= instance.totalTabs - 1) {
                 // At last tab - move to next Swiper category
                 if (window.mySwiper && typeof window.mySwiper.slideNext === 'function') {
-                    console.log('🎯 At last tab, moving to next Swiper slide');
                     window.mySwiper.slideNext(300, true);
                     // Reset to first tab for the new category
                     instance.currentIndex = 0;
@@ -248,13 +236,11 @@
             const instance = this.tabInstances.get(wrapper);
             if (!instance) return;
             
-            console.log(`🔍 NavigatePrevious - currentIndex: ${instance.currentIndex}, totalTabs: ${instance.totalTabs}`);
 
             // Check if we're at the first tab - trigger Swiper category change
             if (instance.currentIndex <= 0) {
                 // At first tab - move to previous Swiper category
                 if (window.mySwiper && typeof window.mySwiper.slidePrev === 'function') {
-                    console.log('🎯 At first tab, moving to previous Swiper slide');
                     window.mySwiper.slidePrev(300, true);
                     // Note: setActiveWrapper will be called by CategoryTabsController with 'backward' direction
                     return;
@@ -276,11 +262,8 @@
             const targetPane = tabPanes[targetIndex];
 
             if (!targetTab || !targetPane) {
-                console.warn(`⚠️ Target tab at index ${targetIndex} not found`);
                 return;
             }
-
-            console.log(`🎯 Navigating from tab ${instance.currentIndex} to tab ${targetIndex}`);
             
             // Remove current active states
             tabLinks.forEach(link => link.classList.remove('w--current'));
@@ -307,7 +290,6 @@
 
             // Start new timer
             this.globalAutoAdvanceTimer = setTimeout(() => {
-                console.log('⏰ Auto-advance triggered for active wrapper');
                 if (this.currentActiveWrapper) {
                     const instance = this.tabInstances.get(this.currentActiveWrapper);
                     if (instance) {
@@ -316,8 +298,6 @@
                     }
                 }
             }, AUTO_ADVANCE_DURATION);
-
-            console.log(`⏱️ Global auto-advance timer started (${AUTO_ADVANCE_DURATION}ms)`);
         }
 
         resetGlobalAutoAdvanceTimer() {
@@ -329,7 +309,6 @@
 
             // Start new timer
             this.startGlobalAutoAdvanceTimer();
-            console.log('🔄 Global auto-advance timer reset due to navigation');
         }
 
         setActiveWrapper(wrapper, direction = 'forward') {
@@ -357,15 +336,12 @@
             
             // Reset the timer (don't pause, just restart the countdown)
             this.resetGlobalAutoAdvanceTimer();
-            
-            console.log(`🎯 Active wrapper changed - totalTabs: ${instance.totalTabs}, currentIndex: ${instance.currentIndex}`);
         }
 
         pauseGlobalAutoAdvance() {
             if (this.globalAutoAdvanceTimer) {
                 clearTimeout(this.globalAutoAdvanceTimer);
                 this.globalAutoAdvanceTimer = null;
-                console.log('⏸️ Global auto-advance paused');
             }
         }
 
@@ -376,7 +352,6 @@
             // Only resume if no timer is currently active
             if (!instance.autoAdvanceTimer) {
                 this.startAutoAdvanceTimer(wrapper);
-                console.log('▶️ Auto-advance resumed');
             }
         }
 
@@ -451,8 +426,6 @@
                     indicator.style.backgroundColor = 'white';
                 }
             });
-            
-            console.log(`🧹 Cleared all indicators for tabs component`);
         }
         
         updateIndicatorStates(wrapper, activeIndex) {
@@ -502,8 +475,6 @@
                 
                 // Click the first tab to activate it
                 firstTab.click();
-                
-                console.log(`🔄 Reset tabs component to first tab - totalTabs: ${instance.totalTabs}`);
             }
     }
 
@@ -520,13 +491,11 @@
                 if (deltaX > 0) {
                     // Swipe right - go to previous Swiper category
                     if (window.mySwiper && typeof window.mySwiper.slidePrev === 'function') {
-                        console.log('👆 Swipe right detected - moving to previous Swiper category');
                         window.mySwiper.slidePrev(300, true);
                     }
                 } else {
                     // Swipe left - go to next Swiper category
                     if (window.mySwiper && typeof window.mySwiper.slideNext === 'function') {
-                        console.log('👆 Swipe left detected - moving to next Swiper category');
                         window.mySwiper.slideNext(300, true);
                     }
                 }

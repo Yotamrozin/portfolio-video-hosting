@@ -5,11 +5,9 @@ function applyProjectColors() {
     const darkNav = document.querySelector('[data-wf--nav--variant="project-dark"]');
     
     if (!darkSection && !darkNav) {
-        console.log("Dark variant not found, skipping color application");
         return;
     }
     
-    console.log("Dark variant detected, applying colors");
     // Get the color from the data attribute
     const colorHelper = document.getElementById("projectColor");
     if (!colorHelper) {

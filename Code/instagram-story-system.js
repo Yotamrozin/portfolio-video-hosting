@@ -29,9 +29,7 @@ Webflow.push(function() {
       var currentIndex = tablinks.find('.w--current').index();
       var newIndex = currentIndex + direction;
       
-      console.log('🎯 Story navigation:', {
-        direction: direction > 0 ? 'next' : 'previous',
-        currentIndex,
+      // Handle navigation logic
         newIndex,
         totalTabs: tablinks.children().length
       });
@@ -39,7 +37,6 @@ Webflow.push(function() {
       // Check if we need to change category
       if (newIndex < 0) {
         // Go to previous category, last subcategory
-        console.log('📱 Reached first tab - switching to previous category');
         if (window.craftMenu) {
           window.craftMenu.previousCategory();
           // After category change, navigate to last tab of new category
@@ -48,13 +45,11 @@ Webflow.push(function() {
             if (newTablinks.length > 0) {
               const lastTabIndex = newTablinks.children().length - 1;
               newTablinks.find('.w-tab-link').eq(lastTabIndex).trigger('click');
-              console.log(`🎯 Navigated to last tab (${lastTabIndex}) of previous category`);
             }
           }, 100);
         }
       } else if (newIndex >= tablinks.children().length) {
         // Go to next category, first subcategory
-        console.log('📱 Reached last tab - switching to next category');
         if (window.craftMenu) {
           window.craftMenu.nextCategory();
           // After category change, navigate to first tab of new category
@@ -62,14 +57,12 @@ Webflow.push(function() {
             const newTablinks = $('.fs-tabs.tabs-visible .w-tab-menu');
             if (newTablinks.length > 0) {
               newTablinks.find('.w-tab-link').eq(0).trigger('click');
-              console.log('🎯 Navigated to first tab of next category');
             }
           }, 100);
         }
       } else {
         // Stay in same category, change subcategory
         tablinks.find('.w-tab-link').eq(newIndex).trigger('click');
-        console.log(`🎯 Navigated to tab ${newIndex} within same category`);
       }
       
       loop = setInterval(nextTab, 5000);
@@ -82,14 +75,12 @@ Webflow.push(function() {
   
   // Enhanced category change event listener
   document.addEventListener('categoryChanged', (e) => {
-    console.log('📂 Category changed event received:', e.detail);
     
     // Reset story to first visible subcategory when category changes
     setTimeout(() => {
       const firstVisibleTab = document.querySelector('.fs-tabs.tabs-visible .w-tab-link');
       if (firstVisibleTab) {
         firstVisibleTab.click();
-        console.log('🎯 Reset to first tab of new category');
       }
     }, 50);
     
@@ -138,7 +129,6 @@ class MultiInstanceTabsManager {
       const firstInstance = this.instances[0];
       if (firstInstance.tabsComponent) {
         firstInstance.tabsComponent.classList.add('tabs-visible');
-        console.log(`🎯 Initial state: Showing tabs for category "${firstInstance.category}"`);
       }
     }
   }
@@ -156,10 +146,8 @@ class MultiInstanceTabsManager {
       // Show the target tabs component
       instance.tabsComponent.classList.add('tabs-visible');
       
-      console.log(`🔄 Category switched: Showing tabs for "${categoryName}"`);
       return true;
     } else {
-      console.warn(`⚠️ No tabs component found for category: "${categoryName}"`);
       return false;
     }
   }
@@ -172,7 +160,6 @@ class MultiInstanceTabsManager {
     const minLength = Math.min(tabsComponents.length, collectionLists.length);
     
     if (minLength === 0) {
-      console.warn('⚠️ No matching tabs components and collection lists found');
       return;
     }
     
@@ -228,14 +215,11 @@ class MultiInstanceTabsManager {
     // Handle orphaned tabs components
     tabsComponents.forEach(tabsComponent => {
       if (!pairedTabsComponents.has(tabsComponent)) {
-        console.warn('🔍 Orphaned tabs component found (hiding):', tabsComponent);
         tabsComponent.style.display = 'none';
       }
     });
     
-    console.log(`✅ Created ${this.instances.length} tabs instances`);
     this.instances.forEach(instance => {
-      console.log(`   📂 Category: "${instance.category}" (${instance.tabContents.length} tab contents)`);
     });
   }
 
@@ -324,17 +308,8 @@ class MultiInstanceTabsManager {
   }
 
   debugInstances() {
-    console.group('🔍 Multi-Instance Tabs Debug Info');
-    console.log(`Total instances: ${this.instances.length}`);
     
     this.instances.forEach((instance, index) => {
-      console.group(`Instance ${index + 1}: ${instance.category}`);
-      console.log('Tabs Component:', instance.tabsComponent);
-      console.log('Collection List:', instance.collectionList);
-      console.log('Tab Content:', instance.tabContent);
-      console.log('FsLibrary:', instance.fsLibrary);
-      console.log('Category:', instance.category);
-      console.groupEnd();
     });
     
     console.groupEnd();
@@ -361,14 +336,11 @@ class MultiInstanceTabsManager {
         // Make debug method available globally
         window.debugMultiTabs = () => window.tabsManager.debugInstances();
         
-        console.log('🎉 TabsManager initialized and available globally as window.tabsManager');
       } catch (error) {
-        console.error('❌ Error initializing TabsManager:', error);
       }
     } else if (initAttempts < maxAttempts) {
       setTimeout(initTabs, 1000);
     } else {
-      console.error('❌ Failed to initialize TabsManager: FsLibrary not found after maximum attempts');
     }
   };
   

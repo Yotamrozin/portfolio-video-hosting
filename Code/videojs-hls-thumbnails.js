@@ -12,7 +12,6 @@
 (function() {
   // Prevent multiple initializations
   if (window.thumbnailPlayersInitialized) {
-    console.log('Thumbnail system already initialized, skipping...');
     return;
   }
   

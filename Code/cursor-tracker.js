@@ -26,15 +26,12 @@ function resetCursor() {
 function initializeCursorTracker() {
   const hero = document.querySelector("#hero");
   if (!hero) {
-    console.log("Hero element not found yet, retrying in 100ms...");
     setTimeout(initializeCursorTracker, 100);
     return;
   }
 
   hero.addEventListener("pointermove", updateCursor);
   hero.addEventListener("pointerleave", resetCursor);
-  
-  console.log("✅ Cursor tracker initialized");
 }
 
 document.addEventListener("DOMContentLoaded", () => {

@@ -139,8 +139,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fixed subcategory example display - removed fade-out transition lag
   function showRelevantExamples() {
-    console.log(`🎯 Category: "${activeCategory}" | Subcategory: "${activeSubcategory}"`);
-    
     let targetExample = null;
     
     allExampleGroups.forEach((group, index) => {
@@ -178,12 +176,7 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Show the single target example
     if (targetExample) {
-        const categoryExample = targetExample.getAttribute('data-category-example');
-        const subcategoryExample = targetExample.getAttribute('data-subcategory-example');
-        console.log(`✅ Showing example: Category="${categoryExample}" | Subcategory="${subcategoryExample}"`);
         showSingleExample(targetExample);
-    } else {
-        console.log('❌ No matching example found');
     }
 }
 

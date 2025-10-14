@@ -27,24 +27,19 @@ class TabsConstructor {
     const initStartTime = Date.now();
     
     try {
-      console.log('TabsConstructor: Starting initialization...');
       
       // Enhanced ready check with timeout
       const readyStartTime = Date.now();
       await this.waitForWebflowReady();
-      console.log(`⏱️ TabsConstructor webflow-ready: ${Date.now() - readyStartTime}ms`);
       
       const contentStartTime = Date.now();
       await this.waitForContent();
-      console.log(`⏱️ TabsConstructor content-wait: ${Date.now() - contentStartTime}ms`);
       
       const createStartTime = Date.now();
       this.createInstancesFromArrays();
-      console.log(`⏱️ TabsConstructor create-instances: ${Date.now() - createStartTime}ms`);
       
       const initInstancesStartTime = Date.now();
       await this.initializeInstances();
-      console.log(`⏱️ TabsConstructor init-instances: ${Date.now() - initInstancesStartTime}ms`);
       
       // Set global flag and dispatch enhanced event
       window.tabsConstructorComplete = true;
@@ -65,22 +60,14 @@ class TabsConstructor {
       });
       document.dispatchEvent(event);
       
-      console.log('TabsConstructor: ✅ Initialization complete!', {
-        instances: this.instances.length,
-        categories: this.instances.map(i => i.category),
-        duration: `${totalDuration}ms`
-      });
       
       return true;
     } catch (error) {
       const totalDuration = Date.now() - initStartTime;
-      console.log(`⏱️ TabsConstructor total-init (failed): ${totalDuration}ms`);
-      console.error('❌ TabsConstructor initialization failed:', error);
       
       // Single retry with enhanced error handling
       if (this.retryCount < this.maxRetries) {
         this.retryCount++;
-        console.warn(`🔄 Retrying initialization (attempt ${this.retryCount + 1}/${this.maxRetries + 1})...`);
         
         // Reset state for retry
         this.instances = [];
@@ -90,7 +77,6 @@ class TabsConstructor {
         await new Promise(resolve => setTimeout(resolve, 2000));
         return this.init();
       } else {
-        console.error('❌ TabsConstructor: Maximum retry attempts reached. Initialization failed.');
         throw error;
       }
     }
@@ -104,10 +90,8 @@ class TabsConstructor {
 
       if (document.readyState === 'complete' || window.Webflow) {
         clearTimeout(timeout);
-        console.log('TabsConstructor: Page already ready, proceeding immediately');
         resolve();
       } else {
-        console.log('TabsConstructor: Waiting for page readiness...');
         
         const onReady = () => {
           clearTimeout(timeout);
@@ -140,7 +124,6 @@ class TabsConstructor {
           if (tabsComponents.length > 0 && collectionLists.length > 0 && tabContents.length > 0) {
             clearTimeout(timeout);
             if (observer) observer.disconnect();
-            console.log(`TabsConstructor: ✅ Content ready after ${attempts * 150}ms`);
             resolve();
             return true;
           }
@@ -189,7 +172,6 @@ class TabsConstructor {
           characterData: false // Don't watch text changes for performance
         });
         
-        console.log('TabsConstructor: 👁️ MutationObserver active for DOM changes');
       }
       
       // Fallback polling with reduced frequency since we have MutationObserver
@@ -202,7 +184,6 @@ class TabsConstructor {
         if (attempts >= maxAttempts) {
           clearTimeout(timeout);
           if (observer) observer.disconnect();
-          console.warn('TabsConstructor: ⚠ Timeout waiting for content, proceeding anyway');
           resolve(); // Proceed even if not all content is ready
         } else {
           setTimeout(pollContent, pollInterval);
@@ -224,7 +205,6 @@ class TabsConstructor {
       const minLength = Math.min(tabsComponents.length, collectionLists.length);
       
       if (minLength === 0) {
-        console.warn('⚠️ No matching tabs components and collection lists found');
         return;
       }
       
@@ -237,7 +217,6 @@ class TabsConstructor {
         
         // Validate elements exist and are in DOM
         if (!tabsComponent || !collectionList || !document.contains(tabsComponent) || !document.contains(collectionList)) {
-          console.warn(`⚠️ Invalid elements at index ${i}, skipping`);
           continue;
         }
         
@@ -288,28 +267,22 @@ class TabsConstructor {
       // Handle orphaned tabs components
       tabsComponents.forEach(tabsComponent => {
         if (!pairedTabsComponents.has(tabsComponent)) {
-          console.warn('🔍 Orphaned tabs component found (hiding):', tabsComponent);
           tabsComponent.style.display = 'none';
         }
       });
       
-      console.log(`✅ Created ${this.instances.length} tabs instances`);
       this.instances.forEach(instance => {
-        console.log(`   📂 Category: "${instance.category}" (${instance.tabContents.length} tab contents)`);
       });
     } catch (error) {
-      console.error('❌ Error creating instances:', error);
       throw error;
     }
   }
 
   async initializeInstances() {
     if (this.instances.length === 0) {
-      console.warn('⚠️ No instances to initialize');
       return;
     }
 
-    console.log(`🚀 Initializing ${this.instances.length} Finsweet instances...`);
     
     const initPromises = this.instances.map(async (instance, index) => {
       try {
@@ -353,10 +326,8 @@ class TabsConstructor {
         });
         
         instance.initialized = true;
-        console.log(`✅ Initialized Finsweet for: ${instance.category}`);
         return { success: true, category: instance.category };
       } catch (error) {
-        console.warn(`⚠️ Failed to initialize tabs for ${instance.category}:`, error);
         return { success: false, category: instance.category, error: error.message };
       }
     });
@@ -367,10 +338,8 @@ class TabsConstructor {
     const successful = results.filter(r => r.success).length;
     const failed = results.filter(r => !r.success);
     
-    console.log(`🎯 Finsweet initialization complete: ${successful}/${this.instances.length} successful`);
     
     if (failed.length > 0) {
-      console.warn('⚠️ Failed initializations:', failed);
     }
     
     return results;
@@ -400,10 +369,8 @@ class TabsConstructor {
       if (instance.fsLibrary && typeof instance.fsLibrary.refresh === 'function') {
         try {
           await instance.fsLibrary.refresh();
-          console.log(`🔄 Refreshed: ${instance.category}`);
           return { success: true, category: instance.category };
         } catch (error) {
-          console.warn(`⚠️ Failed to refresh ${instance.category}:`, error);
           return { success: false, category: instance.category, error: error.message };
         }
       }
@@ -415,20 +382,8 @@ class TabsConstructor {
 
   // Enhanced debugging
   debugInstances() {
-    console.group('🔍 Tabs Constructor Debug Info');
-    console.log(`Total instances: ${this.instances.length}`);
-    console.log(`Initialized: ${this.isInitialized}`);
-    console.log(`Retry count: ${this.retryCount}`);
     
     this.instances.forEach((instance, index) => {
-      console.group(`Instance ${index + 1}: ${instance.category}`);
-      console.log('Initialized:', instance.initialized);
-      console.log('Tabs Component:', instance.tabsComponent);
-      console.log('Collection List:', instance.collectionList);
-      console.log('Tab Contents:', instance.tabContents);
-      console.log('FsLibrary:', instance.fsLibrary);
-      console.log('Unique ID:', instance.uniqueId);
-      console.groupEnd();
     });
     
     console.groupEnd();
@@ -467,7 +422,6 @@ class TabsConstructor {
 (function initializeTabsConstructor() {
   // Prevent multiple initializations
   if (window.tabsConstructor) {
-    console.log('TabsConstructor already initialized');
     return;
   }
 
@@ -486,15 +440,12 @@ class TabsConstructor {
         window.debugTabsConstructor = () => window.tabsConstructor.debugInstances();
         window.tabsHealthCheck = () => window.tabsConstructor.healthCheck();
         
-        console.log('🎉 TabsConstructor initialized and available globally as window.tabsConstructor');
       } else if (initAttempts < maxAttempts) {
-        console.log(`⏳ FsLibrary not ready, attempt ${initAttempts}/${maxAttempts}`);
         setTimeout(initTabs, 1000);
       } else {
         throw new Error('FsLibrary not found after maximum attempts');
       }
     } catch (error) {
-      console.error('❌ Error initializing TabsConstructor:', error);
       
       // Dispatch error event for external handling
       document.dispatchEvent(new CustomEvent('tabsConstructorError', {

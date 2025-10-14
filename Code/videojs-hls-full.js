@@ -4,13 +4,10 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("🎬 Video.js HLS Player Script Starting...");
   
   // Find the wrapper element first
   const wrapperElement = document.querySelector("[f-data-video='wrapper']");
-  console.log("📦 Wrapper Element:", wrapperElement);
   if (!wrapperElement) {
-    console.error("❌ No wrapper element found with [f-data-video='wrapper']");
     return; // Exit if no wrapper found
   }
   
@@ -19,15 +16,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const wrapper = wrapperElement; // The wrapperElement IS the wrapper
   const poster = wrapperElement.querySelector("[f-data-video='poster-button']");
   
-  console.log("🎥 Video Element:", video);
-  console.log("📐 Wrapper:", wrapper);
-  console.log("🖼️ Poster:", poster);
-  
   // Find the video controls container
   const videoControls = wrapperElement.querySelector("[f-data-video='video-controls']");
-  console.log("🎮 Video Controls:", videoControls);
   if (!videoControls) {
-    console.error("❌ No video controls found with [f-data-video='video-controls']");
     return; // Exit if no controls found
   }
   
@@ -45,10 +36,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const playHead = videoControls.querySelector("[f-data-video='play-head']");
   const currentTime = videoControls.querySelector("[f-data-video='current-time']");
   const duration = videoControls.querySelector("[f-data-video='duration']");
-  
-  console.log("🎮 Controls found:", {
-    play: !!play,
-    pause: !!pause,
     fullscreen: !!fullscreen,
     minimize: !!minimize,
     replay: !!replay,
@@ -83,7 +70,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // Test HLS stream availability before loading
   async function testHLSStream(hlsUrl) {
     try {
-      console.log("🔍 Testing HLS stream availability:", hlsUrl);
       
       // Try to fetch the manifest
       const response = await fetch(hlsUrl, {
@@ -93,14 +79,11 @@ document.addEventListener("DOMContentLoaded", () => {
       });
       
       if (response.ok) {
-        console.log("✅ HLS stream is accessible");
         return true;
       } else {
-        console.warn("⚠️ HLS stream returned status:", response.status);
         return false;
       }
     } catch (error) {
-      console.warn("⚠️ HLS stream test failed:", error.message);
       return false;
     }
   }
@@ -109,11 +92,8 @@ document.addEventListener("DOMContentLoaded", () => {
   async function initializeVideoJS() {
     if (isVideoJSInitialized || !video) return;
     
-    console.log("🎬 Initializing Video.js player...");
-    
     // Check if video element already has a Video.js player and dispose it
     if (video.player) {
-      console.log("⚠️ Existing Video.js player found, disposing...");
       video.player.dispose();
     }
     
@@ -132,17 +112,13 @@ document.addEventListener("DOMContentLoaded", () => {
     const hlsUrl = sourceElement ? sourceElement.src : null;
     
     if (!hlsUrl) {
-      console.error("❌ No HLS source found in video element");
       showStreamError("No video source found");
       return;
     }
     
-    console.log("🔗 HLS URL found:", hlsUrl);
-    
     // Test stream availability first
     const isStreamAvailable = await testHLSStream(hlsUrl);
     if (!isStreamAvailable && !isManualRetry) {
-      console.warn("⚠️ Stream test failed, but proceeding with load attempt");
     }
     
     // Initialize Video.js player with enhanced HLS configuration
@@ -181,7 +157,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     
     isVideoJSInitialized = true;
-    console.log("✅ Video.js player initialized");
     
     // Set up Video.js event listeners
     setupVideoJSEvents();
@@ -198,7 +173,6 @@ document.addEventListener("DOMContentLoaded", () => {
     
     loadingTimeout = setTimeout(() => {
       if (player && player.readyState() < 2) {
-        console.warn("⏰ Loading timeout reached, attempting recovery...");
         handleLoadingTimeout();
       }
     }, LOADING_TIMEOUT);
@@ -208,7 +182,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function handleLoadingTimeout() {
     if (retryCount < MAX_RETRIES) {
       retryCount++;
-      console.log(`🔄 Retry attempt ${retryCount}/${MAX_RETRIES}`);
       
       // Clear the timeout
       if (loadingTimeout) {
@@ -223,14 +196,12 @@ document.addEventListener("DOMContentLoaded", () => {
         setupLoadingTimeout();
       }
     } else {
-      console.error("❌ Max retries reached, showing error message");
       showLoadingError();
     }
   }
 
   // Show loading error message with retry option
   function showLoadingError() {
-    console.error("❌ Video failed to load after multiple attempts");
     consecutiveFailures++;
     
     // Show user-friendly error message with retry button
@@ -239,7 +210,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Show stream error with optional retry button
   function showStreamError(message, showRetry = false) {
-    console.error("❌ Stream Error:", message);
     
     // Create error overlay if it doesn't exist
     let errorOverlay = wrapperElement.querySelector('.video-error-overlay');
@@ -259,7 +229,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (showRetry) {
         const retryButton = errorOverlay.querySelector('.retry-button');
         retryButton.addEventListener('click', () => {
-          console.log("🔄 Manual retry initiated by user");
           isManualRetry = true;
           retryCount = 0;
           consecutiveFailures = 0;
@@ -291,7 +260,6 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Video.js ready event
     player.ready(() => {
-      console.log("🎯 Video.js player ready");
       clearLoadingTimeout();
       hideStreamError();
       setAspectRatio();
@@ -299,14 +267,12 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Video.js loadstart event - video starts loading
     player.on('loadstart', () => {
-      console.log("🔄 Video.js loadstart event fired");
       hideStreamError();
       setupLoadingTimeout();
     });
     
     // Video.js canplay event - video can start playing
     player.on('canplay', () => {
-      console.log("✅ Video.js canplay event fired");
       clearLoadingTimeout();
       hideStreamError();
       retryCount = 0; // Reset retry count on successful load
@@ -316,14 +282,12 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Video.js loadedmetadata event
     player.on('loadedmetadata', () => {
-      console.log("📊 Video.js loadedmetadata event fired");
       clearLoadingTimeout();
       setAspectRatio();
     });
     
     // Video.js play event
     player.on('play', () => {
-      console.log("▶️ Video.js play event fired");
       clearLoadingTimeout();
       if (poster) poster.style.display = "none";
       if (play) play.style.display = "none";
@@ -332,14 +296,12 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Video.js pause event
     player.on('pause', () => {
-      console.log("⏸️ Video.js pause event fired");
       if (play) play.style.display = "inline-block";
       if (pause) pause.style.display = "none";
     });
     
     // Video.js ended event
     player.on('ended', () => {
-      console.log("🏁 Video.js ended event fired");
       if (play) play.style.display = "inline-block";
       if (pause) pause.style.display = "none";
     });
@@ -364,12 +326,10 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Video.js waiting event - video is buffering
     player.on('waiting', () => {
-      console.log("⏳ Video.js waiting event fired - buffering");
     });
     
     // Video.js canplaythrough event - video can play through without buffering
     player.on('canplaythrough', () => {
-      console.log("✅ Video.js canplaythrough event fired");
       clearLoadingTimeout();
     });
     
@@ -379,10 +339,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const timeSinceLastError = currentTime - lastErrorTime;
       lastErrorTime = currentTime;
       
-      console.error("❌ Video.js error:", player.error());
-      console.error("❌ Error details:", {
-        code: player.error() ? player.error().code : 'unknown',
-        message: player.error() ? player.error().message : 'unknown',
+      const errorCode = player.error() ? player.error().code : 'unknown';
         retryCount,
         consecutiveFailures,
         timeSinceLastError: timeSinceLastError + 'ms',
@@ -397,35 +354,28 @@ document.addEventListener("DOMContentLoaded", () => {
       
       // Handle different types of errors
       if (errorCode === 4) { // MEDIA_ERR_SRC_NOT_SUPPORTED
-        console.error("❌ Media source not supported");
         showStreamError("This video format is not supported by your browser.");
       } else if (errorCode === 3) { // MEDIA_ERR_DECODE
-        console.error("❌ Media decode error");
         handleLoadingTimeout();
       } else if (errorCode === 2) { // MEDIA_ERR_NETWORK
-        console.error("❌ Network error");
         handleLoadingTimeout();
       } else {
         // For other errors, try to reload
         if (retryCount < MAX_RETRIES) {
-          console.log(`🔄 Attempting to reload video... (attempt ${retryCount + 1}/${MAX_RETRIES})`);
           
           // Progressive delay: 1s, 2s, 4s, 8s, 16s
           const delay = Math.min(1000 * Math.pow(2, retryCount), 16000);
           
           setTimeout(() => {
             if (player && player.currentSource()) {
-              console.log("🔄 Reloading with source:", player.currentSource().src);
               player.src({ src: player.currentSource().src, type: player.currentSource().type });
               player.load();
               setupLoadingTimeout();
             } else {
-              console.error("❌ No source available for reload");
               handleLoadingTimeout();
             }
           }, delay);
         } else {
-          console.error("❌ Max retries reached");
           handleLoadingTimeout();
         }
       }
@@ -435,13 +385,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Optimized aspect ratio setting for Video.js
 function setAspectRatio() {
-  console.log("🔄 setAspectRatio called");
   
   // Add null checks to prevent errors
   if (!video || !wrapper || !wrapperElement) {
-    console.error("❌ Missing elements:", {
-      video: !!video,
-      wrapper: !!wrapper,
+    return;
+  }
       wrapperElement: !!wrapperElement
     });
     return;
@@ -453,17 +401,13 @@ function setAspectRatio() {
   if (player && typeof player.videoWidth === 'function' && typeof player.videoHeight === 'function') {
     videoWidth = player.videoWidth();
     videoHeight = player.videoHeight();
-    console.log("📊 Video.js dimensions:", { videoWidth, videoHeight });
   } else if (player && player.videoWidth && player.videoHeight && typeof player.videoWidth === 'number') {
     videoWidth = player.videoWidth;
     videoHeight = player.videoHeight;
-    console.log("📊 Video.js dimensions (direct):", { videoWidth, videoHeight });
   } else if (video.videoWidth && video.videoHeight) {
     videoWidth = video.videoWidth;
     videoHeight = video.videoHeight;
-    console.log("📊 Video element dimensions:", { videoWidth, videoHeight });
   } else {
-    console.warn("⚠️ Video dimensions not available yet, will retry...");
     // Retry after a short delay if dimensions aren't available
     setTimeout(() => {
       if (player && player.readyState() >= 1) {
@@ -482,9 +426,7 @@ function setAspectRatio() {
       try {
         const aspectRatioColon = `${videoWidth}:${videoHeight}`;
         player.aspectRatio(aspectRatioColon);
-        console.log("✅ Video.js aspect ratio set to:", aspectRatioColon);
       } catch (error) {
-        console.warn("⚠️ Could not set Video.js aspect ratio:", error);
       }
     }
     
@@ -537,8 +479,6 @@ function setAspectRatio() {
       }
     `;
     document.head.appendChild(style);
-    
-    console.log(`✅ Aspect ratio set: ${aspectRatio} (${videoWidth}x${videoHeight})`);
   }
 }
 
@@ -549,7 +489,6 @@ function setAspectRatioRAF() {
 
 // Initialize Video.js when DOM is ready
 initializeVideoJS().catch(error => {
-  console.error("❌ Failed to initialize Video.js:", error);
   showStreamError("Failed to initialize video player. Please refresh the page.");
 });
 
@@ -710,7 +649,6 @@ window.addEventListener("resize", () => {
       if (document.fullscreenElement) {
         // Entering fullscreen - show Video.js controls
         player.controls(true);
-        console.log("📺 Entered fullscreen - showing Video.js controls");
       } else {
         // Exiting fullscreen - hide Video.js controls
         player.controls(false);
