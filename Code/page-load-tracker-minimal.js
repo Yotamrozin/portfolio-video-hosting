@@ -103,42 +103,41 @@ class UltraMinimalPageLoadTracker {
       }
     }, this.config.fadeOutDuration);
 
-    // Trigger Webflow animations (essential) - with better timing
-    setTimeout(() => {
-      if (typeof Webflow !== 'undefined') {
-        try {
-          const wfIx = Webflow.require("ix3");
-          if (wfIx && typeof wfIx.emit === 'function') {
-            wfIx.emit("page-fully-loaded");
-            console.log('✅ Minimal tracker: Webflow animations triggered');
-          } else {
-            console.warn('⚠️ Minimal tracker: Webflow ix3 not available');
-          }
-        } catch (innerError) {
-          console.warn('⚠️ Minimal tracker: Error triggering Webflow animations:', innerError.message);
-        }
-      } else {
-        console.warn('⚠️ Minimal tracker: Webflow not available');
-      }
-    }, 200);
-
-    // Trigger Rive animations (essential)
-    setTimeout(() => {
-      if (window.riveInstances && Array.isArray(window.riveInstances)) {
-        window.riveInstances.forEach((riveInstance, index) => {
+    // Trigger Webflow animations (essential) - copied from original script
+    if (typeof Webflow !== 'undefined') {
+      try {
+        // Wait a bit for Webflow to be fully ready
+        setTimeout(() => {
           try {
-            if (riveInstance && typeof riveInstance.play === 'function') {
-              riveInstance.play();
-              console.log(`✅ Minimal tracker: Rive animation ${index + 1} started`);
+            const wfIx = Webflow.require("ix3");
+            if (wfIx && typeof wfIx.emit === 'function') {
+              wfIx.emit("page-fully-loaded");
+              console.log('✅ Ultra-minimal tracker: Webflow animations triggered successfully');
+            } else {
+              console.warn('⚠️ Ultra-minimal tracker: Webflow ix3 not available or emit function missing');
             }
-          } catch (error) {
-            console.warn(`⚠️ Minimal tracker: Error starting Rive animation ${index + 1}:`, error.message);
+          } catch (innerError) {
+            console.warn('⚠️ Ultra-minimal tracker: Error triggering Webflow animations:', innerError.message);
           }
-        });
-      } else {
-        console.log('ℹ️ Minimal tracker: No Rive instances found');
+        }, 100);
+      } catch (e) {
+        console.warn('⚠️ Ultra-minimal tracker: Could not trigger Webflow animations:', e.message);
       }
-    }, 300);
+    } else {
+      console.warn('⚠️ Ultra-minimal tracker: Webflow not available');
+    }
+
+    // Trigger Rive animations (essential) - copied from original script
+    if (window.riveInstances && Array.isArray(window.riveInstances)) {
+      window.riveInstances.forEach((riveInstance, index) => {
+        try {
+          riveInstance.play();
+          console.log(`Started Rive animation ${index + 1}`);
+        } catch (e) {
+          console.warn(`Could not start Rive animation ${index + 1}:`, e);
+        }
+      });
+    }
   }
 }
 
