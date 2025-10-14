@@ -403,23 +403,37 @@ class PageLoadTracker {
       // Trigger custom event
       document.dispatchEvent(new CustomEvent('pageLoadComplete'));
       
-      // Trigger Webflow animations with better error handling
+      // Trigger Webflow animations with better error handling and readiness check
       if (typeof Webflow !== 'undefined') {
         try {
-          // Wait a bit for Webflow to be fully ready
+          // Wait longer for Webflow to be fully ready and check for readiness
           setTimeout(() => {
             try {
               const wfIx = Webflow.require("ix3");
               if (wfIx && typeof wfIx.emit === 'function') {
-                wfIx.emit("page-fully-loaded");
-                console.log('✅ Webflow animations triggered successfully');
+                // Additional check: ensure Webflow's trigger system is ready
+                if (wfIx.triggers && Array.isArray(wfIx.triggers)) {
+                  wfIx.emit("page-fully-loaded");
+                  console.log('✅ Webflow animations triggered successfully');
+                } else {
+                  console.warn('⚠️ Webflow triggers not ready yet');
+                  // Retry after another delay
+                  setTimeout(() => {
+                    try {
+                      wfIx.emit("page-fully-loaded");
+                      console.log('✅ Webflow animations triggered on retry');
+                    } catch (retryError) {
+                      console.warn('⚠️ Retry failed:', retryError.message);
+                    }
+                  }, 500);
+                }
               } else {
                 console.warn('⚠️ Webflow ix3 not available or emit function missing');
               }
             } catch (innerError) {
               console.warn('⚠️ Error triggering Webflow animations:', innerError.message);
             }
-          }, 100);
+          }, 300); // Increased delay to 300ms
         } catch (e) {
           console.warn('⚠️ Could not trigger Webflow animations:', e.message);
         }
