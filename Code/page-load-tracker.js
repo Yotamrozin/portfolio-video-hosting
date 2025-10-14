@@ -48,11 +48,16 @@ class PageLoadTracker {
     this.updateProgress = this.updateProgress.bind(this);
     this.completeLoading = this.completeLoading.bind(this);
     
-    // Defer heavy initialization to avoid blocking main thread
+    // Ultra-aggressive deferral to minimize main thread blocking
+    // Use multiple fallbacks to ensure initialization happens
     if (window.requestIdleCallback) {
-      requestIdleCallback(() => this.init(), { timeout: 1000 });
+      requestIdleCallback(() => this.init(), { timeout: 2000 });
+    } else if (window.requestAnimationFrame) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => this.init());
+      });
     } else {
-      setTimeout(() => this.init(), 50);
+      setTimeout(() => this.init(), 100);
     }
   }
 
@@ -70,31 +75,30 @@ class PageLoadTracker {
       return;
     }
 
-    // Defer non-critical operations to avoid blocking
-    if (window.requestIdleCallback) {
-      requestIdleCallback(() => {
-        this.disableScroll();
-        this.trackDOMProgress();
-        this.setupPerformanceObserver();
-        
-        if (this.config.enableDebugPanel) {
-          this.createDebugPanel();
-        }
-      }, { timeout: 500 });
-    } else {
-      setTimeout(() => {
-        this.disableScroll();
-        this.trackDOMProgress();
-        this.setupPerformanceObserver();
-        
-        if (this.config.enableDebugPanel) {
-          this.createDebugPanel();
-        }
-      }, 10);
-    }
-    
     // Initial update (keep this immediate for visual feedback)
     this.updateUI(0);
+
+    // Ultra-defer all non-critical operations to minimize blocking
+    const deferredInit = () => {
+      this.disableScroll();
+      this.trackDOMProgress();
+      this.setupPerformanceObserver();
+      
+      if (this.config.enableDebugPanel) {
+        this.createDebugPanel();
+      }
+    };
+
+    // Use multiple deferral strategies for maximum efficiency
+    if (window.requestIdleCallback) {
+      requestIdleCallback(deferredInit, { timeout: 1000 });
+    } else if (window.requestAnimationFrame) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(deferredInit);
+      });
+    } else {
+      setTimeout(deferredInit, 50);
+    }
   }
 
   trackDOMProgress() {
