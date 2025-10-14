@@ -377,6 +377,7 @@ class PageLoadTracker {
       return;
     }
     this.loadingCompleted = true;
+    console.log('🎯 Setting loading completed flag');
 
     // Ensure minimum display time
     const elapsed = performance.now() - this.startTime;
