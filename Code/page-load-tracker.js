@@ -39,6 +39,10 @@ class PageLoadTracker {
     this.resourceDetails = new Map(); // Track detailed info about each resource
     this.loadingResources = new Set(); // Currently loading resources
     
+    // Animation triggers
+    this.webflowTriggered = false; // Prevent multiple Webflow triggers
+    this.loadingCompleted = false; // Prevent multiple completion calls
+    
     // Percentage animation
     this.currentDisplayPercentage = 0;
     this.targetPercentage = 0;
@@ -367,6 +371,13 @@ class PageLoadTracker {
   }
 
   completeLoading() {
+    // Prevent multiple completion calls
+    if (this.loadingCompleted) {
+      console.log('ℹ️ Loading already completed - skipping');
+      return;
+    }
+    this.loadingCompleted = true;
+
     // Ensure minimum display time
     const elapsed = performance.now() - this.startTime;
     const remainingTime = Math.max(0, this.config.minDisplayTime - elapsed);
@@ -404,36 +415,25 @@ class PageLoadTracker {
       document.dispatchEvent(new CustomEvent('pageLoadComplete'));
       
       // Trigger Webflow animations with better error handling and readiness check
-      if (typeof Webflow !== 'undefined') {
+      if (typeof Webflow !== 'undefined' && !this.webflowTriggered) {
+        this.webflowTriggered = true; // Prevent multiple triggers
         try {
-          // Wait longer for Webflow to be fully ready and check for readiness
+          // Wait longer for Webflow to be fully ready
           setTimeout(() => {
             try {
               const wfIx = Webflow.require("ix3");
               if (wfIx && typeof wfIx.emit === 'function') {
-                // Additional check: ensure Webflow's trigger system is ready
-                if (wfIx.triggers && Array.isArray(wfIx.triggers)) {
-                  wfIx.emit("page-fully-loaded");
-                  console.log('✅ Webflow animations triggered successfully');
-                } else {
-                  console.warn('⚠️ Webflow triggers not ready yet');
-                  // Retry after another delay
-                  setTimeout(() => {
-                    try {
-                      wfIx.emit("page-fully-loaded");
-                      console.log('✅ Webflow animations triggered on retry');
-                    } catch (retryError) {
-                      console.warn('⚠️ Retry failed:', retryError.message);
-                    }
-                  }, 500);
-                }
+                // Try to trigger - if it fails, we'll catch it
+                wfIx.emit("page-fully-loaded");
+                console.log('✅ Webflow animations triggered successfully');
               } else {
                 console.warn('⚠️ Webflow ix3 not available or emit function missing');
               }
             } catch (innerError) {
               console.warn('⚠️ Error triggering Webflow animations:', innerError.message);
+              // Don't retry - this prevents multiple attempts
             }
-          }, 300); // Increased delay to 300ms
+          }, 500); // Increased delay to 500ms
         } catch (e) {
           console.warn('⚠️ Could not trigger Webflow animations:', e.message);
         }
