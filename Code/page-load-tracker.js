@@ -441,12 +441,20 @@ class PageLoadTracker {
         console.warn('⚠️ Webflow not available');
       }
       
-      // Trigger Rive animations
+      // Trigger Rive animations with safety checks
       if (window.riveInstances && Array.isArray(window.riveInstances)) {
         window.riveInstances.forEach((riveInstance, index) => {
           try {
-            riveInstance.play();
-            console.log(`Started Rive animation ${index + 1}`);
+            // Safety check: only play if not already playing
+            if (riveInstance && typeof riveInstance.play === 'function') {
+              // Check if animation is already playing to prevent infinite loops
+              if (!riveInstance.isPlaying || riveInstance.isPlaying() === false) {
+                riveInstance.play();
+                console.log(`Started Rive animation ${index + 1}`);
+              } else {
+                console.log(`Rive animation ${index + 1} already playing - skipping`);
+              }
+            }
           } catch (e) {
             console.warn(`Could not start Rive animation ${index + 1}:`, e);
           }
