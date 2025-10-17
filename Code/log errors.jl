@@ -1,69 +1,77 @@
 Dark variant not found, skipping color application
-(index):2379 Dark variant not found, skipping color application
-(index):306 Dark variant not found, skipping color application
-(index):2379 Dark variant not found, skipping color application
-(index):1067 ✅ Rive loaded - BLUE ANIMATION
-(index):1191 ✅ Rive loaded - BLUE ANIMATION
-(index):1316 ✅ Rive loaded - BLUE ANIMATION
-(index):1440 ✅ Rive loaded - BLUE ANIMATION
-(index):1564 ✅ Rive loaded - BLUE ANIMATION
-page-load-tracker.js:765 🔍 Initialization check: Object
-page-load-tracker.js:792 🎬 Initializing page load tracker
-page-load-tracker.js:449 Started Rive animation 1
-page-load-tracker.js:449 Started Rive animation 2
-page-load-tracker.js:449 Started Rive animation 3
-page-load-tracker.js:419 ⚠️ Webflow triggers not ready yet
-(anonymous) @ page-load-tracker.js:419
-page-load-tracker.js:424 ✅ Webflow animations triggered on retry
-webflow.achunk.290ba3321b55c707.js:1 Error in trigger execution: TypeError: Cannot read properties of undefined (reading 'forEach')
-    at c.runTrigger (webflow.achunk.290ba3321b55c707.js:1:60334)
-    at webflow.achunk.290ba3321b55c707.js:1:57199
-    at Object.n [as wrappedHandler] (webflow.achunk.290ba3321b55c707.js:1:44048)
-    at n.emit (webflow.achunk.290ba3321b55c707.js:1:43336)
-    at o.emit (webflow.achunk.290ba3321b55c707.js:1:67065)
-    at page-load-tracker.js:423:28
-(anonymous) @ webflow.achunk.290ba3321b55c707.js:1
-page-load-tracker.js:449 Started Rive animation 1
-page-load-tracker.js:449 Started Rive animation 2
-page-load-tracker.js:449 Started Rive animation 3
-page-load-tracker.js:419 ⚠️ Webflow triggers not ready yet
-(anonymous) @ page-load-tracker.js:419
-page-load-tracker.js:693 📊 Page Load Performance Report
-page-load-tracker.js:694 Total loading time: 3953ms
-page-load-tracker.js:695 Resources loaded: 79/79
-page-load-tracker.js:696 Errors: 0
-page-load-tracker.js:698 Resources by type:
-page-load-tracker.js:424 ✅ Webflow animations triggered on retry
-webflow.achunk.290ba3321b55c707.js:1 Error in trigger execution: TypeError: Cannot read properties of undefined (reading 'forEach')
-    at c.runTrigger (webflow.achunk.290ba3321b55c707.js:1:60334)
-    at webflow.achunk.290ba3321b55c707.js:1:57199
-    at Object.n [as wrappedHandler] (webflow.achunk.290ba3321b55c707.js:1:44048)
-    at n.emit (webflow.achunk.290ba3321b55c707.js:1:43336)
-    at o.emit (webflow.achunk.290ba3321b55c707.js:1:67065)
-    at page-load-tracker.js:423:28
-(anonymous) @ webflow.achunk.290ba3321b55c707.js:1
-page-load-tracker.js:449 Started Rive animation 1
-page-load-tracker.js:449 Started Rive animation 2
-page-load-tracker.js:449 Started Rive animation 3
-page-load-tracker.js:449 Started Rive animation 1
-page-load-tracker.js:449 Started Rive animation 2
-page-load-tracker.js:449 Started Rive animation 3
-2page-load-tracker.js:419 ⚠️ Webflow triggers not ready yet
-(anonymous) @ page-load-tracker.js:419
-page-load-tracker.js:424 ✅ Webflow animations triggered on retry
-webflow.achunk.290ba3321b55c707.js:1 Error in trigger execution: TypeError: Cannot read properties of undefined (reading 'forEach')
-    at c.runTrigger (webflow.achunk.290ba3321b55c707.js:1:60334)
-    at webflow.achunk.290ba3321b55c707.js:1:57199
-    at Object.n [as wrappedHandler] (webflow.achunk.290ba3321b55c707.js:1:44048)
-    at n.emit (webflow.achunk.290ba3321b55c707.js:1:43336)
-    at o.emit (webflow.achunk.290ba3321b55c707.js:1:67065)
-    at page-load-tracker.js:423:28
-(anonymous) @ webflow.achunk.290ba3321b55c707.js:1
-page-load-tracker.js:424 ✅ Webflow animations triggered on retry
-webflow.achunk.290ba3321b55c707.js:1 Error in trigger execution: TypeError: Cannot read properties of undefined (reading 'forEach')
-    at c.runTrigger (webflow.achunk.290ba3321b55c707.js:1:60334)
-    at webflow.achunk.290ba3321b55c707.js:1:57199
-    at Object.n [as wrappedHandler] (webflow.achunk.290ba3321b55c707.js:1:44048)
-    at n.emit (webflow.achunk.290ba3321b55c707.js:1:43336)
-    at o.emit (webflow.achunk.290ba3321b55c707.js:1:67065)
-    at page-load-tracker.js:423:28
+page-load-tracker-integrated.js:27 [Loader] ✅ Essential elements loaded
+(index):2468 Dark variant not found, skipping color application
+page-load-tracker-integrated.js:27 [Loader] ✅ Rive instances detected
+page-load-tracker-integrated.js:27 [Loader] ✅ All custom fonts ready
+page-load-tracker-integrated.js:27 [Loader] ✅ All essentials resolved — completing loader
+page-load-tracker-integrated.js:27 [Loader] 🎬 Fading out loader
+(index):1061 ✅ Rive loaded - BLUE ANIMATION
+page-load-tracker-integrated.js:27 [Loader] 🎭 Triggering GSAP entry animations
+page-load-tracker-integrated.js:27 [Loader] ✅ GSAP entry animation triggered
+page-load-tracker-integrated.js:27 [Loader] 🎭 Triggering Webflow animations
+page-load-tracker-integrated.js:27 [Loader] ✅ Webflow animations triggered
+page-load-tracker-integrated.js:27 [Loader] 🎨 Starting Rive animations
+page-load-tracker-integrated.js:27 [Loader] ✅ Rive animation 1 started
+page-load-tracker-integrated.js:27 [Loader] ⚠️ Could not start Rive 2: TypeError: Cannot read properties of undefined (reading 'isPlaying')
+    at Rive.get (canvas@2.30.3:6585:34)
+    at page-load-tracker-integrated.js:234:23
+    at Array.forEach (<anonymous>)
+    at IntegratedPriorityLoader.triggerRiveAnimations (page-load-tracker-integrated.js:230:28)
+    at IntegratedPriorityLoader.triggerAnimations (page-load-tracker-integrated.js:190:10)
+    at page-load-tracker-integrated.js:173:12
+page-load-tracker-integrated.js:27 [Loader] ⚠️ Could not start Rive 3: TypeError: Cannot read properties of undefined (reading 'isPlaying')
+    at Rive.get (canvas@2.30.3:6585:34)
+    at page-load-tracker-integrated.js:234:23
+    at Array.forEach (<anonymous>)
+    at IntegratedPriorityLoader.triggerRiveAnimations (page-load-tracker-integrated.js:230:28)
+    at IntegratedPriorityLoader.triggerAnimations (page-load-tracker-integrated.js:190:10)
+    at page-load-tracker-integrated.js:173:12
+page-load-tracker-integrated.js:27 [Loader] 💤 Loading non-critical resources in background
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 1 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 2 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 3 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 4 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 5 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 6 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 7 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 8 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 9 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 10 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 11 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 12 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 13 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 14 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 15 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 16 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 17 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 18 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 19 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 20 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 21 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 22 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 23 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 24 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 25 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 26 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 27 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 28 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 29 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 30 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 31 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 32 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 33 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 34 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 35 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 36 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 37 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 38 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 39 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 40 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 41 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 42 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 43 loading
+page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 44 loading
+(index):1434 ✅ Rive loaded - BLUE ANIMATION
+(index):1558 ✅ Rive loaded - BLUE ANIMATION
+(index):1185 ✅ Rive loaded - BLUE ANIMATION
+(index):1310 ✅ Rive loaded - BLUE ANIMATION

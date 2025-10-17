@@ -95,13 +95,23 @@ class IntegratedPriorityLoader {
       '.hero-title',
       '.hero-subtitle',
       '.title',
-      '.subtitle'
+      '.subtitle',
+      'h1',
+      'h2',
+      '.hero h1',
+      '.hero h2',
+      '.hero .title',
+      '.hero .subtitle'
     ];
 
     const elements = document.querySelectorAll(essentials.join(','));
     const promises = [];
 
-    elements.forEach((el) => {
+    this.log(`🔍 Found ${elements.length} essential elements`);
+
+    elements.forEach((el, index) => {
+      this.log(`Element ${index + 1}: ${el.tagName} ${el.className || el.id || 'no-class'}`);
+      
       if (el.tagName === 'IMG') {
         promises.push(this.waitForImage(el));
       } else if (el.tagName === 'VIDEO') {
@@ -198,11 +208,18 @@ class IntegratedPriorityLoader {
       try {
         window.gsap.delayedCall(0.2, () => {
           window.dispatchEvent(new Event('page-fully-loaded'));
+          this.log('✅ GSAP page-fully-loaded event dispatched');
         });
         this.log('✅ GSAP entry animation triggered');
       } catch (e) {
         this.log('⚠️ GSAP trigger failed:', e);
       }
+    } else {
+      this.log('⚠️ GSAP not available - dispatching event anyway');
+      setTimeout(() => {
+        window.dispatchEvent(new Event('page-fully-loaded'));
+        this.log('✅ page-fully-loaded event dispatched (no GSAP)');
+      }, 200);
     }
   }
 
@@ -229,17 +246,26 @@ class IntegratedPriorityLoader {
     if (window.riveInstances && Array.isArray(window.riveInstances)) {
       window.riveInstances.forEach((rive, i) => {
         try {
-          if (typeof rive.play === 'function') {
-            // Safety check: only play if not already playing
-            if (!rive.isPlaying || rive.isPlaying() === false) {
+          if (rive && typeof rive.play === 'function') {
+            // Better safety check: avoid calling isPlaying() if it might not exist
+            try {
+              const isPlaying = rive.isPlaying && typeof rive.isPlaying === 'function' ? rive.isPlaying() : false;
+              if (!isPlaying) {
+                rive.play();
+                this.log(`✅ Rive animation ${i + 1} started`);
+              } else {
+                this.log(`ℹ️ Rive animation ${i + 1} already playing - skipping`);
+              }
+            } catch (isPlayingError) {
+              // If isPlaying() fails, just try to play
               rive.play();
-              this.log(`✅ Rive animation ${i + 1} started`);
-            } else {
-              this.log(`ℹ️ Rive animation ${i + 1} already playing - skipping`);
+              this.log(`✅ Rive animation ${i + 1} started (isPlaying check failed)`);
             }
+          } else {
+            this.log(`⚠️ Rive animation ${i + 1} not ready or play function missing`);
           }
         } catch (e) {
-          this.log(`⚠️ Could not start Rive ${i + 1}:`, e);
+          this.log(`⚠️ Could not start Rive ${i + 1}:`, e.message);
         }
       });
     }
