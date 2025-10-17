@@ -36,18 +36,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const playHead = videoControls.querySelector("[f-data-video='play-head']");
   const currentTime = videoControls.querySelector("[f-data-video='current-time']");
   const duration = videoControls.querySelector("[f-data-video='duration']");
-    fullscreen: !!fullscreen,
-    minimize: !!minimize,
-    replay: !!replay,
-    forward: !!forward,
-    backward: !!backward,
-    volumeSlider: !!volumeSlider,
-    progressBar: !!progressBar,
-    progressIndicator: !!progressIndicator,
-    playHead: !!playHead,
-    currentTime: !!currentTime,
-    duration: !!duration
-  });
 
   // Initialize volume slider visual fill
   if (volumeSlider) {
@@ -263,6 +251,9 @@ document.addEventListener("DOMContentLoaded", () => {
       clearLoadingTimeout();
       hideStreamError();
       setAspectRatio();
+      
+      // Set up control event listeners after player is ready
+      setupControlEventListeners();
     });
     
     // Video.js loadstart event - video starts loading
@@ -340,17 +331,6 @@ document.addEventListener("DOMContentLoaded", () => {
       lastErrorTime = currentTime;
       
       const errorCode = player.error() ? player.error().code : 'unknown';
-        retryCount,
-        consecutiveFailures,
-        timeSinceLastError: timeSinceLastError + 'ms',
-        hasStarted: player.hasStarted_,
-        readyState: player.readyState(),
-        networkState: player.networkState()
-      });
-      
-      clearLoadingTimeout();
-      
-      const errorCode = player.error() ? player.error().code : 'unknown';
       
       // Handle different types of errors
       if (errorCode === 4) { // MEDIA_ERR_SRC_NOT_SUPPORTED
@@ -388,10 +368,6 @@ function setAspectRatio() {
   
   // Add null checks to prevent errors
   if (!video || !wrapper || !wrapperElement) {
-    return;
-  }
-      wrapperElement: !!wrapperElement
-    });
     return;
   }
   
@@ -531,7 +507,27 @@ window.addEventListener("resize", () => {
 
   // Set up control event listeners after Video.js is initialized
   function setupControlEventListeners() {
-    if (!player) return;
+    if (!player) {
+      console.warn("⚠️ Player not ready for control setup");
+      return;
+    }
+    
+    console.log("🎮 Setting up control event listeners...");
+    console.log("🎮 Controls found:", {
+      play: !!play,
+      pause: !!pause,
+      fullscreen: !!fullscreen,
+      minimize: !!minimize,
+      replay: !!replay,
+      forward: !!forward,
+      backward: !!backward,
+      volumeSlider: !!volumeSlider,
+      progressBar: !!progressBar,
+      progressIndicator: !!progressIndicator,
+      playHead: !!playHead,
+      currentTime: !!currentTime,
+      duration: !!duration
+    });
 
     // Click the video to play / pause 
     video.addEventListener("click", () => {
@@ -544,21 +540,26 @@ window.addEventListener("resize", () => {
     
     // Play button
     play?.addEventListener("click", () => {
+      console.log("▶️ Play button clicked");
       player.play();
     });
 
     // Pause button
     pause?.addEventListener("click", () => {
+      console.log("⏸️ Pause button clicked");
       player.pause();
     });
 
     // Fullscreen button
     fullscreen?.addEventListener("click", () => {
+      console.log("📺 Fullscreen button clicked");
       if (player.isFullscreen()) {
+        console.log("📺 Exiting fullscreen");
         player.exitFullscreen();
         // Hide Video.js controls when exiting fullscreen
         player.controls(false);
       } else {
+        console.log("📺 Entering fullscreen");
         player.requestFullscreen();
         // Show Video.js controls when entering fullscreen
         player.controls(true);
@@ -657,10 +658,7 @@ window.addEventListener("resize", () => {
     });
   }
 
-  // Set up control listeners after Video.js initialization
-  setTimeout(() => {
-    setupControlEventListeners();
-  }, 100);
+  // Control listeners are now set up in the player.ready() event
 
   // Cleanup function to prevent memory leaks
   function cleanup() {
