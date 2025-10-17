@@ -246,13 +246,17 @@ class IntegratedPriorityLoader {
     this.log('🎭 Triggering Webflow animations');
     
     try {
-      const wfIx = Webflow && Webflow.require && Webflow.require('ix3');
-      if (wfIx && typeof wfIx.emit === 'function') {
-        wfIx.emit('page-fully-loaded');
-        this.log('✅ Webflow animations triggered');
+      if (typeof Webflow !== 'undefined') {
+        const wfIx = Webflow.require("ix3");
+        if (wfIx && typeof wfIx.emit === 'function') {
+          wfIx.emit("page-fully-loaded");
+          this.log('✅ Webflow animations triggered');
+        } else {
+          this.log('⚠️ Webflow IX3 not ready — retrying');
+          setTimeout(() => this.triggerWebflowAnimations(), 500);
+        }
       } else {
-        this.log('⚠️ Webflow IX3 not ready — retrying');
-        setTimeout(() => this.triggerWebflowAnimations(), 500);
+        this.log('⚠️ Webflow not available');
       }
     } catch (e) {
       this.log('⚠️ Webflow trigger error:', e);
