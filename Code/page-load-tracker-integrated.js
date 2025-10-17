@@ -85,23 +85,19 @@ class IntegratedPriorityLoader {
   /**
    * Wait for essential DOM elements above the fold:
    * - Navigation
-   * - Title/subtitle
+   * - Title/subtitle (hero section only)
    * - High priority images/videos
    */
   async waitForEssentialElements() {
     const essentials = [
       '[data-priority="high"]',
       'nav',
-      '.hero-title',
-      '.hero-subtitle',
-      '.title',
-      '.subtitle',
-      'h1',
-      'h2',
       '.hero h1',
       '.hero h2',
       '.hero .title',
-      '.hero .subtitle'
+      '.hero .subtitle',
+      '.hero-subtitle',
+      '.hero-title'
     ];
 
     const elements = document.querySelectorAll(essentials.join(','));
@@ -133,14 +129,23 @@ class IntegratedPriorityLoader {
    */
   async waitForRiveAnimations() {
     return new Promise((resolve) => {
+      let attempts = 0;
+      const maxAttempts = 50; // 5 seconds max wait
+      
       const checkRive = () => {
-        if (window.riveInstances && window.riveInstances.length > 0) {
-          this.log('✅ Rive instances detected');
+        attempts++;
+        
+        if (window.riveInstances && window.riveInstances.length >= 3) {
+          this.log(`✅ Found ${window.riveInstances.length} Rive instances`);
+          resolve();
+        } else if (attempts >= maxAttempts) {
+          this.log(`⚠️ Rive timeout after ${maxAttempts} attempts - proceeding anyway`);
           resolve();
         } else {
           setTimeout(checkRive, 100);
         }
       };
+      
       checkRive();
     });
   }
@@ -202,6 +207,20 @@ class IntegratedPriorityLoader {
 
   triggerGSAPAnimations() {
     this.log('🎭 Triggering GSAP entry animations');
+    
+    // First, let's check what elements we're trying to animate
+    const titleElements = document.querySelectorAll('h1.c-heading, .hero h1, .hero-title');
+    const subtitleElements = document.querySelectorAll('.hero-subtitle, .hero h2, .hero .subtitle');
+    
+    this.log(`Found ${titleElements.length} title elements and ${subtitleElements.length} subtitle elements`);
+    
+    titleElements.forEach((el, index) => {
+      this.log(`Title ${index + 1}: ${el.tagName} ${el.className}`);
+    });
+    
+    subtitleElements.forEach((el, index) => {
+      this.log(`Subtitle ${index + 1}: ${el.tagName} ${el.className}`);
+    });
     
     // Use both methods for maximum compatibility
     if (window.gsap) {
