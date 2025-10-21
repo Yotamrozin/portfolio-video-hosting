@@ -21,11 +21,13 @@
     };
 
   // Promise polyfill (minimal)
-  var D = "Promise" in window ? window.Promise : function(t) {
-    var e = this;
-    e.state = 2;
-    e.value = void 0;
-    e.deferred = [];
+  var D = "Promise" in window ? window.Promise : Q;
+  
+  function Q(t) {
+    this.state = 2;
+    this.value = void 0;
+    this.deferred = [];
+    let e = this;
     try {
       t(
         function(n) { e.resolve(n); },
@@ -34,13 +36,27 @@
     } catch (n) {
       e.reject(n);
     }
+  }
+
+  Q.resolve = function(t) {
+    return new Q(function(e, n) { e(t); });
   };
 
-  D.resolve = function(t) {
-    return new D(function(e, n) { e(t); });
+  Q.all = function (e) {
+    return new Q((n, r) => {
+      let i = [],
+        o = 0;
+      e.length === 0 && n(i);
+      function s(c) {
+        return function (a) {
+          (i[c] = a), (o += 1), o === e.length && n(i);
+        };
+      }
+      for (let c = 0; c < e.length; c += 1) Q.resolve(e[c]).then(s(c), r);
+    });
   };
 
-  D.prototype.resolve = function(e) {
+  Q.prototype.resolve = function(e) {
     if (this.state === 2) {
       this.state = 0;
       this.value = e;
@@ -48,7 +64,7 @@
     }
   };
 
-  D.prototype.reject = function(e) {
+  Q.prototype.reject = function(e) {
     if (this.state === 2) {
       this.state = 1;
       this.value = e;
@@ -56,14 +72,14 @@
     }
   };
 
-  D.prototype.then = function(e, n) {
-    return new D((r, i) => {
+  Q.prototype.then = function(e, n) {
+    return new Q((r, i) => {
       this.deferred.push([e, n, r, i]);
       this.notify();
     });
   };
 
-  D.prototype.notify = function() {
+  Q.prototype.notify = function() {
     var e = this;
     setTimeout(() => {
       if (e.state !== 2) {
@@ -78,20 +94,6 @@
           }
         }
       }
-    });
-  };
-
-  D.all = function (e) {
-    return new D((n, r) => {
-      let i = [],
-        o = 0;
-      e.length === 0 && n(i);
-      function s(c) {
-        return function (a) {
-          (i[c] = a), (o += 1), o === e.length && n(i);
-        };
-      }
-      for (let c = 0; c < e.length; c += 1) D.resolve(e[c]).then(s(c), r);
     });
   };
 
