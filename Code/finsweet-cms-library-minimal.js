@@ -40,30 +40,6 @@
     return new D(function(e, n) { e(t); });
   };
 
-  D.all = function(t) {
-    return new D((e, n) => {
-      if (!Array.isArray(t)) {
-        n(new Error('Promise.all requires an array'));
-        return;
-      }
-      if (t.length === 0) {
-        e([]);
-        return;
-      }
-      let r = 0;
-      let i = new Array(t.length);
-      t.forEach((o, s) => {
-        D.resolve(o).then((c) => {
-          i[s] = c;
-          r++;
-          if (r === t.length) {
-            e(i);
-          }
-        }).catch(n);
-      });
-    });
-  };
-
   D.prototype.resolve = function(e) {
     if (this.state === 2) {
       this.state = 0;
@@ -102,6 +78,20 @@
           }
         }
       }
+    });
+  };
+
+  D.all = function (e) {
+    return new D((n, r) => {
+      let i = [],
+        o = 0;
+      e.length === 0 && n(i);
+      function s(c) {
+        return function (a) {
+          (i[c] = a), (o += 1), o === e.length && n(i);
+        };
+      }
+      for (let c = 0; c < e.length; c += 1) D.resolve(e[c]).then(s(c), r);
     });
   };
 
@@ -151,24 +141,14 @@
 
   E.prototype.reinitializeWebflow = function() {
     if (window.Webflow) {
-      try {
-        if (typeof window.Webflow.destroy === 'function') {
-          window.Webflow.destroy();
-        }
-        if (typeof window.Webflow.ready === 'function') {
-          window.Webflow.ready();
-        }
-        if (window.Webflow.require && typeof window.Webflow.require("ix2") === 'object') {
-          window.Webflow.require("ix2").init();
-        }
-        if (typeof window.Webflow.redraw === 'object' && window.Webflow.redraw.up) {
-          window.Webflow.redraw.up();
-        }
-        et(document, "readystatechange");
-        et(document, "IX2_PREVIEW_LOAD");
-      } catch (e) {
-        console.warn('Webflow reinitialization failed:', e);
+      window.Webflow.destroy();
+      window.Webflow.ready();
+      if (window.Webflow.require("ix2")) {
+        window.Webflow.require("ix2").init();
       }
+      window.Webflow.redraw.up();
+      et(document, "readystatechange");
+      et(document, "IX2_PREVIEW_LOAD");
     }
   };
 
@@ -190,12 +170,7 @@
 
     let a = c.children[0];
     let y = s.getElementsByTagName("a")[0];
-    
-    // Ensure Webflow is properly initialized
-    if (!window.Webflow) {
-      window.Webflow = [];
-    }
-    let l = window.Webflow;
+    let l = window.Webflow || [];
     
     let h = (d, p, f) =>
       o.map((u, A) => {
@@ -209,47 +184,22 @@
       });
 
     return new D((d, p) => {
-      // Ensure Webflow.push exists before calling it
-      if (typeof l.push === 'function') {
-        l.push(() => {
-          if (window.___toggledInitTab___) return;
-          let f = Gn(y.href);
-          y.classList.remove("w--current");
-          a.classList.remove("w--tab-active");
-          let u = y.className;
-          let A = a.className;
-          s.innerHTML = "";
-          c.innerHTML = "";
-          D.all(h(f, u, A)).then((g) => {
-            window.___toggledInitTab___ = !0;
-            if (window.Webflow && typeof window.Webflow.ready === 'function') {
-              window.Webflow.ready();
-            }
-            if (r) this.reinitializeWebflow();
-            d();
-          });
+      l.push(() => {
+        if (window.___toggledInitTab___) return;
+        let f = Gn(y.href);
+        y.classList.remove("w--current");
+        a.classList.remove("w--tab-active");
+        let u = y.className;
+        let A = a.className;
+        s.innerHTML = "";
+        c.innerHTML = "";
+        D.all(h(f, u, A)).then((g) => {
+          window.___toggledInitTab___ = !0;
+          window.Webflow.ready();
+          if (r) this.reinitializeWebflow();
+          d();
         });
-      } else {
-        // Fallback if Webflow.push doesn't exist
-        setTimeout(() => {
-          if (window.___toggledInitTab___) return;
-          let f = Gn(y.href);
-          y.classList.remove("w--current");
-          a.classList.remove("w--tab-active");
-          let u = y.className;
-          let A = a.className;
-          s.innerHTML = "";
-          c.innerHTML = "";
-          D.all(h(f, u, A)).then((g) => {
-            window.___toggledInitTab___ = !0;
-            if (window.Webflow && typeof window.Webflow.ready === 'function') {
-              window.Webflow.ready();
-            }
-            if (r) this.reinitializeWebflow();
-            d();
-          });
-        }, 100);
-      }
+      });
     }).catch((d) => null);
   };
 
