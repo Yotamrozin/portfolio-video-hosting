@@ -1,12 +1,9 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
-  console.log("🎬 Video Player Script Starting...");
   
   // Find the wrapper element first
   const wrapperElement = document.querySelector("[f-data-video='wrapper']");
-  console.log("📦 Wrapper Element:", wrapperElement);
   if (!wrapperElement) {
-    console.error("❌ No wrapper element found with [f-data-video='wrapper']");
     return; // Exit if no wrapper found
   }
   
@@ -15,15 +12,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const wrapper = wrapperElement; // The wrapperElement IS the wrapper
   const poster = wrapperElement.querySelector("[f-data-video='poster-button']");
   
-  console.log("🎥 Video Element:", video);
-  console.log("📐 Wrapper:", wrapper);
-  console.log("🖼️ Poster:", poster);
-  
   // Find the video controls container
   const videoControls = wrapperElement.querySelector("[f-data-video='video-controls']");
-  console.log("🎮 Video Controls:", videoControls);
   if (!videoControls) {
-    console.error("❌ No video controls found with [f-data-video='video-controls']");
     return; // Exit if no controls found
   }
   
@@ -41,22 +32,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const playHead = videoControls.querySelector("[f-data-video='play-head']");
   const currentTime = videoControls.querySelector("[f-data-video='current-time']");
   const duration = videoControls.querySelector("[f-data-video='duration']");
-  
-  console.log("🎮 Controls found:", {
-    play: !!play,
-    pause: !!pause,
-    fullscreen: !!fullscreen,
-    minimize: !!minimize,
-    replay: !!replay,
-    forward: !!forward,
-    backward: !!backward,
-    volumeSlider: !!volumeSlider,
-    progressBar: !!progressBar,
-    progressIndicator: !!progressIndicator,
-    playHead: !!playHead,
-    currentTime: !!currentTime,
-    duration: !!duration
-  });
 
   // Initialize volume slider visual fill
   if (volumeSlider) {
@@ -68,20 +43,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
 // Optimized aspect ratio setting
 function setAspectRatio() {
-  console.log("🔄 setAspectRatio called");
-  console.log("📊 Video dimensions:", {
-    videoWidth: video?.videoWidth,
-    videoHeight: video?.videoHeight,
-    readyState: video?.readyState
-  });
   
   // Add null checks to prevent errors
   if (!video || !wrapper || !wrapperElement) {
-    console.error("❌ Missing elements:", {
-      video: !!video,
-      wrapper: !!wrapper,
-      wrapperElement: !!wrapperElement
-    });
     return;
   }
   
@@ -140,12 +104,7 @@ function setAspectRatio() {
       }
     `;
     document.head.appendChild(style);
-    
-    console.log(`✅ Aspect ratio set: ${aspectRatio} (${videoWidth}x${videoHeight})`);
-    console.log("📐 Applied to video element:", video.style.aspectRatio);
-    console.log("📐 Applied to wrapperElement:", wrapperElement.style.aspectRatio);
   } else {
-    console.warn("⚠️ Video dimensions not available yet");
   }
 }
 
@@ -156,38 +115,29 @@ function setAspectRatioRAF() {
 
 // Multiple event listeners for faster aspect ratio detection
 video.addEventListener("loadstart", () => {
-  console.log("🎬 Video loadstart event fired");
   setAspectRatioRAF();
 });
 video.addEventListener("loadedmetadata", () => {
-  console.log("📊 Video loadedmetadata event fired");
   setAspectRatioRAF();
 });
 video.addEventListener("loadeddata", () => {
-  console.log("📁 Video loadeddata event fired");
   setAspectRatioRAF();
 });
 video.addEventListener("canplay", () => {
-  console.log("▶️ Video canplay event fired");
   setAspectRatioRAF();
 });
 video.addEventListener("canplaythrough", () => {
-  console.log("🎯 Video canplaythrough event fired");
   setAspectRatioRAF();
 });
 
 // Immediate check if video is already loaded
-console.log("🔍 Initial video readyState:", video?.readyState);
 if (video && video.readyState >= 1) {
-  console.log("⚡ Video already loaded, setting aspect ratio immediately");
   setAspectRatioRAF();
 }
 
 // Additional check with a small delay to catch cases where dimensions load after metadata
 setTimeout(() => {
-  console.log("⏰ 50ms delayed check - readyState:", video?.readyState);
   if (video && video.readyState >= 1) {
-    console.log("⚡ 50ms delayed check - setting aspect ratio");
     setAspectRatioRAF();
   }
 }, 50);
@@ -197,10 +147,8 @@ let dimensionCheckInterval;
 let dimensionCheckTimeout;
 
 function startDimensionCheck() {
-  console.log("🔄 Starting periodic dimension check");
   dimensionCheckInterval = setInterval(() => {
     if (video && video.videoWidth && video.videoHeight) {
-      console.log("✅ Periodic check found dimensions, setting aspect ratio");
       setAspectRatioRAF();
       clearInterval(dimensionCheckInterval);
       clearTimeout(dimensionCheckTimeout);
@@ -209,7 +157,6 @@ function startDimensionCheck() {
   
   // Stop checking after 2 seconds
   dimensionCheckTimeout = setTimeout(() => {
-    console.log("⏰ Stopping periodic dimension check after 2 seconds");
     clearInterval(dimensionCheckInterval);
   }, 2000);
 }

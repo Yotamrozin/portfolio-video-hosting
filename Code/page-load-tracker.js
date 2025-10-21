@@ -16,6 +16,8 @@ class PageLoadTracker {
       minDisplayTime: 500, // Minimum time to show loader (ms)
       fadeOutDuration: 400, // Fade out animation duration (ms)
       updateThrottle: 16, // Update UI every 16ms (60fps)
+      enableDebugLogging: true, // Show detailed loading info in console
+      enableDebugPanel: false, // Show visual debug panel
     };
 
     // State
@@ -34,6 +36,12 @@ class PageLoadTracker {
     // Resource tracking
     this.trackedResources = new Set();
     this.resourceTypes = ['img', 'script', 'link', 'video', 'audio', 'iframe'];
+    this.resourceDetails = new Map(); // Track detailed info about each resource
+    this.loadingResources = new Set(); // Currently loading resources
+    
+    // Animation triggers
+    this.webflowTriggered = false; // Prevent multiple Webflow triggers
+    this.loadingCompleted = false; // Prevent multiple completion calls
     
     // Percentage animation
     this.currentDisplayPercentage = 0;
@@ -44,14 +52,25 @@ class PageLoadTracker {
     this.updateProgress = this.updateProgress.bind(this);
     this.completeLoading = this.completeLoading.bind(this);
     
-    this.init();
+    // Ultra-aggressive deferral to minimize main thread blocking
+    // Use multiple fallbacks to ensure initialization happens
+    if (window.requestIdleCallback) {
+      requestIdleCallback(() => this.init(), { timeout: 2000 });
+    } else if (window.requestAnimationFrame) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => this.init());
+      });
+    } else {
+      setTimeout(() => this.init(), 100);
+    }
   }
 
   init() {
-    // Find loader elements
-    this.loaderElement = document.querySelector('[data-loader]') || 
-                        document.querySelector('.loader') ||
-                        document.querySelector('#loader');
+    // Find loader elements (batch DOM queries)
+    const loaderSelectors = ['[data-loader]', '.loader', '#loader'];
+    this.loaderElement = loaderSelectors.reduce((element, selector) => 
+      element || document.querySelector(selector), null);
+    
     this.percentElement = document.querySelector('[data-loader-percent]');
     this.barElement = document.querySelector('[data-loader-bar]');
 
@@ -60,15 +79,30 @@ class PageLoadTracker {
       return;
     }
 
-    // Disable scrolling while loading
-    this.disableScroll();
-
-    // Start tracking
-    this.trackDOMProgress();
-    this.setupPerformanceObserver();
-    
-    // Initial update
+    // Initial update (keep this immediate for visual feedback)
     this.updateUI(0);
+
+    // Ultra-defer all non-critical operations to minimize blocking
+    const deferredInit = () => {
+      this.disableScroll();
+      this.trackDOMProgress();
+      this.setupPerformanceObserver();
+      
+      if (this.config.enableDebugPanel) {
+        this.createDebugPanel();
+      }
+    };
+
+    // Use multiple deferral strategies for maximum efficiency
+    if (window.requestIdleCallback) {
+      requestIdleCallback(deferredInit, { timeout: 1000 });
+    } else if (window.requestAnimationFrame) {
+      requestAnimationFrame(() => {
+        requestAnimationFrame(deferredInit);
+      });
+    } else {
+      setTimeout(deferredInit, 50);
+    }
   }
 
   trackDOMProgress() {
@@ -134,25 +168,66 @@ class PageLoadTracker {
       return;
     }
 
+    // Skip lazy-loaded videos - they shouldn't be tracked for initial load
+    if (element.tagName === 'VIDEO') {
+      const loading = element.getAttribute('loading');
+      const preload = element.getAttribute('preload');
+      const isLazy = loading === 'lazy' || preload === 'none' || preload === 'metadata';
+      
+      if (isLazy) {
+        console.log(`⏭️ Skipping lazy video: ${this.getShortUrl(src)} [${this.getElementSection(element)}]`);
+        return;
+      }
+    }
+
     this.trackedResources.add(src);
+    
+    // Store resource details
+    const resourceInfo = {
+      url: src,
+      type: element.tagName.toLowerCase(),
+      startTime: performance.now(),
+      size: this.getResourceSize(element),
+      status: 'pending',
+      element: element // Store element reference for section detection
+    };
+    this.resourceDetails.set(src, resourceInfo);
 
     // Check if already loaded
     if (this.isElementLoaded(element)) {
+      resourceInfo.status = 'loaded';
+      resourceInfo.endTime = performance.now();
+      resourceInfo.duration = resourceInfo.endTime - resourceInfo.startTime;
       this.loadedResources++;
+      this.logResourceLoaded(resourceInfo);
       this.updateProgress();
       return;
     }
 
     // Track loading
+    this.loadingResources.add(src);
+    resourceInfo.status = 'loading';
+    this.logResourceStarted(resourceInfo);
+
     const onLoad = () => {
+      resourceInfo.status = 'loaded';
+      resourceInfo.endTime = performance.now();
+      resourceInfo.duration = resourceInfo.endTime - resourceInfo.startTime;
+      this.loadingResources.delete(src);
       this.loadedResources++;
+      this.logResourceLoaded(resourceInfo);
       this.updateProgress();
       cleanup();
     };
 
     const onError = () => {
+      resourceInfo.status = 'error';
+      resourceInfo.endTime = performance.now();
+      resourceInfo.duration = resourceInfo.endTime - resourceInfo.startTime;
+      this.loadingResources.delete(src);
       console.warn('Failed to load resource:', src);
       this.loadedResources++; // Count errors as loaded to prevent hanging
+      this.logResourceError(resourceInfo);
       this.updateProgress();
       cleanup();
     };
@@ -296,6 +371,14 @@ class PageLoadTracker {
   }
 
   completeLoading() {
+    // Prevent multiple completion calls
+    if (this.loadingCompleted) {
+      console.log('ℹ️ Loading already completed - skipping');
+      return;
+    }
+    this.loadingCompleted = true;
+    console.log('🎯 Setting loading completed flag');
+
     // Ensure minimum display time
     const elapsed = performance.now() - this.startTime;
     const remainingTime = Math.max(0, this.config.minDisplayTime - elapsed);
@@ -332,22 +415,47 @@ class PageLoadTracker {
       // Trigger custom event
       document.dispatchEvent(new CustomEvent('pageLoadComplete'));
       
-      // Trigger Webflow animations
-      if (typeof Webflow !== 'undefined') {
+      // Trigger Webflow animations with better error handling and readiness check
+      if (typeof Webflow !== 'undefined' && !this.webflowTriggered) {
+        this.webflowTriggered = true; // Prevent multiple triggers
         try {
-          const wfIx = Webflow.require("ix3")
-          wfIx.emit("page-fully-loaded");
+          // Wait longer for Webflow to be fully ready
+          setTimeout(() => {
+            try {
+              const wfIx = Webflow.require("ix3");
+              if (wfIx && typeof wfIx.emit === 'function') {
+                // Try to trigger - if it fails, we'll catch it
+                wfIx.emit("page-fully-loaded");
+                console.log('✅ Webflow animations triggered successfully');
+              } else {
+                console.warn('⚠️ Webflow ix3 not available or emit function missing');
+              }
+            } catch (innerError) {
+              console.warn('⚠️ Error triggering Webflow animations:', innerError.message);
+              // Don't retry - this prevents multiple attempts
+            }
+          }, 500); // Increased delay to 500ms
         } catch (e) {
-          console.warn('Could not trigger Webflow animations:', e);
+          console.warn('⚠️ Could not trigger Webflow animations:', e.message);
         }
+      } else {
+        console.warn('⚠️ Webflow not available');
       }
       
-      // Trigger Rive animations
+      // Trigger Rive animations with safety checks
       if (window.riveInstances && Array.isArray(window.riveInstances)) {
         window.riveInstances.forEach((riveInstance, index) => {
           try {
-            riveInstance.play();
-            console.log(`Started Rive animation ${index + 1}`);
+            // Safety check: only play if not already playing
+            if (riveInstance && typeof riveInstance.play === 'function') {
+              // Check if animation is already playing to prevent infinite loops
+              if (!riveInstance.isPlaying || riveInstance.isPlaying() === false) {
+                riveInstance.play();
+                console.log(`Started Rive animation ${index + 1}`);
+              } else {
+                console.log(`Rive animation ${index + 1} already playing - skipping`);
+              }
+            }
           } catch (e) {
             console.warn(`Could not start Rive animation ${index + 1}:`, e);
           }
@@ -386,6 +494,236 @@ class PageLoadTracker {
     }
   }
 
+  // Resource size estimation
+  getResourceSize(element) {
+    if (element.tagName === 'IMG') {
+      return `${element.naturalWidth || '?'}x${element.naturalHeight || '?'}`;
+    }
+    if (element.tagName === 'VIDEO') {
+      return `${element.videoWidth || '?'}x${element.videoHeight || '?'}`;
+    }
+    return 'unknown';
+  }
+
+  // Debug logging methods
+  logResourceStarted(resourceInfo) {
+    if (!this.config.enableDebugLogging) return;
+    
+    const section = this.getElementSection(resourceInfo.element);
+    const sectionInfo = section ? ` [${section}]` : '';
+    console.log(`🔄 Loading ${resourceInfo.type.toUpperCase()}: ${this.getShortUrl(resourceInfo.url)} (${resourceInfo.size})${sectionInfo}`);
+    this.updateDebugPanel();
+  }
+
+  logResourceLoaded(resourceInfo) {
+    if (!this.config.enableDebugLogging) return;
+    
+    const duration = Math.round(resourceInfo.duration);
+    console.log(`✅ Loaded ${resourceInfo.type.toUpperCase()}: ${this.getShortUrl(resourceInfo.url)} (${duration}ms)`);
+    this.updateDebugPanel();
+  }
+
+  logResourceError(resourceInfo) {
+    if (!this.config.enableDebugLogging) return;
+    
+    const duration = Math.round(resourceInfo.duration);
+    console.error(`❌ Failed ${resourceInfo.type.toUpperCase()}: ${this.getShortUrl(resourceInfo.url)} (${duration}ms)`);
+    this.updateDebugPanel();
+  }
+
+  getShortUrl(url) {
+    try {
+      const urlObj = new URL(url);
+      return urlObj.pathname.split('/').pop() || urlObj.hostname;
+    } catch {
+      return url.split('/').pop() || url;
+    }
+  }
+
+  getElementSection(element) {
+    if (!element) return null;
+    
+    // Look for common section identifiers
+    const sectionSelectors = [
+      '[data-section]',
+      '.section',
+      '.hero',
+      '.portfolio',
+      '.gallery',
+      '.projects',
+      '.work',
+      '.about',
+      '.contact',
+      '.footer',
+      '.header',
+      '.nav'
+    ];
+    
+    let current = element;
+    while (current && current !== document.body) {
+      // Check for data-section attribute
+      if (current.hasAttribute('data-section')) {
+        return current.getAttribute('data-section');
+      }
+      
+      // Check for common class names
+      for (const selector of sectionSelectors) {
+        if (current.matches && current.matches(selector)) {
+          return selector.replace(/[\[\].]/g, '');
+        }
+      }
+      
+      // Check for ID
+      if (current.id) {
+        return `#${current.id}`;
+      }
+      
+      current = current.parentElement;
+    }
+    
+    return 'unknown-section';
+  }
+
+  // Debug panel methods
+  createDebugPanel() {
+    if (this.debugPanel) return;
+    
+    this.debugPanel = document.createElement('div');
+    this.debugPanel.id = 'page-load-debug-panel';
+    this.debugPanel.style.cssText = `
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      width: 300px;
+      max-height: 400px;
+      background: rgba(0, 0, 0, 0.9);
+      color: white;
+      font-family: monospace;
+      font-size: 12px;
+      padding: 10px;
+      border-radius: 5px;
+      z-index: 10000;
+      overflow-y: auto;
+      border: 1px solid #333;
+    `;
+    
+    document.body.appendChild(this.debugPanel);
+    this.updateDebugPanel();
+  }
+
+  updateDebugPanel() {
+    if (!this.debugPanel) return;
+    
+    const loadingCount = this.loadingResources.size;
+    const loadedCount = this.loadedResources;
+    const totalCount = this.totalResources;
+    const progress = totalCount > 0 ? Math.round((loadedCount / totalCount) * 100) : 0;
+    
+    let html = `
+      <div style="margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px;">
+        <strong>Page Load Debug</strong><br>
+        Progress: ${progress}% (${loadedCount}/${totalCount})<br>
+        Currently loading: ${loadingCount}
+      </div>
+    `;
+    
+    // Show currently loading resources
+    if (loadingCount > 0) {
+      html += '<div style="margin-bottom: 10px;"><strong>Loading:</strong><br>';
+      this.loadingResources.forEach(url => {
+        const info = this.resourceDetails.get(url);
+        if (info) {
+          const elapsed = Math.round(performance.now() - info.startTime);
+          html += `🔄 ${info.type.toUpperCase()}: ${this.getShortUrl(url)} (${elapsed}ms)<br>`;
+        }
+      });
+      html += '</div>';
+    }
+    
+    // Show recently loaded resources (last 5)
+    const loadedResources = Array.from(this.resourceDetails.values())
+      .filter(info => info.status === 'loaded')
+      .sort((a, b) => b.endTime - a.endTime)
+      .slice(0, 5);
+    
+    if (loadedResources.length > 0) {
+      html += '<div><strong>Recently loaded:</strong><br>';
+      loadedResources.forEach(info => {
+        html += `✅ ${info.type.toUpperCase()}: ${this.getShortUrl(info.url)} (${Math.round(info.duration)}ms)<br>`;
+      });
+      html += '</div>';
+    }
+    
+    this.debugPanel.innerHTML = html;
+  }
+
+  // Performance analysis methods
+  getPerformanceReport() {
+    const resources = Array.from(this.resourceDetails.values());
+    const loadedResources = resources.filter(r => r.status === 'loaded');
+    const errorResources = resources.filter(r => r.status === 'error');
+    
+    const report = {
+      totalResources: this.totalResources,
+      loadedResources: this.loadedResources,
+      errorResources: errorResources.length,
+      loadingTime: performance.now() - this.startTime,
+      resourcesByType: {},
+      slowestResources: [],
+      largestResources: []
+    };
+    
+    // Group by type
+    loadedResources.forEach(resource => {
+      if (!report.resourcesByType[resource.type]) {
+        report.resourcesByType[resource.type] = { count: 0, totalTime: 0 };
+      }
+      report.resourcesByType[resource.type].count++;
+      report.resourcesByType[resource.type].totalTime += resource.duration;
+    });
+    
+    // Find slowest resources
+    report.slowestResources = loadedResources
+      .sort((a, b) => b.duration - a.duration)
+      .slice(0, 5)
+      .map(r => ({
+        url: r.url,
+        type: r.type,
+        duration: Math.round(r.duration),
+        size: r.size
+      }));
+    
+    return report;
+  }
+
+  logPerformanceReport() {
+    const report = this.getPerformanceReport();
+    
+    console.group('📊 Page Load Performance Report');
+    console.log(`Total loading time: ${Math.round(report.loadingTime)}ms`);
+    console.log(`Resources loaded: ${report.loadedResources}/${report.totalResources}`);
+    console.log(`Errors: ${report.errorResources}`);
+    
+    console.group('Resources by type:');
+    Object.entries(report.resourcesByType).forEach(([type, data]) => {
+      const avgTime = Math.round(data.totalTime / data.count);
+      console.log(`${type.toUpperCase()}: ${data.count} files, avg ${avgTime}ms each`);
+    });
+    console.groupEnd();
+    
+    if (report.slowestResources.length > 0) {
+      console.group('Slowest resources:');
+      report.slowestResources.forEach(resource => {
+        console.log(`${resource.type.toUpperCase()}: ${this.getShortUrl(resource.url)} (${resource.duration}ms)`);
+      });
+      console.groupEnd();
+    }
+    
+    console.groupEnd();
+    
+    return report;
+  }
+
   // Public API for manual control
   setProgress(percentage) {
     this.updateUI(percentage / 100);
@@ -394,15 +732,89 @@ class PageLoadTracker {
   hide() {
     this.fadeOutLoader();
   }
+
+  // Debug controls
+  enableDebugMode() {
+    this.config.enableDebugLogging = true;
+    this.config.enableDebugPanel = true;
+    this.createDebugPanel();
+    console.log('🔍 Debug mode enabled');
+  }
+
+  disableDebugMode() {
+    this.config.enableDebugLogging = false;
+    this.config.enableDebugPanel = false;
+    if (this.debugPanel) {
+      this.debugPanel.remove();
+      this.debugPanel = null;
+    }
+    console.log('🔍 Debug mode disabled');
+  }
+
+  showPerformanceReport() {
+    return this.logPerformanceReport();
+  }
 }
 
-// Auto-initialize when DOM is ready
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', () => {
-    window.pageLoadTracker = new PageLoadTracker();
+// Smart initialization - detect navigation vs fresh load
+const initializePageLoadTracker = () => {
+  // Browser detection
+  const isFirefox = navigator.userAgent.toLowerCase().includes('firefox');
+  const isChrome = navigator.userAgent.toLowerCase().includes('chrome');
+  
+  // Check if this is a navigation (back/forward) or fresh load
+  const navigationEntry = window.performance.getEntriesByType('navigation')[0];
+  const isBackForward = window.performance.navigation.type === 2 || 
+                       navigationEntry?.type === 'back_forward';
+  
+  // Check if assets are likely cached (very quick load times)
+  const loadTime = navigationEntry ? navigationEntry.loadEventEnd - navigationEntry.loadEventStart : 0;
+  const isLikelyCached = loadTime < 20; // Very strict - only skip if < 20ms
+  
+  console.log('🔍 Initialization check:', {
+    browser: isFirefox ? 'Firefox' : isChrome ? 'Chrome' : 'Other',
+    isBackForward,
+    loadTime,
+    isLikelyCached,
+    navigationType: window.performance.navigation.type,
+    navigationEntryType: navigationEntry?.type,
+    userAgent: navigator.userAgent.substring(0, 50) + '...'
   });
-} else {
+  
+  // Firefox-specific: Be more conservative with skipping loader
+  if (isFirefox) {
+    console.log('🦊 Firefox detected - using conservative loader behavior');
+    // Only skip for very obvious back/forward with very fast load
+    if (isBackForward && loadTime < 10) {
+      console.log('🚀 Firefox: Back/forward with very fast load - skipping loader');
+      return;
+    }
+  } else {
+    // Chrome/Brave: Use normal logic
+    if (isBackForward && isLikelyCached) {
+      console.log('🚀 Chrome/Brave: Back/forward navigation with cached content - skipping loader');
+      return;
+    }
+  }
+  
+  // Show loader for fresh loads, reloads, or slow navigation
+  console.log('🎬 Initializing page load tracker');
   window.pageLoadTracker = new PageLoadTracker();
+};
+
+// Use requestIdleCallback for non-blocking initialization
+if (window.requestIdleCallback) {
+  requestIdleCallback(initializePageLoadTracker, { timeout: 2000 });
+} else {
+  // Fallback for browsers without requestIdleCallback
+  setTimeout(initializePageLoadTracker, 100);
+}
+
+// Additional optimization: Use requestAnimationFrame for smoother execution
+if (window.requestAnimationFrame) {
+  requestAnimationFrame(() => {
+    // This runs after the next paint, reducing main thread blocking
+  });
 }
 
 // Fallback: ensure loader hides even if something goes wrong
@@ -410,6 +822,40 @@ window.addEventListener('load', () => {
   setTimeout(() => {
     if (window.pageLoadTracker && document.querySelector('[data-loader]')) {
       window.pageLoadTracker.completeLoading();
+      
+      // Auto-generate performance report when loading completes
+      if (window.pageLoadTracker.config.enableDebugLogging) {
+        setTimeout(() => {
+          window.pageLoadTracker.showPerformanceReport();
+        }, 1000);
+      }
     }
   }, 3000); // Give it 3 seconds after window.load
 });
+
+// Global debug controls
+window.enablePageLoadDebug = () => {
+  if (window.pageLoadTracker) {
+    window.pageLoadTracker.enableDebugMode();
+  } else {
+    console.warn('PageLoadTracker not initialized yet');
+  }
+};
+
+window.disablePageLoadDebug = () => {
+  if (window.pageLoadTracker) {
+    window.pageLoadTracker.disableDebugMode();
+  } else {
+    console.warn('PageLoadTracker not initialized yet');
+  }
+};
+
+window.showPageLoadReport = () => {
+  if (window.pageLoadTracker) {
+    return window.pageLoadTracker.showPerformanceReport();
+  } else {
+    console.warn('PageLoadTracker not initialized yet');
+    return null;
+  }
+};
+

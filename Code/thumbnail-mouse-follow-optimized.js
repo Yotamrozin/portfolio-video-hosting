@@ -1,10 +1,24 @@
 /**
  * Optimized Thumbnail Rotation System
- * High-performance mouse following with realistic rotation effects
- * Optimized for better performance while maintaining functionality
+ * Addresses performance issues with jittery animations and video playback optimization
+ * Uses single animation loop and intelligent video pause/play management
  */
 
 document.addEventListener("DOMContentLoaded", function() {
+  // Throttle function for mouse events
+  function throttle(func, limit) {
+    let inThrottle;
+    return function() {
+      const args = arguments;
+      const context = this;
+      if (!inThrottle) {
+        func.apply(context, args);
+        inThrottle = true;
+        setTimeout(() => inThrottle = false, limit);
+      }
+    }
+  }
+
   // Configuration object for easy customization
   const config = {
     maxRotation: 25,
@@ -20,6 +34,9 @@ document.addEventListener("DOMContentLoaded", function() {
     verticalMovementMultiplier: 0.4,
     followStrength: 50,
     rotationStrength: 15,
+    // Performance optimizations
+    animationFrameRate: 60, // Target FPS
+    rectCacheDuration: 100, // Cache rect calculations for 100ms
     velocity: {
       enabled: true,
       skewMultiplier: 0.3,
@@ -37,79 +54,92 @@ document.addEventListener("DOMContentLoaded", function() {
     }
   };
 
-  // Global mouse tracking - single source of truth
-  let mouseState = {
-    x: 0,
-    y: 0,
-    prevX: 0,
-    prevY: 0,
-    velocityX: 0,
-    velocityY: 0,
-    lerpedVelocityX: 0,
-    lerpedVelocityY: 0
-  };
+  // Global mouse tracking variables
+  let mouseX = 0;
+  let mouseY = 0;
+  let prevMouseX = 0;
+  let prevMouseY = 0;
+  let velocityX = 0;
+  let velocityY = 0;
+  let lerpedVelocityX = 0;
+  let lerpedVelocityY = 0;
 
-  // Performance optimization: Single RAF loop for all thumbnails
+  // Single animation loop for all thumbnails
   let animationFrameId = null;
-  let activeThumbnails = new Map(); // Use Map for better performance
   let isAnimating = false;
+  let activeThumbnails = new Map(); // Map of active thumbnail data
+  let lastFrameTime = 0;
+  const targetFrameTime = 1000 / config.animationFrameRate;
 
-  // Optimized mouse tracking with single event listener
-  function updateMouseState(e) {
-    mouseState.prevX = mouseState.x;
-    mouseState.prevY = mouseState.y;
-    mouseState.x = e.clientX;
-    mouseState.y = e.clientY;
+  // Throttled mouse move handler
+  const throttledMouseMove = throttle((e) => {
+    prevMouseX = mouseX;
+    prevMouseY = mouseY;
+    mouseX = e.clientX;
+    mouseY = e.clientY;
     
     // Calculate velocity
-    mouseState.velocityX = mouseState.x - mouseState.prevX;
-    mouseState.velocityY = mouseState.y - mouseState.prevY;
-    
-    // Lerp velocity for smooth effects
-    mouseState.lerpedVelocityX += (mouseState.velocityX - mouseState.lerpedVelocityX) * config.lerp.velocity;
-    mouseState.lerpedVelocityY += (mouseState.velocityY - mouseState.lerpedVelocityY) * config.lerp.velocity;
+    velocityX = mouseX - prevMouseX;
+    velocityY = mouseY - prevMouseY;
     
     // Update CSS custom properties for global cursor
-    document.documentElement.style.setProperty('--mouse-x', mouseState.x + 'px');
-    document.documentElement.style.setProperty('--mouse-y', mouseState.y + 'px');
-  }
+    document.documentElement.style.setProperty('--mouse-x', mouseX + 'px');
+    document.documentElement.style.setProperty('--mouse-y', mouseY + 'px');
+  }, 16);
 
-  // Single mouse move listener with passive flag
-  document.addEventListener('mousemove', updateMouseState, { passive: true });
+  // Optimized mouse move listener
+  document.addEventListener('mousemove', throttledMouseMove, { passive: true });
 
-  // Optimized animation loop - single RAF for all thumbnails
-  function animationLoop() {
-    if (activeThumbnails.size === 0) {
+  // Single animation loop for all thumbnails
+  function animationLoop(currentTime) {
+    if (!isAnimating || activeThumbnails.size === 0) {
       isAnimating = false;
       return;
     }
 
-    // Process all active thumbnails in one frame
+    // Frame rate limiting
+    if (currentTime - lastFrameTime < targetFrameTime) {
+      animationFrameId = requestAnimationFrame(animationLoop);
+      return;
+    }
+    lastFrameTime = currentTime;
+
+    // Lerp velocity for smooth effects
+    lerpedVelocityX += (velocityX - lerpedVelocityX) * config.lerp.velocity;
+    lerpedVelocityY += (velocityY - lerpedVelocityY) * config.lerp.velocity;
+
+    // Process all active thumbnails
     activeThumbnails.forEach((thumbnailData, thumbnail) => {
       if (!thumbnailData.isHovering) return;
 
-      const { listItem, cachedRect } = thumbnailData;
-      
-      // Use cached rect or get fresh one
-      const rect = cachedRect || listItem.getBoundingClientRect();
-      
+      const { listItem, currentRotationX, currentRotationY, previousX, previousY, swayRotation, swayVelocity } = thumbnailData;
+
+      // Get cached rect
+      const now = Date.now();
+      if (!thumbnailData.cachedRect || (now - thumbnailData.rectCacheTime) > config.rectCacheDuration) {
+        thumbnailData.cachedRect = listItem.getBoundingClientRect();
+        thumbnailData.rectCacheTime = now;
+      }
+      const listItemRect = thumbnailData.cachedRect;
+
       // Calculate mouse position relative to list item
-      const relativeX = mouseState.x - rect.left;
-      const relativeY = mouseState.y - rect.top;
+      const relativeX = mouseX - listItemRect.left;
+      const relativeY = mouseY - listItemRect.top;
       
       // Calculate mouse position relative to list item center for rotation
-      const centerX = rect.width * 0.5;
-      const centerY = rect.height * 0.5;
+      const centerX = listItemRect.width * 0.5;
+      const centerY = listItemRect.height * 0.5;
       
       const deltaX = relativeX - centerX;
       const deltaY = relativeY - centerY;
       
-      // Apply movement limits
-      const maxMoveLeft = rect.width * config.maxMoveLeftPercent;
-      const maxMoveRight = rect.width * config.maxMoveRightPercent;
-      const maxMoveUp = rect.height * config.maxMoveUpPercent;
-      const maxMoveDown = rect.height * config.maxMoveDownPercent;
+      // Separate limits for left and right movement
+      const maxMoveLeft = listItemRect.width * config.maxMoveLeftPercent;
+      const maxMoveRight = listItemRect.width * config.maxMoveRightPercent;
+      const maxMoveUp = listItemRect.height * config.maxMoveUpPercent;
+      const maxMoveDown = listItemRect.height * config.maxMoveDownPercent;
       
+      // Apply different limits based on direction
       let clampedDeltaX, clampedDeltaY;
       
       if (deltaX < 0) {
@@ -125,20 +155,25 @@ document.addEventListener("DOMContentLoaded", function() {
       }
       
       // Calculate velocity for swaying effect
-      const localVelocityX = (deltaX - thumbnailData.previousX) * 0.5;
-      const localVelocityY = (deltaY - thumbnailData.previousY) * 0.5;
+      const localVelocityX = (deltaX - previousX) * 0.5;
+      const localVelocityY = (deltaY - previousY) * 0.5;
+      
+      // Update previous positions
       thumbnailData.previousX = deltaX;
       thumbnailData.previousY = deltaY;
       
-      // Calculate rotation based on mouse position
-      const maxDistance = Math.max(rect.width, rect.height) * 0.5;
+      // Calculate rotation based on mouse position relative to container
+      const maxDistance = Math.max(listItemRect.width, listItemRect.height) * 0.5;
+      
+      // Normalize mouse position (-1 to 1)
       const normalizedX = Math.max(-1, Math.min(1, deltaX / maxDistance));
       const normalizedY = Math.max(-1, Math.min(1, deltaY / maxDistance));
       
+      // Calculate rotation based on normalized position
       const targetRotationY = normalizedX * config.maxRotation;
       const targetRotationX = -normalizedY * config.maxRotation;
       
-      // Smooth rotation interpolation
+      // Improved smoothing with better interpolation
       thumbnailData.currentRotationX += (targetRotationX - thumbnailData.currentRotationX) * config.smoothingFactor;
       thumbnailData.currentRotationY += (targetRotationY - thumbnailData.currentRotationY) * config.smoothingFactor;
       
@@ -149,7 +184,7 @@ document.addEventListener("DOMContentLoaded", function() {
       thumbnailData.swayRotation += thumbnailData.swayVelocity;
       thumbnailData.swayRotation *= 0.92;
       
-      // Apply movement multipliers
+      // Apply different movement multipliers based on direction
       let finalX, finalY;
       
       if (clampedDeltaX < 0) {
@@ -160,7 +195,7 @@ document.addEventListener("DOMContentLoaded", function() {
       
       finalY = clampedDeltaY * config.verticalMovementMultiplier;
       
-      // Single GSAP set call for better performance
+      // Apply position following and rotation with controlled range
       gsap.set(thumbnail, {
         x: finalX,
         y: finalY,
@@ -174,11 +209,15 @@ document.addEventListener("DOMContentLoaded", function() {
       if (config.parallax.enabled && thumbnailData.images) {
         thumbnailData.images.forEach(img => {
           gsap.set(img, {
-            x: normalizedX * config.parallax.strength * 20,
-            y: normalizedY * config.parallax.strength * 20
+            x: deltaX * config.parallax.strength * 0.1,
+            y: deltaY * config.parallax.strength * 0.1
           });
         });
       }
+      
+      // Update CSS custom properties for this thumbnail
+      thumbnail.style.setProperty('--velocity-x', lerpedVelocityX);
+      thumbnail.style.setProperty('--velocity-y', lerpedVelocityY);
     });
 
     // Continue animation loop
@@ -189,6 +228,7 @@ document.addEventListener("DOMContentLoaded", function() {
   function startAnimationLoop() {
     if (!isAnimating) {
       isAnimating = true;
+      lastFrameTime = performance.now();
       animationFrameId = requestAnimationFrame(animationLoop);
     }
   }
@@ -200,6 +240,51 @@ document.addEventListener("DOMContentLoaded", function() {
       animationFrameId = null;
     }
     isAnimating = false;
+  }
+
+  // Video management functions
+  function pauseAllVideos() {
+    // Pause all video elements in thumbnails
+    document.querySelectorAll('[hover-mouse-follow="thumbnail"] video').forEach(video => {
+      if (!video.paused) {
+        video.pause();
+      }
+    });
+    
+    // Also pause Video.js players if they exist
+    if (window.thumbnailPlayers) {
+      window.thumbnailPlayers.forEach(player => {
+        if (player && !player.paused()) {
+          player.pause();
+        }
+      });
+    }
+  }
+
+  function playVideoForThumbnail(thumbnail) {
+    const video = thumbnail.querySelector('video');
+    if (video && video.paused) {
+      video.play().catch(() => {}); // Silent error handling
+    }
+    
+    // Also handle Video.js players
+    const playerId = thumbnail.getAttribute('data-player-id');
+    if (playerId && window.playThumbnailVideo) {
+      window.playThumbnailVideo(playerId);
+    }
+  }
+
+  function pauseVideoForThumbnail(thumbnail) {
+    const video = thumbnail.querySelector('video');
+    if (video && !video.paused) {
+      video.pause();
+    }
+    
+    // Also handle Video.js players
+    const playerId = thumbnail.getAttribute('data-player-id');
+    if (playerId && window.pauseThumbnailVideo) {
+      window.pauseThumbnailVideo(playerId);
+    }
   }
 
   // Cache DOM elements and pre-calculate static data
@@ -239,6 +324,9 @@ document.addEventListener("DOMContentLoaded", function() {
       rectCacheTime: 0
     };
 
+    // Store thumbnail data
+    activeThumbnails.set(thumbnail, thumbnailData);
+
     // Initialize thumbnail transforms
     gsap.set(thumbnail, {
       transformOrigin: 'center center',
@@ -252,41 +340,27 @@ document.addEventListener("DOMContentLoaded", function() {
       force3D: true
     });
 
-    // Optimized rect caching
-    function getCachedRect() {
-      const now = Date.now();
-      if (!thumbnailData.cachedRect || (now - thumbnailData.rectCacheTime) > 100) {
-        thumbnailData.cachedRect = listItem.getBoundingClientRect();
-        thumbnailData.rectCacheTime = now;
-      }
-      return thumbnailData.cachedRect;
-    }
-
-    // Mouse enter handler
+    // Mouse enter - start rotation tracking and show thumbnail
     listItem.addEventListener('mouseenter', (e) => {
       thumbnailData.isHovering = true;
-      thumbnailData.cachedRect = null; // Force fresh rect calculation
+      thumbnailData.cachedRect = null; // Force rect recalculation
       
-      // Add to active thumbnails
-      activeThumbnails.set(thumbnail, thumbnailData);
-      
-      // Kill any existing tweens
       gsap.killTweensOf(thumbnail);
       
-      // Set initial position based on mouse entry point
-      const rect = getCachedRect();
-      const relativeX = e.clientX - rect.left;
-      const relativeY = e.clientY - rect.top;
-      const centerX = rect.width * 0.5;
-      const centerY = rect.height * 0.5;
+      // Set initial position to mouse entry point
+      const listItemRect = listItem.getBoundingClientRect();
+      const relativeX = e.clientX - listItemRect.left;
+      const relativeY = e.clientY - listItemRect.top;
+      const centerX = listItemRect.width * 0.5;
+      const centerY = listItemRect.height * 0.5;
       const initialDeltaX = relativeX - centerX;
       const initialDeltaY = relativeY - centerY;
       
       // Apply movement limits to initial position
-      const maxMoveLeft = rect.width * config.maxMoveLeftPercent;
-      const maxMoveRight = rect.width * config.maxMoveRightPercent;
-      const maxMoveUp = rect.height * config.maxMoveUpPercent;
-      const maxMoveDown = rect.height * config.maxMoveDownPercent;
+      const maxMoveLeft = listItemRect.width * config.maxMoveLeftPercent;
+      const maxMoveRight = listItemRect.width * config.maxMoveRightPercent;
+      const maxMoveUp = listItemRect.height * config.maxMoveUpPercent;
+      const maxMoveDown = listItemRect.height * config.maxMoveDownPercent;
       
       let clampedInitialX, clampedInitialY;
       
@@ -307,7 +381,6 @@ document.addEventListener("DOMContentLoaded", function() {
         y: clampedInitialY
       });
       
-      // Animate in
       gsap.to(thumbnail, {
         scale: 1,
         opacity: 1,
@@ -315,26 +388,19 @@ document.addEventListener("DOMContentLoaded", function() {
         ease: "back.out(1.7)"
       });
       
+      // Start video playback for this thumbnail
+      playVideoForThumbnail(thumbnail);
+      
       // Start animation loop if not already running
       startAnimationLoop();
     }, { passive: true });
 
-    // Mouse leave handler
-    listItem.addEventListener('mouseleave', () => {
+    // Mouse leave - reset rotation and hide thumbnail
+    listItem.addEventListener('mouseleave', (e) => {
       thumbnailData.isHovering = false;
       
-      // Remove from active thumbnails
-      activeThumbnails.delete(thumbnail);
-      
-      // Stop animation loop if no active thumbnails
-      if (activeThumbnails.size === 0) {
-        stopAnimationLoop();
-      }
-      
-      // Kill any existing tweens
       gsap.killTweensOf(thumbnail);
       
-      // Animate out
       gsap.to(thumbnail, {
         scale: 0,
         opacity: 0,
@@ -347,6 +413,9 @@ document.addEventListener("DOMContentLoaded", function() {
         ease: "power2.out"
       });
       
+      // Pause video for this thumbnail
+      pauseVideoForThumbnail(thumbnail);
+      
       // Reset variables
       thumbnailData.currentRotationX = 0;
       thumbnailData.currentRotationY = 0;
@@ -354,9 +423,14 @@ document.addEventListener("DOMContentLoaded", function() {
       thumbnailData.previousY = 0;
       thumbnailData.swayRotation = 0;
       thumbnailData.swayVelocity = 0;
+      
+      // Stop animation loop if no thumbnails are active
+      if (activeThumbnails.size === 0) {
+        stopAnimationLoop();
+      }
     }, { passive: true });
 
-    // Optimized resize handler with debouncing
+    // Optimized: Debounced resize handler
     let resizeTimeout = null;
     window.addEventListener('resize', () => {
       thumbnailData.cachedRect = null;
@@ -364,13 +438,16 @@ document.addEventListener("DOMContentLoaded", function() {
       if (resizeTimeout) clearTimeout(resizeTimeout);
       resizeTimeout = setTimeout(() => {
         if (thumbnailData.isHovering) {
-          thumbnailData.cachedRect = null; // Force fresh rect calculation
+          thumbnailData.cachedRect = null; // Force rect recalculation
         }
       }, 150);
     }, { passive: true });
   });
 
-  // Add CSS for better performance
+  // Pause all videos on page load for better performance
+  pauseAllVideos();
+
+  // Optional: Add CSS for better performance
   const style = document.createElement('style');
   style.textContent = `
     [hover-mouse-follow="thumbnail"] {
@@ -384,6 +461,11 @@ document.addEventListener("DOMContentLoaded", function() {
     .list-item {
       position: relative;
       overflow: visible;
+    }
+    
+    /* Optimize video performance */
+    [hover-mouse-follow="thumbnail"] video {
+      will-change: transform;
     }
   `;
   document.head.appendChild(style);

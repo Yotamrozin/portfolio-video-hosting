@@ -5,7 +5,6 @@
  */
 
 document.addEventListener('DOMContentLoaded', function() {
-  console.log('Scroll animation system initialized');
   
   // Set up Intersection Observer
   const observer = new IntersectionObserver((entries) => {
@@ -13,7 +12,6 @@ document.addEventListener('DOMContentLoaded', function() {
       // Add class when element is in view
       if (entry.isIntersecting) {
         entry.target.classList.add('is-inview');
-        console.log('Element now in view:', entry.target);
         // Optional: unobserve after animation is triggered to save resources
         // observer.unobserve(entry.target);
       }
@@ -26,8 +24,6 @@ document.addEventListener('DOMContentLoaded', function() {
   // Find all elements with scroll-animate attribute
   const animatedElements = document.querySelectorAll('[scroll-animate]');
   
-  console.log(`Found ${animatedElements.length} elements with scroll animations`);
-  
   // Remove is-inview class from all animated elements initially
   animatedElements.forEach(el => {
     el.classList.remove('is-inview');
@@ -39,7 +35,6 @@ document.addEventListener('DOMContentLoaded', function() {
   );
   
   staggerContainers.forEach((container, index) => {
-    console.log(`Setting up staggered animation for container ${index}`);
     
     // Get all children that should be staggered
     let children = container.querySelectorAll('[stagger-item]');
@@ -51,7 +46,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     if (children.length) {
-      console.log(`Found ${children.length} stagger items`);
       
       // IMPORTANT: Make the container visible and remove its animation
       container.style.opacity = '1';
@@ -85,7 +79,6 @@ document.addEventListener('DOMContentLoaded', function() {
       
       // Don't observe the container itself since children handle the animation
     } else {
-      console.warn('Stagger container has no children to animate');
       // Fall back to animating the container itself
       observer.observe(container);
     }
@@ -114,7 +107,6 @@ document.addEventListener('DOMContentLoaded', function() {
         // If element is already in the initial viewport, animate it immediately
         if (rect.top < viewportHeight * 0.8 && rect.bottom > 0) {
           el.classList.add('is-inview');
-          console.log('Immediate animation for above-fold element:', el);
         }
       });
       
@@ -124,7 +116,6 @@ document.addEventListener('DOMContentLoaded', function() {
           const rect = el.getBoundingClientRect();
           if (rect.top < viewportHeight * 0.8 && rect.bottom > 0) {
             el.classList.add('is-inview');
-            console.log('Immediate stagger animation for above-fold element:', el);
           }
         }
       });
