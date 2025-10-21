@@ -134,6 +134,24 @@
     E.cms_selector = t;
     this.indexSet = false;
     this.index = 0;
+    this.animation = {
+      enable: true,
+      duration: 250,
+      easing: "ease-in-out",
+      effects: "translate(0px,0px)",
+      queue: true,
+    };
+    this.isPaginated = false;
+    this.itemsPerPage = 10;
+    this.filterOn = false;
+    this.filterObject = null;
+    this.lastFilter = null;
+    this.hasLoadmore = false;
+    this.loadmoreOn = false;
+    this.addClass = null;
+    this.nestConfig = null;
+    this.hidden_collections = [];
+    this.addClassConfig = null;
   }
 
   // Essential methods only
@@ -158,17 +176,17 @@
   E.prototype.tabs = function({
     tabComponent: t,
     tabContent: e,
-    tabName: n,
+    tabName: n = '.tab-name',
     resetIx: r = !0,
   }) {
     let i = this.getMasterCollection();
-    if (!i) return D.resolve();
+    if (!i) return Promise.resolve();
 
     let o = [].slice.call(i.querySelectorAll(".w-dyn-item>*"));
     let s = document.querySelector(t + " .w-tab-menu");
     let c = document.querySelector(t + " .w-tab-content");
     
-    if (!s || !c) return D.resolve();
+    if (!s || !c) return Promise.resolve();
 
     let a = c.children[0];
     let y = s.getElementsByTagName("a")[0];
@@ -182,10 +200,10 @@
         s.innerHTML += b;
         let C = u.outerHTML;
         let M = Kn({ name: g, prefix: d, index: A, classes: f, content: C });
-        return (c.innerHTML += M), D.resolve();
+        return (c.innerHTML += M), Promise.resolve();
       });
 
-    return new D((d, p) => {
+    return new Promise((d, p) => {
       l.push(() => {
         if (window.___toggledInitTab___) return;
         let f = Gn(y.href);
@@ -195,9 +213,9 @@
         let A = a.className;
         s.innerHTML = "";
         c.innerHTML = "";
-        D.all(h(f, u, A)).then((g) => {
+        Promise.all(h(f, u, A)).then((g) => {
           window.___toggledInitTab___ = !0;
-          window.Webflow.ready();
+          if (window.Webflow) window.Webflow.ready();
           if (r) this.reinitializeWebflow();
           d();
         });
@@ -238,5 +256,6 @@ ${r}
   };
 
   // Make FsLibrary globally available
+  E.cms_selector = "";
   window.FsLibrary = E;
 })();

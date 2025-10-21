@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Minimal Library</title>
+</head>
+<body>
+    <div class="fs-dynamic-feed" data-tabs-id="test-1">
+        <div class="w-dyn-item">
+            <div class="fs-tab-content">Content 1</div>
+            <div class="tab-name">Tab 1</div>
+        </div>
+        <div class="w-dyn-item">
+            <div class="fs-tab-content">Content 2</div>
+            <div class="tab-name">Tab 2</div>
+        </div>
+    </div>
+    
+    <div class="fs-tabs" data-tabs-id="test-1">
+        <div class="w-tab-menu">
+            <a href="#" class="w-tab-link w--current">Default Tab</a>
+        </div>
+        <div class="w-tab-content">
+            <div class="w-tab-pane w--tab-active">Default Content</div>
+        </div>
+    </div>
+
+    <script src="finsweet-cms-library-minimal.js"></script>
+    <script>
+        console.log('Testing minimal library...');
+        console.log('FsLibrary available:', typeof FsLibrary);
+        
+        if (typeof FsLibrary !== 'undefined') {
+            try {
+                const fsLibrary = new FsLibrary('.fs-dynamic-feed');
+                console.log('FsLibrary instance created:', fsLibrary);
+                
+                const result = fsLibrary.tabs({
+                    tabComponent: '.fs-tabs',
+                    tabContent: '.fs-tab-content',
+                    tabName: '.tab-name',
+                    resetIx: false
+                });
+                
+                console.log('Tabs method result:', result);
+                
+                if (result && typeof result.then === 'function') {
+                    result.then(() => {
+                        console.log('Tabs method completed successfully');
+                    }).catch((error) => {
+                        console.error('Tabs method failed:', error);
+                    });
+                } else {
+                    console.log('Tabs method returned synchronously');
+                }
+            } catch (error) {
+                console.error('Error creating FsLibrary or calling tabs:', error);
+            }
+        } else {
+            console.error('FsLibrary is not available');
+        }
+    </script>
+</body>
+</html>

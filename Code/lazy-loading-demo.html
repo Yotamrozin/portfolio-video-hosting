@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lazy Loading System Demo</title>
+    <style>
+        body {
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .section {
+            background: white;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .section h2 {
+            margin-top: 0;
+            color: #333;
+        }
+        
+        .device-info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196f3;
+        }
+        
+        .instructions {
+            background: #f3e5f5;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            border-left: 4px solid #9c27b0;
+        }
+        
+        .code-block {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+        
+        .mobile-content {
+            background: #e8f5e8;
+            border-left: 4px solid #4caf50;
+        }
+        
+        .desktop-content {
+            background: #fff3e0;
+            border-left: 4px solid #ff9800;
+        }
+        
+        .both-content {
+            background: #e1f5fe;
+            border-left: 4px solid #00bcd4;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Lazy Loading System Demo</h1>
+        
+        <div class="device-info">
+            <h3>Current Device Type: <span id="deviceType">Loading...</span></h3>
+            <p>Resize your browser window to see how content loads differently on mobile vs desktop.</p>
+        </div>
+        
+        <div class="instructions">
+            <h3>How to Use</h3>
+            <p>Add these attributes to your HTML sections:</p>
+            <div class="code-block">
+&lt;!-- Mobile-only section --&gt;
+&lt;div id="mobileProjects" data-lazy-load="mobile"&gt;
+    &lt;!-- Mobile content here --&gt;
+&lt;/div&gt;
+
+&lt;!-- Desktop-only section --&gt;
+&lt;div id="craftMobile" data-lazy-load="desktop"&gt;
+    &lt;!-- Desktop content here --&gt;
+&lt;/div&gt;
+            </div>
+        </div>
+        
+        <!-- Mobile-only section -->
+        <div id="mobileProjects" class="section mobile-content" data-lazy-load="mobile">
+            <h2>📱 Mobile Projects Section</h2>
+            <p>This content only loads on mobile devices (width ≤ 768px).</p>
+            <p>On desktop, this section will be hidden completely, saving bandwidth and improving performance.</p>
+            <div style="background: #4caf50; color: white; padding: 10px; border-radius: 4px; margin: 10px 0;">
+                ✅ Mobile content loaded successfully!
+            </div>
+        </div>
+        
+        <!-- Desktop-only section -->
+        <div id="craftMobile" class="section desktop-content" data-lazy-load="desktop">
+            <h2>🖥️ Desktop Craft Section</h2>
+            <p>This content only loads on desktop devices (width > 768px).</p>
+            <p>On mobile, this section will be hidden completely, saving bandwidth and improving performance.</p>
+            <div style="background: #ff9800; color: white; padding: 10px; border-radius: 4px; margin: 10px 0;">
+                ✅ Desktop content loaded successfully!
+            </div>
+        </div>
+        
+        <!-- Both devices section -->
+        <div class="section both-content" data-lazy-load="both">
+            <h2>📱🖥️ Both Devices Section</h2>
+            <p>This content loads on both mobile and desktop devices.</p>
+            <div style="background: #00bcd4; color: white; padding: 10px; border-radius: 4px; margin: 10px 0;">
+                ✅ Content loaded on all devices!
+            </div>
+        </div>
+        
+        <!-- Scroll-based loading example -->
+        <div class="section" data-lazy-load="desktop" data-lazy-scroll>
+            <h2>🔄 Scroll-Based Loading</h2>
+            <p>This desktop content loads when you scroll it into view.</p>
+            <p>Try scrolling down to see this content load dynamically.</p>
+            <div style="background: #9c27b0; color: white; padding: 10px; border-radius: 4px; margin: 10px 0;">
+                ✅ Scroll-triggered content loaded!
+            </div>
+        </div>
+        
+        <!-- External content loading example -->
+        <div class="section" data-lazy-load="mobile" data-lazy-source="mobile-external-content.html">
+            <h2>🌐 External Content Loading</h2>
+            <p>This would load content from an external file (mobile-external-content.html).</p>
+            <p>Since the file doesn't exist, you'll see an error message.</p>
+        </div>
+        
+        <!-- Spacer to test scroll loading -->
+        <div style="height: 200px; background: linear-gradient(45deg, #f0f0f0, #e0e0e0); margin: 20px 0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #666;">
+            Scroll down to trigger lazy loading ↑
+        </div>
+        
+        <!-- More spacer -->
+        <div style="height: 200px; background: linear-gradient(45deg, #e0e0e0, #d0d0d0); margin: 20px 0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #666;">
+            Keep scrolling... ↑
+        </div>
+        
+        <!-- More spacer -->
+        <div style="height: 200px; background: linear-gradient(45deg, #d0d0d0, #c0c0c0); margin: 20px 0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #666;">
+            Almost there... ↑
+        </div>
+        
+        <!-- More spacer -->
+        <div style="height: 200px; background: linear-gradient(45deg, #c0c0c0, #b0b0b0); margin: 20px 0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #666;">
+            Last one... ↑
+        </div>
+        
+        <!-- More spacer -->
+        <div style="height: 200px; background: linear-gradient(45deg, #b0b0b0, #a0a0a0); margin: 20px 0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #666;">
+            Scroll-triggered content should load above ↑
+        </div>
+    </div>
+    
+    <!-- Include the lazy loading system -->
+    <script src="lazy-loading-system.js"></script>
+    
+    <script>
+        // Update device type display
+        function updateDeviceType() {
+            const deviceTypeElement = document.getElementById('deviceType');
+            const deviceType = lazyLoadingSystem.getDeviceType();
+            deviceTypeElement.textContent = deviceType;
+            deviceTypeElement.style.color = deviceType === 'mobile' ? '#4caf50' : '#ff9800';
+        }
+        
+        // Update on load and resize
+        updateDeviceType();
+        window.addEventListener('resize', updateDeviceType);
+        
+        // Listen for lazy loading events
+        document.addEventListener('lazyLoaded', function(event) {
+            console.log('Section loaded:', event.detail.section.id || 'unnamed section');
+        });
+        
+        // Manual loading example (you can call this from console)
+        window.loadMobileProjects = function() {
+            lazyLoadingSystem.loadSection('mobileProjects');
+        };
+        
+        window.loadCraftMobile = function() {
+            lazyLoadingSystem.loadSection('craftMobile');
+        };
+        
+        console.log('Demo loaded! Try these commands:');
+        console.log('- loadMobileProjects() - manually load mobile section');
+        console.log('- loadCraftMobile() - manually load desktop section');
+        console.log('- lazyLoadingSystem.reload() - reload all sections');
+    </script>
+</body>
+</html>
