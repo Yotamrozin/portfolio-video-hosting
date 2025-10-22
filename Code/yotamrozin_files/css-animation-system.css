@@ -1,0 +1,117 @@
+/* ================================
+   STREAMLINED ANIMATION SYSTEM
+   ================================ */
+
+/* Only includes CSS rules that are actually used in the project */
+
+/* === USED HOVER ANIMATIONS === */
+
+/* Slide Right Backout - Used in project rows */
+[hover-transform="slide-right-backout"],
+.u-animate-contained [hover-transform="slide-right-backout"] {
+  transform: translateX(0);
+  transition: transform 0.35s cubic-bezier(0.404, 0.967, 0.076, 1.429);
+  will-change: transform;
+}
+[hover-transform="slide-right-backout"]:hover,
+.u-animate-contained:hover [hover-transform="slide-right-backout"] {
+  transform: translateX(1.5rem);
+}
+
+/* Slide Left Backout - Used in project rows */
+[hover-transform="slide-left-backout"],
+.u-animate-contained [hover-transform="slide-left-backout"] {
+  transform: translateX(0);
+  transition: transform 0.35s cubic-bezier(0.404, 0.967, 0.076, 1.429);
+  will-change: transform;
+}
+[hover-transform="slide-left-backout"]:hover,
+.u-animate-contained:hover [hover-transform="slide-left-backout"] {
+  transform: translateX(-1.5rem);
+}
+
+/* Darken Color - Used in project rows */
+[hover-color="darken"],
+.u-animate-contained [hover-color="darken"] {
+  color: inherit;
+  transition: color 0.3s ease;
+  will-change: color;
+}
+[hover-color="darken"]:hover,
+.u-animate-contained:hover [hover-color="darken"],
+.u-animate-contained:hover [hover-color="darken"] * {
+  color: #272727 !important;
+}
+
+/* Flash Opacity - Used in project rows */
+[hover-opacity="flash"],
+.u-animate-contained [hover-opacity="flash"] {
+  position: absolute;
+  inset: 0;
+  background: #fff;
+  opacity: 0;
+  pointer-events: none;
+  z-index: 10;
+  will-change: opacity;
+}
+
+/* trigger animation only once */
+.u-animate-contained:hover [hover-opacity="flash"],
+[hover-opacity="flash"]:hover {
+  animation: flash-opacity 0.4s ease forwards;
+}
+
+/* Fade Overlay - Used in project rows */
+[hover-opacity="fade"],
+[hover="opacity-fade"],
+.u-animate-contained [hover-opacity="fade"],
+.u-animate-contained [hover="opacity-fade"] {
+  inset: 0;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+  will-change: opacity;
+}
+
+[hover-opacity="fade"]:hover,
+[hover="opacity-fade"]:hover,
+.u-animate-contained:hover [hover-opacity="fade"],
+.u-animate-contained:hover [hover="opacity-fade"] {
+  opacity: 1;
+}
+
+/* === KEYFRAMES === */
+@keyframes flash-opacity {
+  0% { opacity: 0; }
+  25% { opacity: 0.65; }
+  100% { opacity: 0; }
+}
+
+/* === SCROLL ANIMATIONS === */
+/* Base styles for all scroll animations */
+[scroll-animate] {
+  opacity: 0;
+  transition: opacity 0.3s ease; /* Fallback transition */
+}
+
+/* Add a fallback for when GSAP doesn't load */
+.no-js [scroll-animate],
+html:not(.gsap-loaded) [scroll-animate] {
+  opacity: 1 !important;
+}
+
+/* Ensure stagger containers are always visible */
+[scroll-animate*="stagger"] {
+  opacity: 1 !important;
+  transform: none !important;
+}
+
+[scroll-animate*="stagger"] > * {
+  opacity: 0;
+}
+
+/* === Z-INDEX MANAGEMENT === */
+.u-zindex-1 { z-index: 1; }
+.u-zindex-2 { z-index: 2; }
+.u-zindex-5 { z-index: 5; }
+.u-zindex-10 { z-index: 10; }

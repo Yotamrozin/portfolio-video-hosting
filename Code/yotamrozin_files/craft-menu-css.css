@@ -1,0 +1,97 @@
+/* Craft Menu CSS Classes - Performance Optimized */
+/* This file extends your existing CSS with additional performance classes */
+
+/* Theme Color Classes - Work with your existing CSS custom properties */
+.craft-theme-default {
+  --theme-color: #272727;
+  --active-text-color: white;
+}
+
+.craft-theme-active {
+  --active-text-color: #272727;
+}
+
+/* Dynamic Theme Classes - These will be applied via JavaScript */
+.craft-theme-red {
+  --theme-color: #ff0000;
+  --active-text-color: #272727;
+}
+
+.craft-theme-blue {
+  --theme-color: #0000ff;
+  --active-text-color: #272727;
+}
+
+.craft-theme-green {
+  --theme-color: #00ff00;
+  --active-text-color: #272727;
+}
+
+/* Heading Color Classes - Work with your existing .crafty-heading */
+.craft-heading-default {
+  color: white;
+}
+
+.craft-heading-themed {
+  /* Color will be set via CSS custom property */
+  color: var(--theme-color);
+}
+
+/* Menu Background Classes - Work with your existing [menu-list-wrapper] */
+.craft-menu-default {
+  background-color: transparent;
+}
+
+.craft-menu-themed {
+  background-color: rgba(var(--theme-rgb), 0.1);
+}
+
+/* Row Background Classes - Work with your existing [data-category-row] */
+.craft-row-default {
+  background-color: transparent;
+}
+
+.craft-row-active {
+  background-color: var(--theme-color);
+}
+
+/* Client Layout Classes - Work with your existing [data-clients="layout"] */
+.craft-client-default {
+  color: white;
+}
+
+.craft-client-themed {
+  color: var(--theme-color);
+}
+
+/* Logo Color Classes */
+.craft-logo-default {
+  color: white;
+}
+
+.craft-logo-themed {
+  color: var(--theme-color);
+}
+
+/* Animation Classes - Work with your existing [data-category-example] */
+.craft-fade-in {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.craft-fade-out {
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+}
+
+/* Performance optimization classes */
+.craft-gpu-accelerated {
+  will-change: transform, opacity;
+  transform: translateZ(0);
+}
+
+.craft-no-transition {
+  transition: none !important;
+}

@@ -2,7 +2,7 @@
     'use strict';
     
     // Configuration - Easy to adjust timer duration
-    const AUTO_ADVANCE_DURATION = 5000; // 5 seconds
+    const AUTO_ADVANCE_DURATION = 8000; // 8 seconds
     
     class TabNavigationManager {
         constructor() {
