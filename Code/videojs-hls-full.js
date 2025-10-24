@@ -14,7 +14,6 @@ document.addEventListener("DOMContentLoaded", () => {
   // Scope all selectors to the wrapper element
   const video = wrapperElement.querySelector("[f-data-video='video-element']");
   const wrapper = wrapperElement; // The wrapperElement IS the wrapper
-  const poster = wrapperElement.querySelector("[f-data-video='poster-button']");
   
   // Find the video controls container
   const videoControls = wrapperElement.querySelector("[f-data-video='video-controls']");
@@ -123,19 +122,26 @@ document.addEventListener("DOMContentLoaded", () => {
       html5: {
         vhs: {
           overrideNative: true,
-          // Enhanced HLS configuration for better reliability
-          enableLowInitialPlaylist: true,
+          // Enhanced HLS configuration for better reliability and quality adaptation
+          enableLowInitialPlaylist: false, // Start with higher quality
           smoothQualityChange: true,
           allowSeeksWithinUnsafeLiveWindow: true,
+          // Quality adaptation settings
+          limitRenditionByPlayerDimensions: false, // Don't limit quality by player size
+          useDevicePixelRatio: true, // Use device pixel ratio for quality selection
           // Retry configuration
           maxPlaylistRetries: 5,
           playlistLoadTimeout: 10000,
           manifestLoadTimeout: 10000,
-          // Bandwidth configuration
-          bandwidth: 4194304, // 4 Mbps default
+          // Bandwidth configuration - start with higher bandwidth
+          bandwidth: 8388608, // 8 Mbps default (increased from 4 Mbps)
           // Live edge configuration
           liveRangeSafeTimeDelta: 30,
-          liveRangeSafeTimeDeltaMultiple: 1.5
+          liveRangeSafeTimeDeltaMultiple: 1.5,
+          // Segment caching - allow re-fetching for quality upgrades
+          experimentalBufferBasedABR: true,
+          // Enable aggressive quality upgrades
+          enableSoftwareAES: true
         }
       },
       // Additional player options for reliability
@@ -243,6 +249,41 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
+  // Enhanced duration display function with fallbacks
+  function updateDurationDisplay() {
+    if (!player || !duration) return;
+    
+    let videoDuration = player.duration();
+    
+    // If duration is not available, try to get it from HLS tech
+    if (!videoDuration || isNaN(videoDuration) || videoDuration === Infinity) {
+      const tech = player.tech();
+      if (tech && tech.vhs && tech.vhs.playlists) {
+        const masterPlaylist = tech.vhs.playlists.master;
+        if (masterPlaylist && masterPlaylist.playlists && masterPlaylist.playlists.length > 0) {
+          const currentPlaylist = masterPlaylist.playlists[masterPlaylist.playlists.length - 1];
+          if (currentPlaylist && currentPlaylist.endList && currentPlaylist.segments) {
+            // Calculate duration from segments
+            const lastSegment = currentPlaylist.segments[currentPlaylist.segments.length - 1];
+            if (lastSegment) {
+              videoDuration = lastSegment.end;
+            }
+          }
+        }
+      }
+    }
+    
+    // Update duration display if we have a valid duration
+    if (videoDuration && !isNaN(videoDuration) && videoDuration !== Infinity && videoDuration > 0) {
+      duration.textContent = formatTime(videoDuration);
+      console.log('⏱️ Duration updated:', formatTime(videoDuration));
+    } else {
+      console.log('⏱️ Duration not available yet, will retry...');
+      // Retry after a short delay
+      setTimeout(updateDurationDisplay, 500);
+    }
+  }
+
   function setupVideoJSEvents() {
     if (!player) return;
     
@@ -254,6 +295,11 @@ document.addEventListener("DOMContentLoaded", () => {
       
       // Set up control event listeners after player is ready
       setupControlEventListeners();
+      
+      // Try to get duration immediately after ready
+      setTimeout(() => {
+        updateDurationDisplay();
+      }, 100);
     });
     
     // Video.js loadstart event - video starts loading
@@ -275,12 +321,57 @@ document.addEventListener("DOMContentLoaded", () => {
     player.on('loadedmetadata', () => {
       clearLoadingTimeout();
       setAspectRatio();
+      updateDurationDisplay();
+    });
+    
+    // Video.js canplaythrough event - video can play through without buffering
+    player.on('canplaythrough', () => {
+      clearLoadingTimeout();
+      updateDurationDisplay();
+    });
+    
+    // HLS-specific events for better metadata handling
+    player.on('loadedplaylist', () => {
+      console.log('📋 Playlist loaded, checking for duration...');
+      updateDurationDisplay();
+    });
+    
+    player.on('playlistloaded', () => {
+      console.log('📋 Playlist fully loaded, updating duration...');
+      updateDurationDisplay();
+    });
+    
+    // Fallback mechanism for stuck metadata loading
+    let metadataTimeout;
+    player.on('loadstart', () => {
+      // Clear any existing timeout
+      if (metadataTimeout) {
+        clearTimeout(metadataTimeout);
+      }
+      
+      // Set a timeout to force metadata loading if it gets stuck
+      metadataTimeout = setTimeout(() => {
+        if (player && (!player.duration() || isNaN(player.duration()) || player.duration() === Infinity)) {
+          console.log('⚠️ Metadata loading seems stuck, attempting to force load...');
+          
+          // Try to trigger metadata loading
+          const tech = player.tech();
+          if (tech && tech.vhs) {
+            // Force a playlist refresh
+            if (tech.vhs.playlists) {
+              tech.vhs.playlists.trigger('loadedplaylist');
+            }
+          }
+          
+          // Retry duration update
+          updateDurationDisplay();
+        }
+      }, 3000); // Wait 3 seconds before intervening
     });
     
     // Video.js play event
     player.on('play', () => {
       clearLoadingTimeout();
-      if (poster) poster.style.display = "none";
       if (play) play.style.display = "none";
       if (pause) pause.style.display = "inline-block";
     });
@@ -302,6 +393,36 @@ document.addEventListener("DOMContentLoaded", () => {
       if (!isDragging) updateProgressUI();
     });
     
+    // Video.js seeking event - when user scrubs/seeks
+    player.on('seeking', () => {
+      // Force quality upgrade when seeking to previously played segments
+      const tech = player.tech();
+      if (tech && tech.vhs && tech.vhs.playlists) {
+        const currentPlaylist = tech.vhs.playlists.master.playlists[tech.vhs.playlists.master.playlists.length - 1];
+        if (currentPlaylist) {
+          // Trigger quality upgrade by clearing some buffer and re-evaluating quality
+          setTimeout(() => {
+            if (tech.vhs && tech.vhs.playlists) {
+              tech.vhs.playlists.trigger('bandwidthupdate');
+            }
+          }, 100);
+        }
+      }
+    });
+    
+    // Video.js seeked event - after seeking is complete
+    player.on('seeked', () => {
+      // Additional quality upgrade trigger after seek completes
+      const tech = player.tech();
+      if (tech && tech.vhs) {
+        setTimeout(() => {
+          if (tech.vhs.playlists) {
+            tech.vhs.playlists.trigger('bandwidthupdate');
+          }
+        }, 200);
+      }
+    });
+    
     // Video.js volumechange event
     player.on('volumechange', () => {
       if (volumeSlider) {
@@ -312,16 +433,11 @@ document.addEventListener("DOMContentLoaded", () => {
     
     // Video.js durationchange event
     player.on('durationchange', () => {
-      if (duration) duration.textContent = formatTime(player.duration());
+      updateDurationDisplay();
     });
     
     // Video.js waiting event - video is buffering
     player.on('waiting', () => {
-    });
-    
-    // Video.js canplaythrough event - video can play through without buffering
-    player.on('canplaythrough', () => {
-      clearLoadingTimeout();
     });
     
     // Enhanced error handling with retry mechanism
@@ -642,7 +758,6 @@ window.addEventListener("resize", () => {
     // Fullscreen change handler
     document.addEventListener("fullscreenchange", () => {
       if (!hasGoneFullscreen && document.fullscreenElement) {
-        if (poster) poster.style.display = "none";
         hasGoneFullscreen = true;
       }
       
@@ -722,6 +837,11 @@ window.addEventListener("resize", () => {
   background-size: contain !important;
   background-repeat: no-repeat !important;
   background-position: center !important;
+}
+
+/* Hide any custom poster elements since Video.js handles posters natively */
+[f-data-video="poster-button"] {
+  display: none !important;
 }
 
 /* Ensure video element fills container */

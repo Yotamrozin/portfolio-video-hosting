@@ -18,6 +18,7 @@ class PageLoadTracker {
       updateThrottle: 16, // Update UI every 16ms (60fps)
       enableDebugLogging: true, // Show detailed loading info in console
       enableDebugPanel: false, // Show visual debug panel
+      lottieEasing: 'easeInOutCubic', // Easing type for Lottie animation
     };
 
     // State
@@ -32,6 +33,7 @@ class PageLoadTracker {
     this.loaderElement = null;
     this.percentElement = null;
     this.barElement = null;
+    this.lottieAnimation = null;
 
     // Resource tracking
     this.trackedResources = new Set();
@@ -42,6 +44,7 @@ class PageLoadTracker {
     // Animation triggers
     this.webflowTriggered = false; // Prevent multiple Webflow triggers
     this.loadingCompleted = false; // Prevent multiple completion calls
+    this.lottiePlayed = false; // Prevent multiple Lottie plays
     
     // Percentage animation
     this.currentDisplayPercentage = 0;
@@ -73,6 +76,13 @@ class PageLoadTracker {
     
     this.percentElement = document.querySelector('[data-loader-percent]');
     this.barElement = document.querySelector('[data-loader-bar]');
+    
+    // Find Lottie animation
+    const lottieElement = document.querySelector('[data-loader="lottie"]');
+    if (lottieElement) {
+      this.lottieAnimation = lottieElement;
+      console.log('🎬 Lottie animation found - will sync to progress');
+    }
 
     if (!this.percentElement || !this.barElement) {
       console.warn('PageLoadTracker: Loader elements not found. Looking for [data-loader-percent] and [data-loader-bar]');
@@ -321,6 +331,11 @@ class PageLoadTracker {
       this.lastUpdateTime = now;
     }
 
+    // Check if we should trigger Lottie animation (90% threshold)
+    if (totalProgress >= 0.9 && !this.lottiePlayed) {
+      this.playLottieAnimation();
+    }
+
     // Check if complete
     if (document.readyState === 'complete' && 
         this.loadedResources >= this.totalResources && 
@@ -346,6 +361,9 @@ class PageLoadTracker {
       // Optional: update custom property for more flexible styling
       this.barElement.style.setProperty('--progress', this.targetPercentage);
     }
+    
+    // Update Lottie animation frame based on progress
+    this.updateLottieProgress(progress);
   }
 
   animatePercentage() {
@@ -368,6 +386,164 @@ class PageLoadTracker {
     };
     
     requestAnimationFrame(animate);
+  }
+
+  playLottieAnimation() {
+    if (!this.lottieAnimation || this.lottiePlayed) return;
+    
+    this.lottiePlayed = true;
+    console.log('🎬 Playing Lottie animation at 90% loading');
+    
+    try {
+      // Try different ways to access the Lottie animation instance
+      let lottieInstance = null;
+      
+      // Method 1: Check if it's a direct Lottie instance
+      if (this.lottieAnimation.goToAndStop) {
+        lottieInstance = this.lottieAnimation;
+      }
+      // Method 2: Check for lottie property
+      else if (this.lottieAnimation.lottie) {
+        lottieInstance = this.lottieAnimation.lottie;
+      }
+      // Method 3: Check for data-lottie attribute
+      else if (this.lottieAnimation.getAttribute('data-lottie')) {
+        const animationId = this.lottieAnimation.getAttribute('data-lottie');
+        lottieInstance = window.lottie?.getRegisteredAnimations?.()?.find(anim => anim.name === animationId);
+      }
+      
+      if (lottieInstance && typeof lottieInstance.play === 'function') {
+        // Play the animation from start to finish
+        lottieInstance.play();
+        
+        // Listen for animation complete event
+        const onComplete = () => {
+          console.log('🎬 Lottie animation completed - sliding loader');
+          this.slideOutLoader();
+          lottieInstance.removeEventListener('complete', onComplete);
+        };
+        
+        lottieInstance.addEventListener('complete', onComplete);
+        
+        // Fallback: slide out after 1 second if complete event doesn't fire
+        setTimeout(() => {
+          if (!this.loadingCompleted) {
+            console.log('🎬 Lottie animation fallback - sliding loader after 1s');
+            this.slideOutLoader();
+          }
+        }, 1000);
+        
+      } else {
+        console.warn('Lottie instance not found or play method unavailable');
+        // Fallback: slide out immediately
+        this.slideOutLoader();
+      }
+    } catch (error) {
+      console.warn('Error playing Lottie animation:', error);
+      // Fallback: slide out immediately
+      this.slideOutLoader();
+    }
+  }
+
+  updateLottieProgress(progress) {
+    // This method is now only used for progress sync before 90%
+    // After 90%, we play the full animation instead
+    if (this.lottiePlayed) return;
+    
+    if (!this.lottieAnimation) return;
+    
+    try {
+      // Try different ways to access the Lottie animation instance
+      let lottieInstance = null;
+      
+      // Method 1: Check if it's a direct Lottie instance
+      if (this.lottieAnimation.goToAndStop) {
+        lottieInstance = this.lottieAnimation;
+      }
+      // Method 2: Check for lottie property
+      else if (this.lottieAnimation.lottie) {
+        lottieInstance = this.lottieAnimation.lottie;
+      }
+      // Method 3: Check for data-lottie attribute
+      else if (this.lottieAnimation.getAttribute('data-lottie')) {
+        const animationId = this.lottieAnimation.getAttribute('data-lottie');
+        lottieInstance = window.lottie?.getRegisteredAnimations?.()?.find(anim => anim.name === animationId);
+      }
+      
+      if (lottieInstance && typeof lottieInstance.goToAndStop === 'function') {
+        // Get total frames and calculate target frame with easing
+        const totalFrames = lottieInstance.totalFrames || lottieInstance.frameRate * lottieInstance.duration || 100;
+        const easedProgress = this.easeProgress(progress);
+        const targetFrame = Math.floor(easedProgress * totalFrames);
+        
+        // Update animation frame
+        lottieInstance.goToAndStop(targetFrame, true);
+      }
+    } catch (error) {
+      // Silently handle errors - Lottie might not be loaded yet
+      console.debug('Lottie animation not ready yet:', error.message);
+    }
+  }
+
+  easeProgress(progress) {
+    // Apply easing curve to make animation feel more natural
+    if (progress <= 0) return 0;
+    if (progress >= 1) return 1;
+    
+    switch (this.config.lottieEasing) {
+      case 'easeInOutCubic':
+        // Slow start, fast middle, slow end
+        if (progress < 0.5) {
+          return 4 * progress * progress * progress;
+        } else {
+          const t = 2 * progress - 2;
+          return 1 + t * t * t / 2;
+        }
+        
+      case 'easeInOutQuart':
+        // Even smoother acceleration/deceleration
+        if (progress < 0.5) {
+          return 8 * progress * progress * progress * progress;
+        } else {
+          const t = 2 * progress - 2;
+          return 1 - 8 * t * t * t * t;
+        }
+        
+      case 'easeInOutExpo':
+        // Very smooth, almost linear in middle
+        if (progress === 0) return 0;
+        if (progress === 1) return 1;
+        if (progress < 0.5) {
+          return Math.pow(2, 20 * progress - 10) / 2;
+        } else {
+          return (2 - Math.pow(2, -20 * progress + 10)) / 2;
+        }
+        
+      case 'easeOutBounce':
+        // Playful bounce effect at the end
+        const n1 = 7.5625;
+        const d1 = 2.75;
+        if (progress < 1 / d1) {
+          return n1 * progress * progress;
+        } else if (progress < 2 / d1) {
+          return n1 * (progress -= 1.5 / d1) * progress + 0.75;
+        } else if (progress < 2.5 / d1) {
+          return n1 * (progress -= 2.25 / d1) * progress + 0.9375;
+        } else {
+          return n1 * (progress -= 2.625 / d1) * progress + 0.984375;
+        }
+        
+      case 'easeOutElastic':
+        // Elastic spring effect
+        const c4 = (2 * Math.PI) / 3;
+        return progress === 0 ? 0 : progress === 1 ? 1 : 
+               Math.pow(2, -10 * progress) * Math.sin((progress * 10 - 0.75) * c4) + 1;
+        
+      case 'linear':
+      default:
+        // No easing - direct mapping
+        return progress;
+    }
   }
 
   completeLoading() {
@@ -394,17 +570,21 @@ class PageLoadTracker {
     }, remainingTime);
   }
 
-  fadeOutLoader() {
+  slideOutLoader() {
     if (!this.loaderElement) return;
 
-    // Add fade out class or apply inline styles
-    this.loaderElement.style.transition = `opacity ${this.config.fadeOutDuration}ms ease-out`;
-    this.loaderElement.style.opacity = '0';
+    // Prevent multiple calls
+    if (this.loadingCompleted) return;
+    this.loadingCompleted = true;
+
+    // Slide loader to the left with powerful ease-out
+    this.loaderElement.style.transition = `transform ${this.config.fadeOutDuration}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`;
+    this.loaderElement.style.transform = 'translateX(-100%)';
     
     // Re-enable scrolling
     this.enableScroll();
     
-    // Remove from DOM after fade out
+    // Remove from DOM after slide animation
     setTimeout(() => {
       if (this.loaderElement && this.loaderElement.parentNode) {
         this.loaderElement.style.display = 'none';
@@ -462,6 +642,11 @@ class PageLoadTracker {
         });
       }
     }, this.config.fadeOutDuration);
+  }
+
+  fadeOutLoader() {
+    // Legacy method - now calls slideOutLoader
+    this.slideOutLoader();
   }
 
   disableScroll() {
@@ -731,6 +916,17 @@ class PageLoadTracker {
 
   hide() {
     this.fadeOutLoader();
+  }
+
+  // Lottie easing control
+  setLottieEasing(easingType) {
+    const validEasing = ['linear', 'easeInOutCubic', 'easeInOutQuart', 'easeInOutExpo', 'easeOutBounce', 'easeOutElastic'];
+    if (validEasing.includes(easingType)) {
+      this.config.lottieEasing = easingType;
+      console.log(`🎬 Lottie easing changed to: ${easingType}`);
+    } else {
+      console.warn(`Invalid easing type. Valid options: ${validEasing.join(', ')}`);
+    }
   }
 
   // Debug controls
