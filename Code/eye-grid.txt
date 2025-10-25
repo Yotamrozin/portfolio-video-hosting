@@ -16,27 +16,19 @@
         display: none; /* Hidden by default on mobile/tablet */
     }
 
-    /* Only show on tablet and desktop (768px and above) - exclude mobile */
+    /* Only show on desktop (1025px and above) */
     @media (min-width: 768px) {
         #eyeCanvas {
         display: block;
-        opacity: 0;
-        transform: scale(0.8);
-        transition: opacity 1.2s ease-out, transform 1.2s ease-out;
-        }
-        
-        #eyeCanvas.revealed {
-        opacity: 1;
-        transform: scale(1);
         }
     }
     </style>
 
     <script>
     document.addEventListener("DOMContentLoaded", () => {
-        // Only run on tablet and desktop (768px and above) - exclude mobile
-        if (window.matchMedia("(max-width: 767px)").matches) {
-        return; // Exit early on mobile devices
+        // Only run on desktop (1025px and above)
+        if (window.matchMedia("(max-width: 1024px)").matches) {
+        return; // Exit early on mobile/tablet
         }
 
     const canvas = document.getElementById("eyeCanvas");
@@ -52,11 +44,6 @@
 
         resize();
         window.addEventListener("resize", resize);
-
-        // Light reveal animation - starts after page load to avoid performance impact
-        setTimeout(() => {
-        canvas.classList.add('revealed');
-        }, 300); // Small delay to ensure page load isn't affected
 
         const eyeSpacing = 45;
         const eyeWidth = 20;
