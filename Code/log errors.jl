@@ -1,175 +1,458 @@
-Load 01: 
-
-[Loader] 🔍 Found 18 essential elements
-page-load-tracker-integrated.js:27 [Loader] Element 1: DIV nav_1_component
-page-load-tracker-integrated.js:27 [Loader] Element 2: NAV nav_1_desktop_layout
-page-load-tracker-integrated.js:27 [Loader] Element 3: NAV nav_1_dropdown_main_wrap is-desktop w-dropdown-list
-page-load-tracker-integrated.js:27 [Loader] Element 4: NAV nav_1_dropdown_mega_wrap is-desktop w-dropdown-list
-page-load-tracker-integrated.js:27 [Loader] Element 5: NAV nav_1_menu_wrap w-nav-menu
-page-load-tracker-integrated.js:27 [Loader] Element 6: CANVAS riveCanvasBlue
-page-load-tracker-integrated.js:27 [Loader] Element 7: H1 c-heading u-text-transform-uppercase fade-in mobile
-page-load-tracker-integrated.js:27 [Loader] Element 8: H1 c-heading u-text-transform-uppercase fade-in
-page-load-tracker-integrated.js:27 [Loader] Element 9: CANVAS riveCanvasRed
-page-load-tracker-integrated.js:27 [Loader] Element 10: CANVAS riveCanvasYellow
-page-load-tracker-integrated.js:27 [Loader] Element 11: DIV hero-subtitle u-black
-page-load-tracker-integrated.js:27 [Loader] Element 12: H2 u-text-style-h2 u-column-1 u-gotu u-lavender-highlight u-font-size-3-6
-page-load-tracker-integrated.js:27 [Loader] Element 13: H2 crafty-heading
-page-load-tracker-integrated.js:27 [Loader] Element 14: H2 crafty-heading u-hidden
-page-load-tracker-integrated.js:27 [Loader] Element 15: H2 crafty-heading mobile
-page-load-tracker-integrated.js:27 [Loader] Element 16: H2 clients-h2 u-text-style-h2 u-oi u-font-size-3-4-125 u-line-height-1
-page-load-tracker-integrated.js:27 [Loader] Element 17: H2 contact-lets-chat-h2 u-text-style-h2 u-oi u-font-size-3-4-125 u-line-height-1
-page-load-tracker-integrated.js:27 [Loader] Element 18: H2 footer-heading u-text-style-h2 u-weight-bold
-page-load-tracker-integrated.js:27 [Loader] ✅ Essential elements loaded
-(index):2468 Dark variant not found, skipping color application
-page-load-tracker-integrated.js:27 [Loader] ✅ Rive instances detected
-page-load-tracker-integrated.js:27 [Loader] ✅ All custom fonts ready
-page-load-tracker-integrated.js:27 [Loader] ✅ All essentials resolved — completing loader
-page-load-tracker-integrated.js:27 [Loader] 🎬 Fading out loader
-(index):1434 ✅ Rive loaded - BLUE ANIMATION
-(index):1061 ✅ Rive loaded - BLUE ANIMATION
-(index):1558 ✅ Rive loaded - BLUE ANIMATION
-(index):1185 ✅ Rive loaded - BLUE ANIMATION
-(index):1310 ✅ Rive loaded - BLUE ANIMATION
-page-load-tracker-integrated.js:27 [Loader] 🎭 Triggering GSAP entry animations
-page-load-tracker-integrated.js:27 [Loader] ✅ GSAP entry animation triggered
-page-load-tracker-integrated.js:27 [Loader] 🎭 Triggering Webflow animations
-page-load-tracker-integrated.js:27 [Loader] ⚠️ Webflow IX3 not ready — retrying
-page-load-tracker-integrated.js:27 [Loader] 🎨 Starting Rive animations
-page-load-tracker-integrated.js:27 [Loader] ✅ Rive animation 1 started
-page-load-tracker-integrated.js:27 [Loader] ✅ Rive animation 2 started
-page-load-tracker-integrated.js:27 [Loader] ✅ Rive animation 3 started
-page-load-tracker-integrated.js:27 [Loader] 💤 Loading non-critical resources in background
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 1 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 2 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 3 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 4 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 5 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 6 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 7 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 8 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 9 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 10 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 11 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 12 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 13 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 14 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 15 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 16 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 17 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 18 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 19 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 20 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 21 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 22 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 23 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 24 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 25 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 26 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 27 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 28 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 29 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 30 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 31 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 32 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 33 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 34 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 35 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 36 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 37 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 38 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 39 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 40 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 41 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 42 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 43 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 44 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ GSAP page-fully-loaded event dispatched
-page-load-tracker-integrated.js:27 [Loader] 🎭 Triggering Webflow animations
-page-load-tracker-integrated.js:27 [Loader] ✅ Webflow animations triggered
-
-Load 02: 
-
-[Loader] 🔍 Found 18 essential elements
-page-load-tracker-integrated.js:27 [Loader] Element 1: DIV nav_1_component
-page-load-tracker-integrated.js:27 [Loader] Element 2: NAV nav_1_desktop_layout
-page-load-tracker-integrated.js:27 [Loader] Element 3: NAV nav_1_dropdown_main_wrap is-desktop w-dropdown-list
-page-load-tracker-integrated.js:27 [Loader] Element 4: NAV nav_1_dropdown_mega_wrap is-desktop w-dropdown-list
-page-load-tracker-integrated.js:27 [Loader] Element 5: NAV nav_1_menu_wrap w-nav-menu
-page-load-tracker-integrated.js:27 [Loader] Element 6: CANVAS riveCanvasBlue
-page-load-tracker-integrated.js:27 [Loader] Element 7: H1 c-heading u-text-transform-uppercase fade-in mobile
-page-load-tracker-integrated.js:27 [Loader] Element 8: H1 c-heading u-text-transform-uppercase fade-in
-page-load-tracker-integrated.js:27 [Loader] Element 9: CANVAS riveCanvasRed
-page-load-tracker-integrated.js:27 [Loader] Element 10: CANVAS riveCanvasYellow
-page-load-tracker-integrated.js:27 [Loader] Element 11: DIV hero-subtitle u-black
-page-load-tracker-integrated.js:27 [Loader] Element 12: H2 u-text-style-h2 u-column-1 u-gotu u-lavender-highlight u-font-size-3-6
-page-load-tracker-integrated.js:27 [Loader] Element 13: H2 crafty-heading
-page-load-tracker-integrated.js:27 [Loader] Element 14: H2 crafty-heading u-hidden
-page-load-tracker-integrated.js:27 [Loader] Element 15: H2 crafty-heading mobile
-page-load-tracker-integrated.js:27 [Loader] Element 16: H2 clients-h2 u-text-style-h2 u-oi u-font-size-3-4-125 u-line-height-1
-page-load-tracker-integrated.js:27 [Loader] Element 17: H2 contact-lets-chat-h2 u-text-style-h2 u-oi u-font-size-3-4-125 u-line-height-1
-page-load-tracker-integrated.js:27 [Loader] Element 18: H2 footer-heading u-text-style-h2 u-weight-bold
-page-load-tracker-integrated.js:27 [Loader] ✅ Essential elements loaded
-(index):2468 Dark variant not found, skipping color application
-page-load-tracker-integrated.js:27 [Loader] ✅ Rive instances detected
-page-load-tracker-integrated.js:27 [Loader] ✅ All custom fonts ready
-page-load-tracker-integrated.js:27 [Loader] ✅ All essentials resolved — completing loader
-page-load-tracker-integrated.js:27 [Loader] 🎬 Fading out loader
-page-load-tracker-integrated.js:27 [Loader] 🎭 Triggering GSAP entry animations
-page-load-tracker-integrated.js:27 [Loader] ✅ GSAP entry animation triggered
-page-load-tracker-integrated.js:27 [Loader] 🎭 Triggering Webflow animations
-page-load-tracker-integrated.js:27 [Loader] ✅ Webflow animations triggered
-page-load-tracker-integrated.js:27 [Loader] 🎨 Starting Rive animations
-page-load-tracker-integrated.js:27 [Loader] ✅ Rive animation 1 started (isPlaying check failed)
-page-load-tracker-integrated.js:27 [Loader] ✅ Rive animation 2 started (isPlaying check failed)
-page-load-tracker-integrated.js:27 [Loader] ✅ Rive animation 3 started (isPlaying check failed)
-page-load-tracker-integrated.js:27 [Loader] 💤 Loading non-critical resources in background
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 1 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 2 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 3 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 4 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 5 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 6 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 7 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 8 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 9 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 10 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 11 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 12 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 13 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 14 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 15 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 16 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 17 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 18 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 19 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 20 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 21 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 22 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 23 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 24 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 25 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 26 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 27 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 28 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 29 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 30 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 31 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 32 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 33 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 34 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 35 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 36 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 37 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 38 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 39 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 40 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 41 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 42 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 43 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ Video thumbnail 44 loading
-page-load-tracker-integrated.js:27 [Loader] ✅ GSAP page-fully-loaded event dispatched
-(index):1434 ✅ Rive loaded - BLUE ANIMATION
-(index):1558 ✅ Rive loaded - BLUE ANIMATION
-(index):1185 ✅ Rive loaded - BLUE ANIMATION
-(index):1310 ✅ Rive loaded - BLUE ANIMATION
-(index):1061 ✅ Rive loaded - BLUE ANIMATION
+Dark variant not found, skipping color application
+(index):2922 Dark variant not found, skipping color application
+(index):1231 ✅ Rive loaded - BLUE ANIMATION
+(index):1355 ✅ Rive loaded - BLUE ANIMATION
+(index):1480 ✅ Rive loaded - BLUE ANIMATION
+(index):1604 ✅ Rive loaded - BLUE ANIMATION
+(index):1728 ✅ Rive loaded - BLUE ANIMATION
+(index):3134 [SimpleSwupTransition] Setting up Simple Swup Transition
+(index):3134 [SimpleSwupTransition] Simple Swup Transition initialized
+(index):3134 [SimpleSwupTransition] Animation out started
+(index):3134 [SimpleSwupTransition] New page loaded: /project/the-5ers
+(index):3134 [SimpleSwupTransition] === TRIGGERING WEBFLOW AND RIVE ANIMATIONS ===
+(index):3134 [SimpleSwupTransition] Custom event "pageLoadComplete" dispatched
+(index):3134 [SimpleSwupTransition] Checking for Webflow availability...
+(index):3134 [SimpleSwupTransition] Webflow found, attempting to trigger animations
+(index):3134 [SimpleSwupTransition] Checking for Rive instances...
+(index):3134 [SimpleSwupTransition] Found 3 Rive instances
+(index):3134 [SimpleSwupTransition] ✅ Started Rive animation 1
+(index):3134 [SimpleSwupTransition] ✅ Started Rive animation 2
+(index):3134 [SimpleSwupTransition] ✅ Started Rive animation 3
+(index):3134 [SimpleSwupTransition] === WEBFLOW AND RIVE TRIGGER COMPLETE ===
+(index):3134 [SimpleSwupTransition] Animation in ended
+(index):3134 [SimpleSwupTransition] ✅ Webflow animations triggered successfully
+webflow.achunk.290ba3321b55c707.js:1 Error in trigger execution: TypeError: Cannot read properties of undefined (reading 'forEach')
+    at c.runTrigger (webflow.achunk.290ba3321b55c707.js:1:60334)
+    at webflow.achunk.290ba3321b55c707.js:1:57199
+    at Object.n [as wrappedHandler] (webflow.achunk.290ba3321b55c707.js:1:44048)
+    at n.emit (webflow.achunk.290ba3321b55c707.js:1:43336)
+    at o.emit (webflow.achunk.290ba3321b55c707.js:1:67065)
+    at (index):3089:20
+(anonymous) @ webflow.achunk.290ba3321b55c707.js:1
+Promise.catch
+(anonymous) @ webflow.achunk.290ba3321b55c707.js:1
+n @ webflow.achunk.290ba3321b55c707.js:1
+emit @ webflow.achunk.290ba3321b55c707.js:1
+emit @ webflow.achunk.290ba3321b55c707.js:1
+(anonymous) @ (index):3089
+setTimeout
+triggerWebflowAndRive @ (index):3085
+(anonymous) @ (index):3058
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+t @ swup@4:1
+(anonymous) @ swup@4:1
+run @ swup@4:1
+(anonymous) @ swup@4:1
+Promise.then
+(anonymous) @ swup@4:1
+Promise.then
+call @ swup@4:1
+(anonymous) @ swup@4:1
+Promise.then
+(anonymous) @ swup@4:1
+Promise.then
+q @ swup@4:1
+(anonymous) @ swup@4:1
+Promise.then
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+Promise.then
+e @ swup@4:1
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+t @ swup@4:1
+(anonymous) @ swup@4:1
+run @ swup@4:1
+(anonymous) @ swup@4:1
+Promise.then
+call @ swup@4:1
+r @ swup@4:1
+(anonymous) @ swup@4:1
+Promise.then
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+r @ swup@4:1
+H @ swup@4:1
+(anonymous) @ swup@4:1
+runSync @ swup@4:1
+callSync @ swup@4:1
+handleLinkClick @ swup@4:1
+u @ swup@4:1
+(index):3134 [SimpleSwupTransition] Animation out started
+(index):3134 [SimpleSwupTransition] New page loaded: /
+(index):3134 [SimpleSwupTransition] === TRIGGERING WEBFLOW AND RIVE ANIMATIONS ===
+(index):3134 [SimpleSwupTransition] Custom event "pageLoadComplete" dispatched
+(index):3134 [SimpleSwupTransition] Checking for Webflow availability...
+(index):3134 [SimpleSwupTransition] Webflow found, attempting to trigger animations
+(index):3134 [SimpleSwupTransition] Checking for Rive instances...
+(index):3134 [SimpleSwupTransition] Found 3 Rive instances
+(index):3134 [SimpleSwupTransition] ❌ Could not start Rive animation 1: TypeError: riveInstance.isPlaying is not a function
+    at (index):3112:57
+    at Array.forEach (<anonymous>)
+    at SimpleSwupTransition.triggerWebflowAndRive ((index):3109:28)
+    at (index):3058:12
+    at swup@4:1:9988
+    at new Promise (<anonymous>)
+    at swup@4:1:9960
+    at swup@4:1:10020
+    at swup@4:1:10119
+    at t (swup@4:1:9136)
+(index):3134 [SimpleSwupTransition] ❌ Could not start Rive animation 2: TypeError: riveInstance.isPlaying is not a function
+    at (index):3112:57
+    at Array.forEach (<anonymous>)
+    at SimpleSwupTransition.triggerWebflowAndRive ((index):3109:28)
+    at (index):3058:12
+    at swup@4:1:9988
+    at new Promise (<anonymous>)
+    at swup@4:1:9960
+    at swup@4:1:10020
+    at swup@4:1:10119
+    at t (swup@4:1:9136)
+(index):3134 [SimpleSwupTransition] ❌ Could not start Rive animation 3: TypeError: riveInstance.isPlaying is not a function
+    at (index):3112:57
+    at Array.forEach (<anonymous>)
+    at SimpleSwupTransition.triggerWebflowAndRive ((index):3109:28)
+    at (index):3058:12
+    at swup@4:1:9988
+    at new Promise (<anonymous>)
+    at swup@4:1:9960
+    at swup@4:1:10020
+    at swup@4:1:10119
+    at t (swup@4:1:9136)
+(index):3134 [SimpleSwupTransition] === WEBFLOW AND RIVE TRIGGER COMPLETE ===
+(index):3134 [SimpleSwupTransition] Animation in ended
+(index):3134 [SimpleSwupTransition] ✅ Webflow animations triggered successfully
+webflow.achunk.290ba3321b55c707.js:1 Error in trigger execution: TypeError: Cannot read properties of undefined (reading 'forEach')
+    at c.runTrigger (webflow.achunk.290ba3321b55c707.js:1:60334)
+    at webflow.achunk.290ba3321b55c707.js:1:57199
+    at Object.n [as wrappedHandler] (webflow.achunk.290ba3321b55c707.js:1:44048)
+    at n.emit (webflow.achunk.290ba3321b55c707.js:1:43336)
+    at o.emit (webflow.achunk.290ba3321b55c707.js:1:67065)
+    at (index):3089:20
+(anonymous) @ webflow.achunk.290ba3321b55c707.js:1
+Promise.catch
+(anonymous) @ webflow.achunk.290ba3321b55c707.js:1
+n @ webflow.achunk.290ba3321b55c707.js:1
+emit @ webflow.achunk.290ba3321b55c707.js:1
+emit @ webflow.achunk.290ba3321b55c707.js:1
+(anonymous) @ (index):3089
+setTimeout
+triggerWebflowAndRive @ (index):3085
+(anonymous) @ (index):3058
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+t @ swup@4:1
+(anonymous) @ swup@4:1
+run @ swup@4:1
+(anonymous) @ swup@4:1
+Promise.then
+(anonymous) @ swup@4:1
+Promise.then
+call @ swup@4:1
+(anonymous) @ swup@4:1
+Promise.then
+(anonymous) @ swup@4:1
+Promise.then
+q @ swup@4:1
+(anonymous) @ swup@4:1
+Promise.then
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+Promise.then
+e @ swup@4:1
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+t @ swup@4:1
+(anonymous) @ swup@4:1
+run @ swup@4:1
+(anonymous) @ swup@4:1
+Promise.then
+call @ swup@4:1
+r @ swup@4:1
+(anonymous) @ swup@4:1
+Promise.then
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+r @ swup@4:1
+H @ swup@4:1
+(anonymous) @ swup@4:1
+runSync @ swup@4:1
+callSync @ swup@4:1
+handleLinkClick @ swup@4:1
+u @ swup@4:1
+(index):3134 [SimpleSwupTransition] Animation out started
+(index):3134 [SimpleSwupTransition] New page loaded: /project/the-5ers
+(index):3134 [SimpleSwupTransition] === TRIGGERING WEBFLOW AND RIVE ANIMATIONS ===
+(index):3134 [SimpleSwupTransition] Custom event "pageLoadComplete" dispatched
+(index):3134 [SimpleSwupTransition] Checking for Webflow availability...
+(index):3134 [SimpleSwupTransition] Webflow found, attempting to trigger animations
+(index):3134 [SimpleSwupTransition] Checking for Rive instances...
+(index):3134 [SimpleSwupTransition] Found 3 Rive instances
+(index):3134 [SimpleSwupTransition] ❌ Could not start Rive animation 1: TypeError: riveInstance.isPlaying is not a function
+    at (index):3112:57
+    at Array.forEach (<anonymous>)
+    at SimpleSwupTransition.triggerWebflowAndRive ((index):3109:28)
+    at (index):3058:12
+    at swup@4:1:9988
+    at new Promise (<anonymous>)
+    at swup@4:1:9960
+    at swup@4:1:10020
+    at swup@4:1:10119
+    at t (swup@4:1:9136)
+(index):3134 [SimpleSwupTransition] ❌ Could not start Rive animation 2: TypeError: riveInstance.isPlaying is not a function
+    at (index):3112:57
+    at Array.forEach (<anonymous>)
+    at SimpleSwupTransition.triggerWebflowAndRive ((index):3109:28)
+    at (index):3058:12
+    at swup@4:1:9988
+    at new Promise (<anonymous>)
+    at swup@4:1:9960
+    at swup@4:1:10020
+    at swup@4:1:10119
+    at t (swup@4:1:9136)
+(index):3134 [SimpleSwupTransition] ❌ Could not start Rive animation 3: TypeError: riveInstance.isPlaying is not a function
+    at (index):3112:57
+    at Array.forEach (<anonymous>)
+    at SimpleSwupTransition.triggerWebflowAndRive ((index):3109:28)
+    at (index):3058:12
+    at swup@4:1:9988
+    at new Promise (<anonymous>)
+    at swup@4:1:9960
+    at swup@4:1:10020
+    at swup@4:1:10119
+    at t (swup@4:1:9136)
+(index):3134 [SimpleSwupTransition] === WEBFLOW AND RIVE TRIGGER COMPLETE ===
+(index):3134 [SimpleSwupTransition] Animation in ended
+(index):3134 [SimpleSwupTransition] ✅ Webflow animations triggered successfully
+webflow.achunk.290ba3321b55c707.js:1 Error in trigger execution: TypeError: Cannot read properties of undefined (reading 'forEach')
+    at c.runTrigger (webflow.achunk.290ba3321b55c707.js:1:60334)
+    at webflow.achunk.290ba3321b55c707.js:1:57199
+    at Object.n [as wrappedHandler] (webflow.achunk.290ba3321b55c707.js:1:44048)
+    at n.emit (webflow.achunk.290ba3321b55c707.js:1:43336)
+    at o.emit (webflow.achunk.290ba3321b55c707.js:1:67065)
+    at (index):3089:20
+(anonymous) @ webflow.achunk.290ba3321b55c707.js:1
+Promise.catch
+(anonymous) @ webflow.achunk.290ba3321b55c707.js:1
+n @ webflow.achunk.290ba3321b55c707.js:1
+emit @ webflow.achunk.290ba3321b55c707.js:1
+emit @ webflow.achunk.290ba3321b55c707.js:1
+(anonymous) @ (index):3089
+setTimeout
+triggerWebflowAndRive @ (index):3085
+(anonymous) @ (index):3058
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+t @ swup@4:1
+(anonymous) @ swup@4:1
+run @ swup@4:1
+(anonymous) @ swup@4:1
+Promise.then
+(anonymous) @ swup@4:1
+Promise.then
+call @ swup@4:1
+(anonymous) @ swup@4:1
+Promise.then
+(anonymous) @ swup@4:1
+Promise.then
+q @ swup@4:1
+(anonymous) @ swup@4:1
+Promise.then
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+Promise.then
+e @ swup@4:1
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+t @ swup@4:1
+(anonymous) @ swup@4:1
+run @ swup@4:1
+(anonymous) @ swup@4:1
+Promise.then
+call @ swup@4:1
+r @ swup@4:1
+(anonymous) @ swup@4:1
+Promise.then
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+r @ swup@4:1
+H @ swup@4:1
+(anonymous) @ swup@4:1
+runSync @ swup@4:1
+callSync @ swup@4:1
+handleLinkClick @ swup@4:1
+u @ swup@4:1
+(index):3134 [SimpleSwupTransition] Animation out started
+(index):3134 [SimpleSwupTransition] New page loaded: /
+(index):3134 [SimpleSwupTransition] === TRIGGERING WEBFLOW AND RIVE ANIMATIONS ===
+(index):3134 [SimpleSwupTransition] Custom event "pageLoadComplete" dispatched
+(index):3134 [SimpleSwupTransition] Checking for Webflow availability...
+(index):3134 [SimpleSwupTransition] Webflow found, attempting to trigger animations
+(index):3134 [SimpleSwupTransition] Checking for Rive instances...
+(index):3134 [SimpleSwupTransition] Found 3 Rive instances
+(index):3134 [SimpleSwupTransition] ❌ Could not start Rive animation 1: TypeError: riveInstance.isPlaying is not a function
+    at (index):3112:57
+    at Array.forEach (<anonymous>)
+    at SimpleSwupTransition.triggerWebflowAndRive ((index):3109:28)
+    at (index):3058:12
+    at swup@4:1:9988
+    at new Promise (<anonymous>)
+    at swup@4:1:9960
+    at swup@4:1:10020
+    at swup@4:1:10119
+    at t (swup@4:1:9136)
+(index):3134 [SimpleSwupTransition] ❌ Could not start Rive animation 2: TypeError: riveInstance.isPlaying is not a function
+    at (index):3112:57
+    at Array.forEach (<anonymous>)
+    at SimpleSwupTransition.triggerWebflowAndRive ((index):3109:28)
+    at (index):3058:12
+    at swup@4:1:9988
+    at new Promise (<anonymous>)
+    at swup@4:1:9960
+    at swup@4:1:10020
+    at swup@4:1:10119
+    at t (swup@4:1:9136)
+(index):3134 [SimpleSwupTransition] ❌ Could not start Rive animation 3: TypeError: riveInstance.isPlaying is not a function
+    at (index):3112:57
+    at Array.forEach (<anonymous>)
+    at SimpleSwupTransition.triggerWebflowAndRive ((index):3109:28)
+    at (index):3058:12
+    at swup@4:1:9988
+    at new Promise (<anonymous>)
+    at swup@4:1:9960
+    at swup@4:1:10020
+    at swup@4:1:10119
+    at t (swup@4:1:9136)
+(index):3134 [SimpleSwupTransition] === WEBFLOW AND RIVE TRIGGER COMPLETE ===
+(index):3134 [SimpleSwupTransition] Animation in ended
+(index):3134 [SimpleSwupTransition] ✅ Webflow animations triggered successfully
+webflow.achunk.290ba3321b55c707.js:1 Error in trigger execution: TypeError: Cannot read properties of undefined (reading 'forEach')
+    at c.runTrigger (webflow.achunk.290ba3321b55c707.js:1:60334)
+    at webflow.achunk.290ba3321b55c707.js:1:57199
+    at Object.n [as wrappedHandler] (webflow.achunk.290ba3321b55c707.js:1:44048)
+    at n.emit (webflow.achunk.290ba3321b55c707.js:1:43336)
+    at o.emit (webflow.achunk.290ba3321b55c707.js:1:67065)
+    at (index):3089:20
+(anonymous) @ webflow.achunk.290ba3321b55c707.js:1
+Promise.catch
+(anonymous) @ webflow.achunk.290ba3321b55c707.js:1
+n @ webflow.achunk.290ba3321b55c707.js:1
+emit @ webflow.achunk.290ba3321b55c707.js:1
+emit @ webflow.achunk.290ba3321b55c707.js:1
+(anonymous) @ (index):3089
+setTimeout
+triggerWebflowAndRive @ (index):3085
+(anonymous) @ (index):3058
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+t @ swup@4:1
+(anonymous) @ swup@4:1
+run @ swup@4:1
+(anonymous) @ swup@4:1
+Promise.then
+(anonymous) @ swup@4:1
+Promise.then
+call @ swup@4:1
+(anonymous) @ swup@4:1
+Promise.then
+(anonymous) @ swup@4:1
+Promise.then
+q @ swup@4:1
+(anonymous) @ swup@4:1
+Promise.then
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+Promise.then
+e @ swup@4:1
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+t @ swup@4:1
+(anonymous) @ swup@4:1
+run @ swup@4:1
+(anonymous) @ swup@4:1
+Promise.then
+call @ swup@4:1
+r @ swup@4:1
+(anonymous) @ swup@4:1
+Promise.then
+(anonymous) @ swup@4:1
+(anonymous) @ swup@4:1
+r @ swup@4:1
+H @ swup@4:1
+(anonymous) @ swup@4:1
+runSync @ swup@4:1
+callSync @ swup@4:1
+handleLinkClick @ swup@4:1
+u @ swup@4:1
+(index):3134 [SimpleSwupTransition] Animation out started
+(index):3134 [SimpleSwupTransition] New page loaded: /project/generative-ai
+(index):3134 [SimpleSwupTransition] === TRIGGERING WEBFLOW AND RIVE ANIMATIONS ===
+(index):3134 [SimpleSwupTransition] Custom event "pageLoadComplete" dispatched
+(index):3134 [SimpleSwupTransition] Checking for Webflow availability...
+(index):3134 [SimpleSwupTransition] Webflow found, attempting to trigger animations
+(index):3134 [SimpleSwupTransition] Checking for Rive instances...
+(index):3134 [SimpleSwupTransition] Found 3 Rive instances
+(index):3134 [SimpleSwupTransition] ❌ Could not start Rive animation 1: TypeError: riveInstance.isPlaying is not a function
+    at (index):3112:57
+    at Array.forEach (<anonymous>)
+    at SimpleSwupTransition.triggerWebflowAndRive ((index):3109:28)
+    at (index):3058:12
+    at swup@4:1:9988
+    at new Promise (<anonymous>)
+    at swup@4:1:9960
+    at swup@4:1:10020
+    at swup@4:1:10119
+    at t (swup@4:1:9136)
+(index):3134 [SimpleSwupTransition] ❌ Could not start Rive animation 2: TypeError: riveInstance.isPlaying is not a function
+    at (index):3112:57
+    at Array.forEach (<anonymous>)
+    at SimpleSwupTransition.triggerWebflowAndRive ((index):3109:28)
+    at (index):3058:12
+    at swup@4:1:9988
+    at new Promise (<anonymous>)
+    at swup@4:1:9960
+    at swup@4:1:10020
+    at swup@4:1:10119
+    at t (swup@4:1:9136)
+(index):3134 [SimpleSwupTransition] ❌ Could not start Rive animation 3: TypeError: riveInstance.isPlaying is not a function
+    at (index):3112:57
+    at Array.forEach (<anonymous>)
+    at SimpleSwupTransition.triggerWebflowAndRive ((index):3109:28)
+    at (index):3058:12
+    at swup@4:1:9988
+    at new Promise (<anonymous>)
+    at swup@4:1:9960
+    at swup@4:1:10020
+    at swup@4:1:10119
+    at t (swup@4:1:9136)
+(index):3134 [SimpleSwupTransition] === WEBFLOW AND RIVE TRIGGER COMPLETE ===
+(index):3134 [SimpleSwupTransition] Animation in ended
+(index):3134 [SimpleSwupTransition] ✅ Webflow animations triggered successfully
+webflow.achunk.290ba3321b55c707.js:1 Error in trigger execution: TypeError: Cannot read properties of undefined (reading 'forEach')
+    at c.runTrigger (webflow.achunk.290ba3321b55c707.js:1:60334)
+    at webflow.achunk.290ba3321b55c707.js:1:57199
+    at Object.n [as wrappedHandler] (webflow.achunk.290ba3321b55c707.js:1:44048)
+    at n.emit (webflow.achunk.290ba3321b55c707.js:1:43336)
+    at o.emit (webflow.achunk.290ba3321b55c707.js:1:67065)
+    at (index):3089:20

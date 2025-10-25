@@ -1,0 +1,749 @@
+How It Works
+Instead of letting the browser load the next page, swup intercepts link clicks, loads the new page in the background and smoothly animates between the old and new content.
+
+Read on to learn about key concepts of swup.
+
+Containers
+Swup will not replace the whole body on each page load. Instead, it will only replace the actual content containers on your page. By default, swup will only replace a container with the id #swup but you can configure additional containers like headers or navigation menus.
+
+Automatic animation timing
+Swup is built around animations and will wait for CSS animations, JS animations, and native View Transitions before updating the page with the new content. See Defining animations for details and examples.
+
+Browser history
+Swup will update and push to the browser history API. The current URL in the browser always reflects the actual URL of the last requested page. Forward/backward visits will continue to work as expected. On history visits, the scroll position will be restored as well.
+
+Scroll behavior
+Swup emulates native browser behavior for scrolling. Between page visits, the scroll position will be reset to the top. Clicking on an anchor link to the same page will jump to that anchor.
+
+Hooks
+To trigger custom logic or modify swup's behavior, you can register hook handlers.
+
+Plugins
+Swup was designed to be small but modular. Any extended functionality can be added via one of the many official or third-party plugins.
+
+Installation
+Bundler
+If you use a bundler in your project, install swup from npm:
+
+npm install swup
+
+shell
+In your application, import swup and create a new instance:
+
+import Swup from 'swup';
+const swup = new Swup();
+
+js
+CDN
+If you're not using a bundler and want to get started quickly, you can include the minified production file from a CDN and create a new instance in your main script:
+
+<script src="https://unpkg.com/swup@4"></script>
+<script>
+  const swup = new Swup();
+</script>
+
+html
+ESM
+Swup and its plugins can be imported as native ES modules for modern browsers. The specifics differ depending on the CDN, but here is a pattern for including the ES module where supported, and falling back to a UMD version for older browsers. Note the ?module query string in the first import URL.
+
+<!-- Import Swup as ESM -->
+<script type="module">
+  import Swup from 'https://unpkg.com/swup@4?module';
+  const swup = new Swup();
+</script>
+<!-- Import Swup as UMD for older browsers -->
+<script nomodule src="https://unpkg.com/swup@4"></script>
+<script nomodule>
+  const swup = new Swup();
+</script>
+
+html
+Next steps
+You're now ready to start building with swup by exploring these topics:
+
+Create a first example site to get to know swup
+Look at interactive demos to see swup in action
+Learn about options and hooks to customize how swup works
+Install plugins and themes for extended functionality
+ Suggest changes to this page
+
+ Example
+Swup requires two things to work: a content container with an id and an animation class, as well as corresponding transition styles it can wait for when loading a page.
+
+We'll tackle these one by one. See below for the complete code and an interactive demo.
+
+1. Content container
+Let's mark our main element as a content container by adding the id #swup.
+
+We'll also add a special animation class to let swup know that we want to wait for this element to finish animating whenever a new page is loaded.
+
+<main id="swup" class="transition-fade">
+  <h1>Welcome</h1>
+  <p>Lorem ipsum dolor sit amet.</p>
+</main>
+
+html
+Note
+The container selector and animation selector are defaults and can be adjusted in the options.
+
+2. Animation styles
+Let's define a CSS transition on the special animation class added before:
+
+/* Define a transition duration during page visits */
+html.is-changing .transition-fade {
+  transition: opacity 0.25s;
+  opacity: 1;
+}
+/* Define the styles for the unloaded pages */
+html.is-animating .transition-fade {
+  opacity: 0;
+}
+
+css
+For this example, we're using CSS to animate our page transition. Swup also supports JS animations and native View Transitions. Learn more about defining animations.
+
+3. Initialize swup
+Finally, we'll load and initialize swup. And we're good to go!
+
+import Swup from 'https://unpkg.com/swup@4?module';
+const swup = new Swup();
+
+js
+Complete example
+Putting it all together, this is the complete code required for a basic swup setup.
+
+<html>
+  <head>
+    <title>Swup Example</title>
+    <style>
+      html.is-changing .transition-fade {
+        transition: opacity 0.25s;
+        opacity: 1;
+      }
+      html.is-animating .transition-fade {
+        opacity: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <main id="swup" class="transition-fade">
+      <h1>Welcome</h1>
+      <p>Lorem ipsum dolor sit amet.</p>
+    </main>
+    <script type="module">
+      import Swup from 'https://unpkg.com/swup@4?module';
+      const swup = new Swup();
+    </script>
+  </body>
+</html>
+
+html
+Demo
+Here's an interactive demo to try out the fade animation we've just built together.
+
+Head to the demo page for more examples.
+
+View Source
+ Suggest changes to this page
+ Defining Animations
+Swup can be used with a variety of animation methods. It supports CSS animations, custom JS animations, as well as native animations using the View Transitions API.
+
+All code examples below assume the page markup from our example setup.
+
+<main id="swup" class="transition-fade">
+  <h1>Welcome</h1>
+  <p>Lorem ipsum dolor sit amet.</p>
+</main>
+
+html
+CSS animations
+Swup's default mode is built around CSS animations. It will wait for any transitions and animations to finish before replacing page content. To identify animations to wait for, swup will look for a special type of class added to content containers: transition-[name], where name is an arbitrary name you can assign to allow styling different types of animations. This animation selector can be freely configured.
+
+Your page transition animations are defined on the special transition class:
+
+html.is-changing .transition-fade {
+  transition: opacity 0.25s;
+  opacity: 1;
+}
+html.is-animating .transition-fade {
+  opacity: 0;
+}
+
+css
+Swup applies the following classes to the html element to control the page transition process:
+
+Class name	Description
+is-changing
+Added before starting the animation. Removed after the whole animation process. Used for showing the loading state.
+is-animating
+Added before starting the animation. Removed after the content is replaced. Used for defining styles of unloaded pages.
+is-leaving
+Added before starting the animation. Removed right before the content is replaced. Used to identify the leave phase of the animation. Combine with is-animating to create differing leave and enter animations.
+is-rendering
+Added right before the content is replaced. Removed after the whole animation process. Used to identify the enter phase of the animation. Combine with is-animating to create differing leave and enter animations.
+to-[animation-name]
+Added for links with a [data-swup-animation=""] attribute to change the animation for a specific visit.
+You can configure swup to add animation classes to the containers instead of the html element.
+
+JS animations
+If you'd rather manage your animations in JS using your favorite animation library, you can use the appropriate hooks to await your custom animations instead. This is enough for most scenarios. If you need to choose between different animations based on the URL, or if you have other, more complex requirements, you can look into the official JS Plugin.
+
+import gsap from 'gsap';
+swup.hooks.replace('animation:out:await', async () => {
+  await gsap.to('.transition-fade', { opacity: 0, duration: 0.25 });
+});
+swup.hooks.replace('animation:in:await', async () => {
+  await gsap.fromTo('.transition-fade', { opacity: 0 }, { opacity: 1, duration: 0.25 });
+});
+
+js
+Native animations
+The browser's built-in View Transitions API provides a native mechanism for managing transitions from one state to another. This is great for page transition animations as it allows better performance than CSS or JS animations on their own.
+
+To enable native animations, set the native option:
+
+const swup = new Swup({ native: true });
+
+js
+Define the view transitions in CSS, e.g. a simple crossfade:
+
+html.is-changing .transition-fade {
+  view-transition-name: main;
+}
+::view-transition-old(main) {
+  animation: fade 0.5s ease-in-out both;
+}
+::view-transition-new(main) {
+  animation: fade 0.5s ease-in-out both reverse;
+}
+@keyframes fade {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+css
+The above example will only animate in browsers with support for the View Transitions API. All other browsers will update the page without animation. If you require a fallback animation, you can make use of the swup-native class added when native mode is enabled and supported. By checking for its absence, you can target unsupported browsers:
+
+html.is-changing:not(.swup-native) .transition-fade {
+  transition: 0.25s opacity;
+  opacity: 1;
+}
+html.is-animating:not(.swup-native) .transition-fade {
+  opacity: 0;
+}
+
+css
+No animations
+Swup works perfectly fine if none of your elements is animated. You might see a console warning "no CSS animation duration defined", which is safe to ignore. If it bothers you, set the animation selector to false:
+
+const swup = new Swup({ animationSelector: false });
+
+js
+ Suggest changes to this page
+
+ Reloading Scripts
+
+ Swup takes control of the page load lifecycle. Instead of having the browser recompile scripts between page changes, it keeps the current page instance alive and only updates the content containers to match the content of the new page.
+ 
+ This means two things:
+ 
+     You can not rely on standard browser events to trigger your custom code
+     You have to pay attention to not leaking memory by undoing any changes
+ 
+ Triggering custom code
+ 
+ Swup updates pages without a full reload, so you can't rely on DOMContentLoaded or other events to trigger your code as they will only ever run once on initial load.
+ 
+ document.addEventListener('DOMContentLoaded', () => {   // This only runs once, so we need some other event for triggering code });
+ 
+ Instead, we can trigger code after each page change by registering handlers for swup's hooks. Combining the browser event and swup hooks, we end up with a template for reliably running code to initialize elements on the page:
+ 
+ document.addEventListener('DOMContentLoaded', () => {   // This runs on initial load }); swup.hooks.on('page:view', () => {   // This runs after every page change by swup });
+ 
+ Initializing components
+ 
+ We'll collect our scripts in one init function that we can call repeatedly to initialize everything. Each script has a condition to make sure it's only run when a related element is found on the page.
+ 
+ function init() {   if (document.querySelector('#carousel')) {     // new Carousel('#carousel')   }   if (document.querySelector('#lightbox')) {     // $('#lightbox').lightbox()   }   if (document.querySelector('#something-else')) {     // and so on   } }
+ 
+ Then we register the correct event handlers and we're good to go.
+ 
+ const swup = new Swup(); // Run once when page loads if (document.readyState === 'complete') {   init(); } else {   document.addEventListener('DOMContentLoaded', () => init()); } // Run after every additional navigation by swup swup.hooks.on('page:view', () => init());
+ 
+ Using component frameworks
+ 
+ While the above example is a perfectly fine solution to achieve code execution on page change, we suggest looking into JS frameworks that can help you automate some of this by mounting and unmounting components automatically and providing lifecycle hooks.
+ 
+     Alpine.js
+     Stimulus
+     Gia + official Gia plugin
+ 
+ Avoiding memory leaks
+ 
+ Swup keeps a persistent session in memory, so objects leaking memory will not be cleaned up automatically as they would be on a full page refresh. While this should not be a problem on most sites, be aware that in special cases you will need to clean up after yourself right before swup's content:replace hook.
+ 
+ function unload() {   if (document.querySelector('#carousel')) {     // carousel.destroy()   } } swup.hooks.before('content:replace', () => unload());
+ 
+ Third-party script tags
+ 
+ If you're not in control over the scripts included on the page, there is an official scripts plugin to help with reloading script tags. This should be a last resort if none of the other options are available to you.
+
+ Hooks
+
+Lifecycle hooks allow triggering custom code at each step of the page transition process. Read on to learn about registering handlers or jump straight to the list of available hooks.
+Registering handlers
+
+You can register handlers on swup's hooks registry. All handlers receive the visit object with information about the current visit as their first argument.
+
+swup.hooks.on('page:view', (visit) => {   console.log('New page loaded:', visit.to.url); });
+
+Handler options
+
+Pass in an options object to customize how a handler is invoked.
+once
+
+Execute the handler once, then remove it.
+
+swup.hooks.on('page:view', () => {}, { once: true });
+
+before
+
+Execute the handler before the internal default handler.
+
+swup.hooks.on('content:replace', () => {}, { before: true });
+
+priority
+
+Influence the order in which this handler is run in relation to other handlers for the same hook, regardless of order of registration. The default priority is 0 — negative values make the handler execute earlier, positive values make it execute later.
+
+// Execute before other handlers swup.hooks.on('visit:start', () => {}, { priority: -100 }); // Execute after other handlers swup.hooks.on('visit:start', () => {}, { priority: 100 });
+
+Shortcuts
+
+There are shortcuts available for common handler options:
+
+swup.hooks.once('page:view', () => {}); // once: true swup.hooks.before('content:replace', () => {}); // before: true
+
+Pausing execution
+
+Swup will await Promises returned from handlers, allowing you to pause execution.
+
+// Delay the start of the page transition by 1 second swup.hooks.on('visit:start', () => {   return new Promise((res) => setTimeout(res, 1000)); });
+
+This means that async/await handlers are supported as well:
+
+// Wait for a custom function before starting the transition swup.hooks.on('visit:start', async () => {   await myCustomFunction(); });
+
+Note
+
+Some hooks are executed without awaiting Promises if their handler needs to prevent a DOM event's default action: link:click and history:popstate.
+Removing handlers
+
+Remove a previously registered handler by passing in the function to remove.
+
+const handler = () => console.log('New page loaded'); // Register a handler swup.hooks.on('page:view', handler); // Remove it again later swup.hooks.off('page:view', handler);
+
+List of hooks
+
+The following hooks are exposed by swup and can be listened to. Refer to the lifecycle diagram for a visual overview of when the most important hooks are called. Install the Debug Plugin to log triggered hooks to the browser console as they are happening.
+Hook name 	Description
+animation:out:start 	Current content starts animating out. Class .is-animating is added.
+animation:out:await 	Swup waits for CSS animations to finish before replacing the content.
+animation:out:end 	Current content finishes animating out. Content is not yet replaced.
+animation:in:start 	New content starts animating in. Class .is-animating is removed.
+animation:in:await 	Swup waits for CSS animations to finish before finishing the visit.
+animation:in:end 	New content finishes animating out.
+animation:skip 	Page will load at once without animations, e.g. on history navigation.
+cache:set 	Page is saved to the cache.
+cache:clear 	The cache is cleared completely.
+content:replace 	The old content of the page is replaced by the new content.
+content:scroll 	The scroll position is reset after replacing the content.
+enable 	Swup instance is created.
+disable 	Swup instance is disabled.
+fetch:error 	Fetch request is rejected because of a server error.
+fetch:request 	Fetch request is sent.
+fetch:timeout 	Fetch request has timed out.
+history:popstate 	History navigation is started: back/forward button was pressed.
+link:click 	Link is clicked.
+link:self 	Link is clicked that leads to the current page.
+link:anchor 	Link is clicked that jumps to an anchor on the current page.
+link:newtab 	Link is clicked that opens to a new tab.
+page:load 	Page is loaded from cache or via fetch request.
+page:view 	New content is visible after replacing the content.
+scroll:top 	Scroll to the top of the page.
+scroll:anchor 	Scroll to an anchor on the current page.
+visit:start 	Visit started: transition to a new page begins.
+visit:end 	Visit ended: all content is replaced, animations have finished.
+visit:abort 	Visit aborted: a new link was clicked before the current transition has finished.
+Examples
+Trigger analytics page views
+
+swup.hooks.on('page:view', () => {   ga('set', 'title', document.title);   ga('set', 'page', window.location.pathname);   ga('send', 'pageview'); });
+
+Initialize new components on the page
+
+swup.hooks.on('page:view', () => {   if (document.querySelector('#carousel')) {     const carousel = new Carousel('#carousel');   } });
+
+Display loading indicator during transitions
+
+swup.hooks.on('animation:out:start', () => {   document.querySelector('#loader').hidden = false; }); swup.hooks.on('animation:in:end', () => {   document.querySelector('#loader').hidden = true; });
+
+Set all hook handlers at once
+
+When creating a swup instance, you can register all your hook handlers at once by passing a keyed object into the instance options.
+
+const swup = new Swup({   hooks: {     'visit:start': () => console.log('starting visit'),     'page:load': () => console.log('loaded page'),     'visit:end': () => console.log('finished visit')   } })
+
+Hook handler options like once or before can be set by appending them to the hook name, separated by a dot: content:replace.before, fetch:error.once, etc.
+
+const swup = new Swup({   hooks: {     'visit:start.once': () => console.log('triggers once'),     'content:replace.before': () => console.log('triggers before hook')   } })
+
+DOM events
+
+All hooks are also triggered on the document with a swup: prefix. They receive the hook name and the visit object inside the detail key of the event.
+
+document.addEventListener('swup:page:view', ({ detail: { visit } }) => {   console.log('Going to', visit.to.url); }); 
+
+Visit
+
+The visit object contains information about the current page visit: the current and new URL, the element and event that triggered the visit, as well as details about whether this visit should be animated and which containers should be replaced.
+
+Manipulate the visit object to control how swup will transition to the new page.
+Accessing the visit object
+
+The visit object is available in all hook handlers.
+
+swup.hooks.on('page:view', (visit) => {   console.log('New page: ', visit.to.url); });
+
+Shape of the visit object
+
+This is an example visit object for a navigation from /home to /about#anchor.
+
+{   id: 1042739, /* A unique ID to identify this visit */   from: {     url: '/home',     hash: ''   },   to: {     url: '/about',     hash: '#anchor',     html: undefined, /* The HTML string of /about, when it's loaded */,     document: undefined /* The parsed document of /about, when it's loaded */,   },   containers: [     '#swup'   ],   animation: {     animate: true,     name: 'fade'   },   trigger: {     el: /* <a> element */,     event: /* MouseEvent */   },   cache: {     read: true,     write: true   },   history: {     action: 'push',     popstate: false,     direction: undefined   },   scroll: {     reset: true,     target: '#anchor'   },   meta: {} }
+
+Use cases
+
+What can we do by manipulating the visit object? A few examples are listed below.
+
+Note that the most convenient place to hook into is on visit:start — all the information about the current visit is already there, but no requests or animations have started yet.
+Disable animations
+
+The new page will load instantaneously without animations.
+
+swup.hooks.on('visit:start', (visit) => {   visit.animation.animate = false; });
+
+Custom animation
+
+Set a custom .to-{name} class on the html element to allow targeting via CSS.
+
+swup.hooks.on('visit:start', (visit) => {   visit.animation.name = 'slide'; });
+
+Disable scroll reset
+
+The current scroll position will be kept after the new page was loaded.
+
+swup.hooks.on('visit:start', (visit) => {   visit.scroll.reset = false; });
+
+Dynamic containers
+
+Change which content containers will be replaced on the current visit.
+
+swup.hooks.on('visit:start', (visit) => {   visit.containers = ['#sidebar']; });
+
+Access trigger element
+
+Inspect the DOM element that triggered the current visit. Most probably a link element or undefined if triggered via the API.
+
+swup.hooks.on('visit:start', (visit) => {   console.log('Clicked link', visit.trigger.el); // HTMLAnchorElement });
+
+Access trigger event
+
+Inspect the DOM event that triggered the current visit. Most probably a click event or undefined if triggered via the API.
+
+swup.hooks.on('visit:start', (visit) => {   console.log('Click event', visit.trigger.event); // MouseEvent });
+
+Identify history visits
+
+Check if the current visit was triggered by the back/forward button of the browser. The popstate key is a boolean indicating a history visit. The direction key holds information about the direction of travel: forwards, backwards, or undefined.
+
+swup.hooks.on('visit:start', (visit) => {   if (visit.history.popstate) {     console.log('History visit', visit.history.direction);   } });
+
+Replace history entry
+
+Tell swup to replace the current history entry, instead of creating a new one.
+
+swup.hooks.on('visit:start', (visit) => {   visit.history.action = 'replace'; });
+
+Disable cache
+
+Control whether swup will check for existing pages in the cache or save the newly loaded page to the cache. Overwrites the behavior set in the cache option.
+
+swup.hooks.on('visit:start', (visit) => {   visit.cache.read = false; });
+
+Do something with the incoming document
+
+As soon as the next page is loaded, you can access the document of that page and do something with it. For example, you could make sure the lang attribute is updated on your <html> element:
+
+swup.hooks.on('content:replace', (visit) => {   const lang = visit.to.document?.documentElement.getAttribute('lang');   if (lang) document.documentElement.setAttribute('lang', lang); });
+
+Pass along custom metadata
+
+Each visit has an empty meta object you can use to store arbitrary data with that visit. The data will now be available in every hook handler along the way.
+
+swup.hooks.on('visit:start', (visit) => {   visit.meta.lorem = 'ipsum'; }); swup.hooks.on('page:view', (visit) => {   console.log(visit.meta.lorem); // 'ipsum' });
+
+When initiating a visit from the navigation API, you can pass in a custom metadata object as well:
+
+swup.navigate(url, { meta: { lorem: 'ipsum' } })
+
+Suggest changes to this page
+
+Common Issues & Troubleshooting
+This is a compilation of challenges and suggested solutions when integrating or extending swup.
+
+Consider installing the official Debug Plugin during development to get warnings and suggestions for some common mistakes.
+
+Scripts on the next page are not executed
+Swup doesn't insert new script tags by default. To run code after a page visit, you have a few options that are explained in the section on Reloading Scripts.
+
+Trigger custom code using hooks
+Use the Head Plugin to insert new scripts into the head
+Use the Scripts Plugin to run existing and new scripts in head or body
+Stylesheets of the next page are not loaded
+Swup doesn't automatically update the contents of the head tag. Any stylesheets not included in the current page's head will not be loaded. The easiest solution is to use a single stylesheet for the whole website.
+
+If your site does require modular stylesheets per section or template, use the Head Plugin to add the new stylesheets and configure its awaitAssets option to also wait for those stylesheets to finish loading before animating in the new page.
+
+Current and next page are not visible at the same time
+Out of the box, swup will completely hide the previous page, replace the content and only then show the next page. The old and new containers are never in the DOM at the same time.
+
+You can however use the official Parallel Plugin to run both the in and out animations in parallel. It will keep a copy of the previous content around for the duration of the whole transition.
+
+Screen readers are not informed about updated content
+We're dynamically updating parts of the page, so it's recommended to let screen readers announce changes to its content. While you can add the aria-live="polite" to content containers yourself, it's recommended to use the official Accessibility Plugin which makes this very easy to implement. It reads out the title of the new document to screen readers, requiring no change to your markup. It will also focus the main content area for improved keyboard accessibility.
+
+Scroll anchors are too close to the top of the viewport
+When jumping to an anchor on the page, the browser will scroll the page so that the targeted element will appear at the top of the viewport. The top part of the page might however already be covered with other content like a header. Effectively, we need a way to tell the browser to scroll to an offset point slightly above the anchor to compensate for the content on top of it.
+
+In modern browsers, this is easily done via CSS:
+
+scroll-margin-top: var(--header-height, 100px);
+
+css
+If you need fine-grained control over this, consider installing the scroll plugin which has a dedicated offset option to handle these cases.
+
+History navigations are ignored & never update the page
+Swup is designed to manage only the history entries it has generated itself. This approach allows for custom development, where you can create and manage your own history entries without interference from swup. However, if your site's scripts are creating or modifying history entries and you want swup to handle them, consider these two strategies:
+
+Use swup's history helpers for creating history entries it will recognize
+Configure swup to accept all history entries
+Swup may also ignore certain history navigations if your link selector doesn't include all page links. In such cases, the browser will process these links independently, creating history entries that swup does not recognize and will not handle.
+
+Overflowing containers get reset on navigation
+Replacing a swup container will also reset its scroll position. There might be cases where you want the content to be updated but the scroll position to be kept, like an overflowing sidebar navigation that needs to mark the currently active nav item with a class name.
+
+Consider using the Morph Plugin for such cases. It lets you define additional containers that morph their new content into the old element, without a complete replacement and without resetting the scroll position of the container itself.
+
+Canonical link tag causes indexing issues
+Swup doesn't automatically update the contents of the head tag — it only updates the document title. This can lead to issues with wrong canonical links appearing in search results since search engines these days simulate actual devices with enabled JS for crawling websites.
+
+The official way to solve this is using the head-plugin which will update the head tag on each visit. To tackle this at the root level, consider using XML sitemaps to index your site.
+
+A library already uses transition-* classes
+Some third-party libraries like Foundation might already be using class names like transition-* for their own functionality. In this case, swup will try to wait for animations on those elements, quite possibly messing up the timing of animations.
+
+Using a stricter animation selector fixes the issue.
+
+var swup = new Swup({
+  animationSelector: '[class*="swup-transition-"]'
+});
+
+js
+<main id="swup" class="swup-transition-fade"></main>
+
+html
+html.is-changing .swup-transition-fade {
+  transition: 0.4s;
+  opacity: 1;
+}
+html.is-animating .swup-transition-fade {
+  opacity: 0;
+}
+
+css
+Overused transition-* classes
+Swup will wait for any element with a transition-* class to finish animating. While there is an unlimited number of elements that can have this class, only one is actually required for swup to get its timing right. Using it on all animated elements is not required and often leads to bugs.
+
+It is recommended to use one element with a transition-* class to set the animation duration and make any other animations happen independently. As long as all animations share the same duration, there should be no issues with this approach.
+
+/* Note: no transition-* prefix */
+html.is-changing .logo {
+  transition: 0.4s;
+  opacity: 1;
+}
+html.is-animating .logo {
+  opacity: 0;
+}
+
+css
+Escaped characters inside <noscript>
+Some browsers (Safari, older versions of IE) escape characters inside of noscript tags when placed into the DOM with element.innerHTML as swup does. That is usually not an issue unless the contents of the noscript tags are further used in your JavaScript code. If that's the case, the characters need to be unescaped with regex replace, a pretty creative way using textarea mentioned in this thread or in any other way.
+
+See this issue for more information.
+
+The browser performs a hard visit instead of a swup transition
+A hard page visit can be caused by various issues. These are the most common scenarios and suggested steps to solve them:
+
+One of the containers is missing in the old or new page
+
+Enable your browser devtools' Preserve Log option and check for errors thrown during navigation
+Swup is configured to ignore the visit
+
+Check if you have customized ignoreVisit. If so, see if it helps to disable it.
+Check if the link or any of its parent elements has the attribute data-no-swup
+The click event is stopped from propagating and never reaches swup
+
+Check if you are stopping click event propagation on the link or any of it's parents
+
+
+Preload Plugin
+A swup plugin for preloading pages and faster navigation.
+
+Links with a data-swup-preload attribute will be preloaded automatically
+Hovering a link on pointer devices will preload that link's URL, speeding up load time by a few 100ms. To save server resources, the number of simultaneous preload requests is limited to 5 by default.
+Touch devices will instead preload links at the start of touch events, giving a ~80ms speed-up
+Optionally preload links as they become visible in the viewport
+Installation
+Install the plugin from npm and import it into your bundle.
+
+npm install @swup/preload-plugin
+
+shell
+import SwupPreloadPlugin from '@swup/preload-plugin';
+
+js
+Or include the minified production file from a CDN:
+
+<script src="https://unpkg.com/@swup/preload-plugin@3"></script>
+
+html
+Usage
+To run this plugin, include an instance in the swup options.
+
+const swup = new Swup({
+  plugins: [new SwupPreloadPlugin()]
+});
+
+js
+Preloading
+The plugin supports four ways of preloading links:
+
+Hovering a link
+Marking links to preload with a special attribute
+Watching the viewport for links to become visible
+Passing in a list of URLs to preload at once
+Hovering links
+Hovering a link will automatically preload it. Enabled by default.
+
+Depending on the user's device, the preload will be triggered when it is hovered with a mouse, touched with a finger, or focused using the keyboard. Hovered links are preloaded with higher priority than other running requests.
+
+<a href="/about">About</a> <!-- will preload when hovering -->
+
+html
+Marking links to preload
+To preload specific links, mark them with the data-swup-preload attribute.
+
+<a href="/about" data-swup-preload>About</a>
+
+html
+To preload all links in a container, mark the container with data-swup-preload-all.
+
+<nav data-swup-preload-all>
+  <a href="/about">About</a>
+  <a href="/contact">Contact</a>
+</nav>
+
+html
+Preload links as they become visible
+Preload links as they enter the viewport. Not enabled by default.
+
+See the preloadVisibleLinks option for details.
+
+Preload a list of URLs
+Preload specific known URLs.
+
+See the swup.preload() method for details.
+
+Options
+throttle
+Type: Number, Default: 5
+
+The concurrency limit for simultaneous requests when preloading.
+
+preloadHoveredLinks
+Type: Boolean, Default: true
+
+Preload links when they are hovered, touched or focused.
+
+preloadVisibleLinks
+Type: Boolean | Object, Default: false
+
+Preload links when they enter the viewport. Pass in a boolean true to enable with default options.
+
+new SwupPreloadPlugin({ preloadVisibleLinks: true })
+
+js
+For more control over the behavior, pass in an object. These are the default options:
+
+new SwupPreloadPlugin({
+  preloadVisibleLinks: {
+    /** How much area of a link must be visible to preload it: 0 to 1.0 */
+    threshold: 0.2,
+    /** How long a link must be visible to preload it, in milliseconds */
+    delay: 500,
+    /** Containers to look for links in */
+    containers: ['body'],
+    /** Callback for opting out selected elements from preloading */
+    ignore: (el) => false
+  }
+})
+
+js
+preloadInitialPage
+Type: Boolean, Default: true
+
+Preload the initial page to allow instant back-button navigation after having navigated away from it. Disable this if it causes issues or doesn't make sense in your specific scenario.
+
+Methods on the swup instance
+The plugin adds two methods for preloading pages to the swup instance.
+
+preload
+Preload a URL or array of URLs. Returns a Promise that resolves when all requested pages have been preloaded.
+
+await swup.preload('/path/to/page');
+await swup.preload(['/some/page', '/other/page']);
+
+js
+preloadLinks
+Scan the DOM for links with the attribute [data-swup-preload] and call preload for each URL:
+
+swup.preloadLinks();
+
+js
+Hooks
+The plugin creates two new hooks.
+
+Note
+The visit object might be undefined or already settled for these hooks
+
+page:preload
+Fires when a page was preloaded.
+
+swup.hooks.on('page:preload', (_visit, { page }) => console.log('preloaded:', page));
+
+js
+link:hover
+Fires every time a link is hovered.
+
+swup.hooks.on('link:hover', (_visit, { el }) => console.log('link hovered:', el));
+
